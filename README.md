@@ -7,3 +7,9 @@ is designed for with an eye toward
 
 The way in which quiz questions are authored is somewhat inspired by
 WeBWorK.
+
+## Setting up
+
+- Clone this repository.  If you are using the command line, use `git clone https://github.com/UCBMath/pyquiz.git` to create a folder called `pyquiz`.
+- Make sure you have Python 3 installed.
+- [https://github.com/ucfopen/canvasapi](canvasapi).  Install with `pip3 install --user canvasapi`
