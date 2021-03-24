@@ -1,8 +1,8 @@
 from canvasapi import Canvas
-from pyquiz.config import API_URL, API_KEY
+from pyquiz.config import API_URL, API_KEY, COURSE_ID
 
 canvas = Canvas(API_URL, API_KEY)
-course = canvas.get_course(1504554)
+course = canvas.get_course(COURSE_ID)
 
 QUIZ = None
 

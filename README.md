@@ -13,3 +13,8 @@ WeBWorK.
 - Clone this repository.  If you are using the command line, use `git clone https://github.com/UCBMath/pyquiz.git` to create a folder called `pyquiz`.
 - Make sure you have Python 3 installed.
 - [https://github.com/ucfopen/canvasapi](canvasapi).  Install with `pip3 install --user canvasapi`
+- Copy `pyquiz/config.py.default` to `pyquiz/config.py`.
+- Get a Canvas API access token (in bCourses: account -> settings -> new access token) and replace the string for `API_KEY` in `pyquiz/config.py`.
+- Change the `COURSE_ID` to the id for your course.  (It's the number that appears in URLS, for example `1234` in `https://bcourses.berkeley.edu/courses/1234`.)
+
+You should now be able to run `python test_quiz_1.py` to upload a quiz to your course. (Warning: these instructions have not been tested yet.)
