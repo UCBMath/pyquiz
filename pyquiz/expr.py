@@ -401,9 +401,9 @@ def reduce_det(e):
     r = expand(e.args[0].args)
     return r
 
-M = identity_matrix(3)
-N = matrix([1,1,1],[1,-1,0],[1,1,-2])
-A = matrix(*[[var("a")[i+1,j+1] for j in range(3)] for i in range(3)])
-v = var("v")
-M[1,1] = v
-print(det(A))
+# M = identity_matrix(3)
+# N = matrix([1,1,1],[1,-1,0],[1,1,-2])
+# A = matrix(*[[var("a")[i+1,j+1] for j in range(3)] for i in range(3)])
+# v = var("v")
+# M[1,1] = v
+# print(det(A))
