@@ -134,6 +134,7 @@ def normalize(e):
     return e
 
 def plus_terms(e):
+    """Helper function for rule_plus_collect."""
     assert head(e) == "Plus"
     def split(a):
         """Gives a (coeff, expr) pair for a given expression.  Assumes the
@@ -148,6 +149,7 @@ def plus_terms(e):
 
 @reduction
 def rule_plus_collect(e):
+    """Collect monomials, adding numeric coefficients."""
     if head(e) != "Plus":
         return e
     terms = []
@@ -174,6 +176,7 @@ def rule_plus_collect(e):
         return expr("Plus", *args2)
 
 def times_terms(e):
+    """Helper function for rule_times_collect."""
     assert head(e) == "Times"
     def split(a):
         if head(a) == "Pow":
@@ -184,6 +187,7 @@ def times_terms(e):
 
 @reduction
 def rule_times_collect(e):
+    """Collect multiplicands of the product, combining exponents."""
     if head(e) != "Times":
         return e
     # collect all powers
@@ -216,6 +220,7 @@ def rule_times_collect(e):
 
 @reduction
 def rule_pow_constants(e):
+    """Compute powers when constants are present."""
     if head(e) != "Pow":
         return e
     elif e.args[1] == 0:
@@ -230,7 +235,7 @@ def rule_pow_constants(e):
         return e
 
 def replace(e, substs):
-    """substs is a dictionary of values of variables"""
+    """substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica."""
     for p,v in substs:
         if e == p:
             return v
