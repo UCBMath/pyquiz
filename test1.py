@@ -22,7 +22,7 @@ end_question()
 
 begin_group()
 
-a = Var("a")
+a = var("a")
 y = a**2 - 3*a + 1
 
 # five different versions of the question
@@ -70,6 +70,26 @@ text(r"""
 """)
 
 true_false_answer(True)
+
+end_question()
+
+# Question 5
+
+begin_multiple_choice_question()
+
+a = var("a")
+A = matrix([a[1,1], a[1,2], a[1,3]],
+           [a[2,1], a[2,2], a[2,3]],
+           [a[3,1], a[3,2], a[3,3]])
+
+text(rf"""
+<p>Suppose</p>
+\[A = {A}.\]
+<p>What is a valid formula for \({det(var("A"))}\)?</p>
+""")
+
+multiple_choice_answer(True, rf"\({det(A)}\)")
+multiple_choice_answer(False, r"\(a_{1,1}a_{2,2}a_{3,3}\)")
 
 end_question()
 

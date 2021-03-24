@@ -40,7 +40,7 @@ class Expr:
 
     def __init__(self, head, args):
         self.head = head
-        self.args = args
+        self.args = list(args)
     def __add__(self, b):
         return normalize(expr("Plus", self, b))
     def __radd__(self, a):
@@ -69,6 +69,17 @@ class Expr:
             return expr("Part", self, *key)
         else:
             return expr("Part", self, key)
+    def __setitem__(self, key, value):
+        """Uses one-indexing (!)"""
+        if type(key) == tuple:
+            if len(key) == 1:
+                self.args[key[0] - 1] = value
+            elif len(key) == 2:
+                self.args[key[0] - 1][key[1] - 1] = value
+            else:
+                raise TypeError("setitem for Expr only supports indexing up to two levels deep.")
+        else:
+            self.args[key - 1] = value
     def __eq__(self, other):
         """Check if structurally equal."""
         return (isinstance(other, Expr)
@@ -253,6 +264,7 @@ def replace(e, substs):
 # 30 mul
 # 40 frac
 # 50 pow
+# 60 subscripts
 
 def parens(par_prec, prec, text):
     if par_prec > prec:
@@ -322,13 +334,24 @@ def tex_prec(prec, e):
             else:
                 return parens(prec, 40, rf"\frac{{{snumer}}}{{{sdenom}}}")
         elif e.head == "Pow":
-            return tex_prec(50, e.args[0]) + "^" + tex_prec(0, e.args[1])
-        elif e.head == "Var":
+            return parens(prec, 50, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
+        elif e.head == "Part":
+            return parens(prec, 60,
+                          tex_prec(60, e.args[0]) + "_{" + ",".join(tex_prec(0, x) for x in e.args[1:]) + "}")
+        elif e.head == "var":
             return e.args[0]
+        elif e.head == "matrix":
+            return (r"\begin{bmatrix}"
+                    + r"\\".join("&".join(tex_prec(0, x) for x in row) for row in e.args)
+                    + r"\end{bmatrix}")
+        elif isinstance(e.head, str):
+            return (r"\operatorname{" + e.head + "}(" +
+                    ", ".join(tex_prec(0, x) for x in e.args)
+                    + ")")
         else:
-            pass
+            raise ValueError("unknown expression type to tex")
     else:
-        raise ValueError("unknown value to tex")
+        raise ValueError("unknown value to tex " + repr(e))
 
 def tex(e):
     return tex_prec(0, e)
@@ -337,12 +360,50 @@ def tex(e):
 ### Useful constructors
 ###
 
-def Var(name):
-    return expr("Var", name)
+def var(name):
+    return expr("var", name)
 
-def Vector(*elts):
-    """example: Vector(1,2,3)"""
-    return Expr("Vector", elts)
-def Matrix(*rows):
-    """example: Matrix([1,2],[3,4]) for rows [1,2] and [3,4]."""
-    return Expr("Matrix", rows)
+
+###
+### Matrices and vectors
+###
+
+def vector(*elts):
+    """example: vector(1,2,3) returns matrix([1], [2], [3])"""
+    #return Expr("Vector", elts)
+    return Expr("matrix", [[elt] for elt in elts])
+def matrix(*rows):
+    """example: matrix([1,2],[3,4]) for rows [1,2] and [3,4]."""
+    return Expr("matrix", rows)
+
+def identity_matrix(n):
+    """Returns the n by n identity matrix."""
+    assert isinstance(n, int)
+    return matrix(*[[1 if i == j else 0 for j in range(n)] for i in range(n)])
+
+def det(e):
+    return normalize(expr("det", e))
+@reduction
+def reduce_det(e):
+    if head(e) != "det" or head(e.args[0]) != "matrix":
+        return e
+    def expand(rows):
+        if len(rows) == 1:
+            assert len(rows[0]) == 1
+            return rows[0][0]
+        # Expand along the first column
+        acc = 0
+        for i in range(len(rows)):
+            submatrix = [row[1:] for row in rows[:i] + rows[i+1:]]
+            acc += (-1) ** i * rows[i][0] * expand(submatrix)
+        return acc
+
+    r = expand(e.args[0].args)
+    return r
+
+M = identity_matrix(3)
+N = matrix([1,1,1],[1,-1,0],[1,1,-2])
+A = matrix(*[[var("a")[i+1,j+1] for j in range(3)] for i in range(3)])
+v = var("v")
+M[1,1] = v
+print(det(A))
