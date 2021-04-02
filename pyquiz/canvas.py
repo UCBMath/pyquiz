@@ -26,7 +26,7 @@ def begin_quiz(title=None, description=""):
         # time limit in minutes
         'time_limit': 22,
         # reorder multiple choice questions per student
-        'shuffle_answers': True,
+        'shuffle_answers': False, # note: reorders t/f too!
         # null, "always", or "until_after_last_attempt"
         'hide_results': "until_after_last_attempt",
         # -1 for unlimited attempts

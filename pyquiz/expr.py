@@ -53,6 +53,8 @@ class Expr:
         return normalize(expr("Plus", self, expr("Times", -1, b)))
     def __rsub__(self, a):
         return normalize(expr("Plus", a, expr("Times", -1, self)))
+    def __neg__(self):
+        return normalize(expr("Times", -1, self))
     def __pow__(self, b):
         return normalize(expr("Pow", self, b))
     def __rpow__(self, a):
@@ -66,9 +68,9 @@ class Expr:
     #    return normalize(expr("Times", a, expr("Pow", self, -1)))
     def __getitem__(self, key):
         if type(key) == tuple:
-            return expr("Part", self, *key)
+            return normalize(expr("Part", self, *key))
         else:
-            return expr("Part", self, key)
+            return normalize(expr("Part", self, key))
     def __setitem__(self, key, value):
         """Uses one-indexing (!)"""
         if type(key) == tuple:
@@ -245,6 +247,23 @@ def rule_pow_constants(e):
     else:
         return e
 
+@reduction
+def rule_part_matrix(e):
+    """Extract a Part of a matrix or vector.  Uses 1-indexing(!)"""
+    if head(e) != "Part" or head(e.args[0]) != "matrix" or len(e.args) not in (2, 3):
+        return e
+    if not all(type(x) == int for x in e.args[1:]):
+        return e
+    if len(e.args) == 2:
+        row = e.args[0].args[e.args[1] - 1]
+        if len(row) != 1:
+            raise ValueError("Need two indices to index a matrix.")
+        return row[0]
+    elif len(e.args) == 3:
+        return e.args[0].args[e.args[1] - 1][e.args[2] - 1]
+    else:
+        raise Exception("Internal error")
+
 def replace(e, substs):
     """substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica."""
     for p,v in substs:
@@ -291,7 +310,10 @@ def tex_prec(prec, e):
             text = ""
             for i, (coeff, b) in enumerate(plus_terms(e)):
                 op = " + "
-                if i == 0:
+                if coeff == -1:
+                    op = "-" # if i==0, then this is unary minus
+                    coeff = 1
+                elif i == 0:
                     op = ""
                 elif i > 0 and coeff < 0:
                     op = " - "
@@ -308,9 +330,12 @@ def tex_prec(prec, e):
         elif e.head == "Times":
             numer = []
             denom = []
+            is_neg = False
             for b, exp in times_terms(e):
                 if isinstance(exp, Number) and exp <= 0:
                     denom.append((b, -exp))
+                elif exp == 1 and b == -1:
+                    is_neg = True
                 else:
                     numer.append((b, exp))
             snumer = ""
@@ -328,11 +353,20 @@ def tex_prec(prec, e):
                 else:
                     sdenom += tex_prec(prec2, expr("Pow", b, exp))
             if len(numer) == 0 and len(denom) > 0:
-                return parens(prec, 40, rf"\frac{{1}}{{{sdenom}}}")
+                if is_neg:
+                    return parens(prec, 20, rf"-\frac{{1}}{{{sdenom}}}")
+                else:
+                    return parens(prec, 40, rf"\frac{{1}}{{{sdenom}}}")
             elif len(denom) == 0 and len(numer) > 0:
-                return snumer
+                if is_neg:
+                    return parens(prec, 20, rf"-{snumer}")
+                else:
+                    return snumer
             else:
-                return parens(prec, 40, rf"\frac{{{snumer}}}{{{sdenom}}}")
+                if is_neg:
+                    return parens(prec, 20, rf"-\frac{{{snumer}}}{{{sdenom}}}")
+                else:
+                    return parens(prec, 40, rf"\frac{{{snumer}}}{{{sdenom}}}")
         elif e.head == "Pow":
             return parens(prec, 50, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
         elif e.head == "Part":
