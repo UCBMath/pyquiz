@@ -8,6 +8,8 @@ NO_QUIZ_SELECT_MESSAGE = "No quiz file selected"
 NO_QUIZ_SELECT_ERROR = "No quiz file selected."
 NO_CANVAS_CONFIG_ERROR = "Missing canvas_config.json file.  See the documentation for how to create one."
 BAD_CANVAS_CONFIG_ERROR = "Malformed canvas_config.json file."
+MISSING_END_QUIZ = "Missing end_quiz() in quiz file."
+NO_PREVIEW_FILE = "Generate an HTML preview first."
 
 root = tkinter.Tk()
 root.title("PyQuiz Uploader")
@@ -50,7 +52,7 @@ def report_callback_error(self, exc, val, tb):
                 traceback.format_exc())
 tkinter.Tk.report_callback_exception = report_callback_error
 
-window = tkinter.Frame(master=root)
+window = tkinter.Frame(master=root, pady=5)
 window.pack(fill=tkinter.BOTH, expand=True)
 
 quiz_file = None
@@ -67,10 +69,34 @@ def choose_command():
         choose_label['text'] = f"'{os.path.basename(filepath)}'"
         quiz_file = filepath
 
+class additional_path:
+    def __init__(self, path):
+        self.path = path
+    def __enter__(self):
+        if self.path in sys.path:
+            self.remove = False
+        else:
+            self.remove = True
+            sys.path.insert(0, self.path)
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.remove:
+            try:
+                sys.path.remove(self.path)
+            except ValueError:
+                pass
+
 def exec_quiz(quiz_filename):
-    exec(open(quiz_filename).read())
+    print("Executing quiz file " + quiz_filename)
+    with open(quiz_filename) as fin:
+        with additional_path(os.path.dirname(quiz_filename)):
+            c = compile(fin.read(), quiz_filename, 'exec')
+            quiz_globals = {}
+            exec(c, quiz_globals, quiz_globals)
+
+    print("Loaded quizzes with titles: " + ", ".join(pyquiz.get_loaded_quizzes()))
 
 def preview_command():
+    print("----")
     if quiz_file == None:
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
@@ -82,9 +108,22 @@ def preview_command():
     exec_quiz(quiz_file)
 
     if pyquiz.is_in_quiz():
-        raise Exception("Missing end_quiz()")
+        tkinter.messagebox.showerror("Error", MISSING_END_QUIZ)
+        print("Error: " + MISSING_END_QUIZ)
+        return
 
-    print(pyquiz.get_loaded_quizzes())
+    print("Click 'View' to open generated HTML file")
+
+def view_command():
+    if quiz_file == None:
+        tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
+        return
+
+    html_file = quiz_file + ".html"
+
+    if not os.path.isfile(html_file):
+        tkinter.messagebox.showerror("Error", NO_PREVIEW_FILE)
+        return
 
     if sys.platform == "win32":
         # Windows
@@ -96,7 +135,9 @@ def preview_command():
         # Linux?
         subprocess.call(["xdg-open", html_file])
 
+
 def upload_command():
+    print("----")
     if quiz_file == None:
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
@@ -124,7 +165,9 @@ def upload_command():
     exec_quiz(quiz_file)
 
     if pyquiz.is_in_quiz():
-        raise Exception("Missing end_quiz()")
+        tkinter.messagebox.showerror("Error", MISSING_END_QUIZ)
+        print("Error: " + MISSING_END_QUIZ)
+        return
 
     tkinter.messagebox.showinfo("Success",
                                 "Uploaded the following quizzes: " + ", ".join(pyquiz.get_loaded_quizzes()))
@@ -133,7 +176,7 @@ def upload_command():
 ### Choose file
 ###
 
-fileframe = tkinter.Frame(master=window, padx=10, pady=10)
+fileframe = tkinter.Frame(master=window, padx=10, pady=5)
 fileframe.pack(fill=tkinter.X)
 fileframe.columnconfigure(1, minsize=50, weight=1)
 choose_button = tkinter.Button(master=fileframe, text="Choose quiz", command=choose_command)
@@ -146,28 +189,67 @@ choose_label.grid(row=0, column=1, sticky="W")
 ###
 
 preview_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
-preview_frame.pack(fill=tkinter.X, padx=10, pady=0)
+preview_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
 preview_label = tkinter.Label(master=preview_frame, text="Generate HTML preview")
 preview_label.pack(anchor="w")
 
-#entry = tkinter.Entry(master=preview_frame)
-#entry.pack()
+preview_buttons = tkinter.Frame(master=preview_frame)
+preview_buttons.pack(anchor="w")
 
-preview_generate = tkinter.Button(master=preview_frame, text="Generate", command=preview_command)
-preview_generate.pack(anchor="w")
+preview_generate = tkinter.Button(master=preview_buttons, text="Generate", command=preview_command)
+preview_generate.grid(row=0, column=0)
+
+preview_view = tkinter.Button(master=preview_buttons, text="View", command=view_command)
+preview_view.grid(row=0, column=1)
 
 ###
 ### Upload quiz to Canvas
 ###
 
 upload_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
-upload_frame.pack(fill=tkinter.X, padx=10, pady=10)
+upload_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
 upload_label = tkinter.Label(master=upload_frame, text="Upload to Canvas")
 upload_label.pack(anchor="w")
 
 upload_button = tkinter.Button(master=upload_frame, text="Upload", command=upload_command)
 upload_button.pack(anchor="w")
+
+###
+### Stdout redirector
+###
+
+stdout_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
+stdout_frame.pack(fill=tkinter.X, padx=10, pady=5)
+
+stdout_label=tkinter.Label(master=stdout_frame, text="Messages (stdout)")
+stdout_label.pack(anchor="w")
+
+stdout_text_frame = tkinter.Frame(master=stdout_frame)
+stdout_text_frame.pack(fill=tkinter.X)
+stdout_text_frame.rowconfigure(0, weight=1)
+stdout_text_frame.columnconfigure(0, weight=1)
+
+stdout_text = tkinter.Text(master=stdout_text_frame, height=12)
+stdout_text.grid(row=0, column=0, sticky="nsew")
+
+stdout_text_scroll = tkinter.Scrollbar(master=stdout_text_frame, command=stdout_text.yview)
+stdout_text_scroll.grid(row=0, column=1, sticky="nsew")
+stdout_text.config(yscrollcommand=stdout_text_scroll.set)
+
+class StdoutRedirector:
+    def __init__(self, text, old_stdout):
+        self.text = text
+        self.old_stdout = old_stdout
+    def write(self, s):
+        self.old_stdout.write(s)
+        self.text.insert("end", s)
+        self.text.see(tkinter.END)
+    def flush(self):
+        self.old_stdout.flush()
+
+sys.stdout = StdoutRedirector(stdout_text, sys.stdout)
+sys.stderr = StdoutRedirector(stdout_text, sys.stderr)
 
 window.mainloop()
