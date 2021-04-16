@@ -1,5 +1,5 @@
 from pyquiz.expr import *
-from pyquiz.canvas import *
+from pyquiz import *
 import lib.bank1
 
 begin_quiz(

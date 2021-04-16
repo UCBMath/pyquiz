@@ -1,34 +1,52 @@
 # Random numbers and objects
 
-import random
 from pyquiz.expr import *
 import fractions
 
 # Create a random generator with a specified seed.
 # This lets quiz generation be reproducible.
-_random_gen = random.Random(1)
+_random_gen = None
+
+def _check_random_initialized():
+    if _random_gen == None:
+        raise Exception("You need to seed the random number generator.")
 
 ##
 ## Export methods from the _random_gen
 ##
 
-# Set the seed for the random generator
-seed = _random_gen.seed
-# Get the internal state of the random generator
-getstate = _random_gen.getstate
-# Set the internal state of the random generator (obtained from getstate)
-setstate = _random_gen.setstate
+def seed(s):
+    """Set the seed for the random generator."""
+    global _random_gen
+    import random
+    if _random_gen == None:
+        _random_gen = random.Random(s)
+    else:
+        _random_gen.seed(s)
 
-# Give uniform at random float in [0.0, 1.0)
-random = _random_gen.random
-# Gives uniform at random float in [a, b]
-uniform = _random_gen.uniform
-triangular = _random_gen.triangular
+def random():
+    """Give uniform at random float in [0.0, 1.0)"""
+    _check_random_initialized()
+    return _random_gen.random()
 
-# Gives uniform at random integer in [a, b]
-randint = _random_gen.randint
-# Gives uniform at random integer in [a, b)
-randrange = _random_gen.randrange
+def uniform(a, b):
+    """Gives uniform at random float in [a, b]"""
+    _check_random_initialized()
+    return _random_gen.uniform(a, b)
+
+def triangular(low=0.0, high=1.0, mode=None):
+    _check_random_initialized()
+    return _random_gen.triangular(low, high, mode)
+
+def randint(a, b):
+    """Gives uniform at random integer in [a, b] (including both bounds)."""
+    _check_random_initialized()
+    return _random_gen.randint(a, b)
+
+def randrange(a, b):
+    """Gives uniform at random integer in [a, b) (excluding upper bound)."""
+    _check_random_initialized()
+    return _random_gen.randrange(a, b)
 
 def randint_nonzero(a, b):
     """Returns a uniform at random integer in [a,b]-{0}."""
@@ -38,6 +56,7 @@ def randint_nonzero(a, b):
         val = randint(a, b)
         if val != 0:
             return val
+
 def randrange_nonzero(a, b):
     """Returns a uniform at random integer in [a,b)-{0}."""
     if a == 0 and b == 1:
@@ -47,25 +66,40 @@ def randrange_nonzero(a, b):
         if val != 0:
             return val
 
+def choice(seq):
+    """Chooses a uniform at random element from a given sequence"""
+    _check_random_initialized()
+    return _random_gen.choice(seq)
 
-# Chooses a uniform at random element from a given sequence
-choice = _random_gen.choice
-# sample(seq, k) returns k randomly chosen elements from seq without replacement
-sample = _random_gen.sample
-# shuffle(list) shuffles the list in place
-shuffle = _random_gen.shuffle
-choices = _random_gen.choices
-normalvariate = _random_gen.normalvariate
-lognormvariate = _random_gen.lognormvariate
-expovariate = _random_gen.expovariate
-vonmisesvariate = _random_gen.vonmisesvariate
-gammavariate = _random_gen.gammavariate
-gauss = _random_gen.gauss
-betavariate = _random_gen.betavariate
-paretovariate = _random_gen.paretovariate
-weibullvariate = _random_gen.weibullvariate
-getrandbits = _random_gen.getrandbits
-randbytes = _random_gen.randbytes
+def sample(seq, k):
+    """sample(seq, k) returns k randomly chosen elements from seq without replacement"""
+    _check_random_initialized()
+    return _random_gen.sample(seq, k)
+
+def shuffle(x):
+    """shuffle(x) shuffles the list x in place"""
+    _check_random_initialized()
+    return _random_gen.shuffle(x)
+
+def gauss(mu=0.0, sigma=1.0):
+    """normal distribution with mean mu and standard deviation sigma"""
+    _check_random_initialized()
+    # Note: _random_gen.gauss is not thread-safe.  This shouldn't matter, since this
+    # is a single-threaded program, but better be safe.
+    return _random_gen.normalvariate(mu, sigma)
+
+normalvariate = gauss
+
+# choices = _random_gen.choices
+# lognormvariate = _random_gen.lognormvariate
+# expovariate = _random_gen.expovariate
+# vonmisesvariate = _random_gen.vonmisesvariate
+# gammavariate = _random_gen.gammavariate
+# betavariate = _random_gen.betavariate
+# paretovariate = _random_gen.paretovariate
+# weibullvariate = _random_gen.weibullvariate
+# getrandbits = _random_gen.getrandbits
+# randbytes = _random_gen.randbytes
 
 def rand_invertible_2x2(a, b):
     """Generate a random 2x2 matrix with integer entries and nonzero determinant,

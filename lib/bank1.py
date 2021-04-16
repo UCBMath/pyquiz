@@ -1,5 +1,5 @@
 from pyquiz.expr import *
-from pyquiz.canvas import *
+from pyquiz import *
 
 def q1():
     begin_numeric_question()
