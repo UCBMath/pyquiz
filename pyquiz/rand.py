@@ -101,6 +101,14 @@ normalvariate = gauss
 # getrandbits = _random_gen.getrandbits
 # randbytes = _random_gen.randbytes
 
+def rand_matrix(n, m, a, b):
+    """Generate a random nxm matrix with integer entries in the range [a, b]."""
+    return matrix(*[[randint(a, b) for j in range(m)] for i in range(n)])
+
+def rand_diagonal_matrix(n, a, b):
+    """Generate a random nxn diagonal matrix with integer entries in the range [a, b]."""
+    return matrix(*[[randint(a, b) if i == j else 0 for j in range(n)] for i in range(n)])
+
 def rand_invertible_2x2(a, b):
     """Generate a random 2x2 matrix with integer entries and nonzero determinant,
     where all entries are in the range [a, b]."""

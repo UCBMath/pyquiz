@@ -59,6 +59,10 @@ class Expr:
         return normalize(expr("Pow", self, b))
     def __rpow__(self, a):
         return normalize(expr("Pow", a, self))
+    def __matmul__(self, b):
+        return normalize(expr("MatTimes", self, b))
+    def __rmatmul__(self, a):
+        return normalize(expr("MatTimes", a, self))
     # These are commented out because the use of slash for division makes
     # it more likely to accidentally create floating-point numbers when exact
     # numbers were wanted.
@@ -367,6 +371,8 @@ def tex_prec(prec, e):
                     return parens(prec, 20, rf"-\frac{{{snumer}}}{{{sdenom}}}")
                 else:
                     return parens(prec, 40, rf"\frac{{{snumer}}}{{{sdenom}}}")
+        elif e.head == "MatTimes":
+            return parens(prec, 30, "".join([tex_prec(30, a) for a in e.args]))
         elif e.head == "Pow":
             return parens(prec, 50, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
         elif e.head == "Part":
@@ -434,6 +440,42 @@ def reduce_det(e):
 
     r = expand(e.args[0].args)
     return r
+
+# TODO make this an "expansion"?
+@reduction
+def reduce_matmul(e):
+    if head(e) != "MatTimes" or head(e.args[0]) != "matrix" or head(e.args[1]) != "matrix":
+        return e
+    A = e.args[0].args
+    B = e.args[1].args
+    if len(A[0]) != len(B):
+        raise ValueError("Number of rows does not equal number of columns")
+    C = []
+    for i in range(len(A)):
+        row = []
+        C.append(row)
+        for j in range(len(B[0])):
+            x = 0
+            for k in range(len(A[0])):
+                x += A[i][k] * B[k][j]
+            row.append(normalize(x))
+    return matrix(*C)
+
+@reduction
+def reduce_matrix_inverse(e):
+    if head(e) != "Pow" or head(e.args[0]) != "matrix" or e.args[1] != -1:
+        return e
+    A = e.args[0].args
+    if len(A) != len(A[0]):
+        raise ValueError("Taking the inverse of a non-square matrix")
+
+    # TODO be less lazy!
+    if len(A) != 2:
+        return e
+
+    d = det(e.args[0])
+    return matrix([frac(A[1][1], d), -frac(A[0][1], d)],
+                  [-frac(A[1][0], d), frac(A[0][0], d)])
 
 # M = identity_matrix(3)
 # N = matrix([1,1,1],[1,-1,0],[1,1,-2])
