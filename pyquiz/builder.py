@@ -58,6 +58,9 @@ def text(s):
     check_quiz_builder()
     BUILDER.text(s)
 
+def para(s):
+    text("<p>" + s + "</p>")
+
 def end_question():
     check_quiz_builder()
     BUILDER.end_question()
