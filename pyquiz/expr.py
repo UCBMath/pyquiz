@@ -150,6 +150,27 @@ def normalize(e):
             return normalize(e2)
     return e
 
+def expand(e):
+    """Mathematica-like ExpandAll."""
+    if isinstance(e, Number) or isinstance(e, str):
+        return e
+    elif type(e) == list or type(e) == tuple:
+        return [expand(x) for x in e]
+    elif type(e) != Expr:
+        raise ValueError("Unknown type of value to expand")
+
+    args = [expand(a) for a in e.args]
+
+    if e.head == "Times":
+        for i, a in enumerate(args):
+            if head(a) == "Plus":
+                val = 0
+                for b in a.args:
+                    val += expr("Times", *args[:i], b, *args[i+1:])
+                return expand(val)
+
+    return normalize(Expr(e.head, args))
+
 def plus_terms(e):
     """Helper function for rule_plus_collect."""
     assert head(e) == "Plus"
@@ -476,6 +497,13 @@ def reduce_matrix_inverse(e):
     d = det(e.args[0])
     return matrix([frac(A[1][1], d), -frac(A[0][1], d)],
                   [-frac(A[1][0], d), frac(A[0][0], d)])
+
+def irange(lo, hi):
+    """list [lo, lo+1, ..., hi]"""
+    return list(range(lo, hi+1))
+
+def diagonal_matrix(*entries):
+    return matrix(*([entries[i] if i == j else 0 for j in range(len(entries))] for i in range(len(entries))))
 
 # M = identity_matrix(3)
 # N = matrix([1,1,1],[1,-1,0],[1,1,-2])

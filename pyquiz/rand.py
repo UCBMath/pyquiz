@@ -2,6 +2,7 @@
 
 from pyquiz.expr import *
 import fractions
+import math
 
 # Create a random generator with a specified seed.
 # This lets quiz generation be reproducible.
@@ -135,6 +136,12 @@ def rand_unimodular_2x2(a, b):
     x = randint(a, b)
     while True:
         y = randint(a, b)
-        if gcd(x, y) == 1:
+        if math.gcd(x, y) == 1:
             break
-    
+
+    while True:
+        z = randint(a, b)
+        w = randint(a, b)
+        if x * w - y * z == 1:
+            return matrix([x, y],
+                          [z, w])
