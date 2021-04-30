@@ -60,7 +60,7 @@ quiz_file = None
 def choose_command():
     global quiz_file
     filepath = tkinter.filedialog.askopenfilename(
-        filetypes=[("Quiz files (Python)", "*.py")]
+        filetypes=[("Quiz files", "*.qz.py")]
     )
     if not filepath:
         choose_label['text'] = NO_QUIZ_SELECT_MESSAGE
