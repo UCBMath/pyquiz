@@ -21,12 +21,12 @@ def get_loaded_quizzes():
 def is_in_quiz():
     return IN_QUIZ
 
-def begin_quiz(title=None, description="", replace=True):
+def begin_quiz(id=None, title=None, description="", replace=True):
     global IN_QUIZ
     check_quiz_builder()
     LOADED_QUIZZES.append(title)
     IN_QUIZ = True
-    BUILDER.begin_quiz(title=title, description=description, replace=replace)
+    BUILDER.begin_quiz(id=id, title=title, description=description, replace=replace)
 
 def end_quiz():
     global IN_QUIZ

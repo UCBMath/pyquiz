@@ -8,7 +8,9 @@ class HTMLQuizBuilder:
     def write(self, s):
         self.QUIZ.write(s)
 
-    def begin_quiz(self, title=None, description="", replace=True):
+    def begin_quiz(self, id=None, title=None, description="", replace=True):
+        if title == None:
+            raise Exception("Missing quiz title.")
         self.write(f"""
         <!doctype html>
         <html>
@@ -25,7 +27,11 @@ class HTMLQuizBuilder:
         <body>
         <h1>{title}</h1>
         <p>Quiz description: {description}</p>
-    """)
+        """)
+        if id:
+            self.write(f"""
+            <p>Will replace quiz with id {id}.</p>
+            """)
 
     def begin_group(self, name="", pick_count=1, points=1):
         if self.IN_GROUP:
@@ -36,10 +42,13 @@ class HTMLQuizBuilder:
         <h2>Question group {name}</h2>
         <p>(picking {pick_count} question, {points} points each)</p>
         """)
+        self.GROUP_HAS_QUESTION = False
 
     def end_group(self):
         if not self.IN_GROUP:
             raise Exception("Not in a group.")
+        if not self.GROUP_HAS_QUESTION:
+            raise Exception("Question group has no questions.")
         self.write(f"""
         </div>
         """)
@@ -100,6 +109,7 @@ class HTMLQuizBuilder:
         </div>
         """)
         self.QUESTION_DATA = None
+        self.GROUP_HAS_QUESTION = True
 
     def numeric_answer(self, val, precision=2):
         self.write(f"<p>Numeric answer: {val} with precision {precision}</p>")

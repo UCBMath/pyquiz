@@ -2,7 +2,7 @@ from canvasapi import Canvas
 from canvasapi.exceptions import ResourceDoesNotExist
 
 # By adding this to a Canvas question, it enables MathJax for the page.
-mathjax=r"""<p style="display: none;" aria-hidden="true"><math></math>Requires JavaScript to see MathJax.</p>"""
+MATHJAX=r"""<p style="display: none;" aria-hidden="true"><math></math>Requires JavaScript to see MathJax.</p>"""
 
 class CanvasQuizBuilder:
     def __init__(self, api_url, api_key, course_id):
@@ -12,16 +12,18 @@ class CanvasQuizBuilder:
         self.GROUP_ID = None
         self.QUESTION_DATA = None
 
-    def begin_quiz(self, title=None, description="", replace=True):
-        """If `replace` is `True`, then edit the quiz in-place (and delete all existing questions), preserving
-        the quiz ID.  Otherwise delete all quizzes with the same title and start from scratch."""
+    def begin_quiz(self, title=None, description="", replace=True, id=None):
+        """If the `id` is given, then edit the existing quiz.  Otherwise, look up the quiz by the title.  If one
+        doesn't exist already, create one.  Otherwise, if `replace` is `True`, then edit the quiz in-place (and
+        delete all existing questions), preserving the quiz ID.  Otherwise delete all quizzes with the same title
+        and start from scratch."""
 
         if not title:
             raise ValueError("Missing title for quiz")
 
         quiz_config = {
             'title': title,
-            'description': f"{mathjax} {description}",
+            'description': f"{MATHJAX} {description}",
             'quiz_type': 'assignment',
             # time limit in minutes
             'time_limit': 22,
@@ -35,30 +37,40 @@ class CanvasQuizBuilder:
             'cant_go_back': True
         }
 
-        # Is there a quiz with the same title? If so, edit it.
-        for quiz in self.course.get_quizzes(search_term=title):
-            if quiz.title == title:
-                if not replace:
-                    print(f"Deleting quiz with id {quiz.id}")
-                    quiz.delete()
-                    continue
-                if quiz.published:
-                    raise Exception(f"The quiz with title {title!r} has already been published")
-                print(f"Editing quiz with id {quiz.id} and deleting all existing questions")
-                quiz.edit(**quiz_config)
-                groups = set()
-                for question in quiz.get_questions():
-                    if question.quiz_group_id:
-                        groups.add(question.quiz_group_id)
-                    question.delete()
-                # there is apparently no API call to get all the question groups for a quiz!
-                for gid in groups:
-                    quiz.get_quiz_group(gid).delete(gid) # TODO fix bug in canvasapi itself?
-                self.QUIZ = quiz
-                break
+        if id != None:
+            try:
+                quiz = self.course.get_quiz(id)
+            except ResourceDoesNotExist:
+                raise Exception(f"There is no quiz yet with id {id}.")
+            if quiz.title != title:
+                # This is a safeguard against accidentally obliterating an existing quiz.
+                raise Exception(f"The quiz with id {id} has the title {quiz.title!r}, not {title!r}.  Change it in Canvas first.")
+            self.QUIZ = quiz
         else:
-            # Otherwise, create it
-            self.QUIZ = self.course.create_quiz(quiz_config)
+            # Is there a quiz with the same title? If so, edit it.
+            for quiz in self.course.get_quizzes(search_term=title):
+                if quiz.title == title:
+                    if not replace:
+                        print(f"Deleting quiz with id {quiz.id}")
+                        quiz.delete()
+                        continue
+                    if quiz.published:
+                        raise Exception(f"The quiz with title {title!r} has already been published")
+                    print(f"Editing quiz with id {quiz.id} and deleting all existing questions")
+                    quiz.edit(**quiz_config)
+                    groups = set()
+                    for question in quiz.get_questions():
+                        if question.quiz_group_id:
+                            groups.add(question.quiz_group_id)
+                        question.delete()
+                    # there is apparently no API call to get all the question groups for a quiz!
+                    for gid in groups:
+                        quiz.get_quiz_group(gid).delete(gid) # TODO fix bug in canvasapi itself?
+                    self.QUIZ = quiz
+                    break
+            else:
+                # Otherwise, create it
+                self.QUIZ = self.course.create_quiz(quiz_config)
 
 
     def end_quiz(self):
@@ -68,26 +80,28 @@ class CanvasQuizBuilder:
             raise Exception("need to end_group()")
         if self.QUIZ == None:
             raise Exception("not in a quiz")
+        print(f"Uploaded quiz with id={self.QUIZ.id} and title={self.QUIZ.title!r}")
         self.QUIZ = None
 
-
-    # TODO add warning if a question group is empty, since we won't be
-    # able to delete it automatically when editing a quiz
-    # (possibly: auto-delete the group if no questions were added, along with a warning that this is being done.)
 
     def begin_group(self, name="", pick_count=1, points=1):
         if self.GROUP_ID != None:
             raise Exception("Already in a group. Make sure to use end_group().")
-        group = self.QUIZ.create_question_group([{
+        # Defer actually creating a question group -- the Canvas API
+        # does not seem to give any way to let you find a list of all
+        # existing question groups.
+        self.GROUP_ID = "defer"
+        self.GROUP_CONFIG = {
             'name': name,
             'pick_count': pick_count,
-            'question_points': 2
-        }])
-        self.GROUP_ID = group.id
+            'question_points': points
+        }
 
     def end_group(self):
         if self.GROUP_ID == None:
             raise Exception("Not in a group.")
+        if self.GROUP_ID == "defer":
+            raise Exception("Empty question group.  All question groups must have at least one question.")
         self.GROUP_ID = None
 
 
@@ -96,9 +110,8 @@ class CanvasQuizBuilder:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
-            'question_text': mathjax,
+            'question_text': MATHJAX,
             'points_possible': 1,
-            'quiz_group_id': self.GROUP_ID,
             'question_type': "numerical_question",
             'answers': []
         }
@@ -108,9 +121,8 @@ class CanvasQuizBuilder:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
-            'question_text': mathjax,
+            'question_text': MATHJAX,
             'points_possible': 1,
-            'quiz_group_id': self.GROUP_ID,
             'question_type': "multiple_choice_question",
             'answers': []
         }
@@ -120,9 +132,8 @@ class CanvasQuizBuilder:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
-            'question_text': mathjax,
+            'question_text': MATHJAX,
             'points_possible': 1,
-            'quiz_group_id': self.GROUP_ID,
             'question_type': "true_false_question",
             'answers': []
         }
@@ -136,6 +147,14 @@ class CanvasQuizBuilder:
     def end_question(self):
         if self.QUESTION_DATA == None:
             raise Exception("Not in a question")
+
+        # ensure GROUP_ID
+        if self.GROUP_ID == "defer":
+            group = self.QUIZ.create_question_group([self.GROUP_CONFIG])
+            self.GROUP_ID = group.id
+            self.GROUP_CONFIG = None
+        self.QUESTION_DATA['quiz_group_id'] = self.GROUP_ID
+
         self.QUIZ.create_question(question=self.QUESTION_DATA)
         self.QUESTION_DATA = None
 
