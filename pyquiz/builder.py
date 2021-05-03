@@ -1,3 +1,12 @@
+r"""A quiz file is a plain Python file that executes quiz builder
+functions, which are specified in this module.  By setting the quiz
+builder with `set_quiz_builder` before executing a quiz file (done by
+the uploader UI), the resulting quiz can have different effects.  For
+example, `pyquiz.html` creates an HTML output file, and
+`pyquiz.canvas` uploads the quiz to Canvas.
+
+"""
+
 BUILDER = None
 
 LOADED_QUIZZES = []
@@ -5,17 +14,20 @@ LOADED_QUIZZES = []
 IN_QUIZ = False
 
 def check_quiz_builder():
+    """Checks that there is currently a quiz builder set."""
     if not BUILDER:
         raise Exception("No quiz builder is set.  Make sure to set_quiz_builder first.")
 
 def set_quiz_builder(b):
+    """Sets the current quiz builder."""
     global BUILDER, LOADED_QUIZZES, IN_QUIZ
     BUILDER = b
     LOADED_QUIZZES = []
     IN_QUIZ = False
 
 def get_loaded_quizzes():
-    """Return a list of quiz titles that have been loaded so far."""
+    """Return a list of quiz titles that have been loaded so far.  This is
+    used by the uploader UI to show the titles of quizzes that a file contained."""
     return LOADED_QUIZZES
 
 def is_in_quiz():
