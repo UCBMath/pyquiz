@@ -1,3 +1,0 @@
-API_URL = "https://bcourses.berkeley.edu"
-API_KEY = "Enter Canvas API key here"
-COURSE_ID = None

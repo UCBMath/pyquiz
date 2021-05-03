@@ -1,0 +1,7 @@
+*.pyc
+__pycache__/
+
+# You don't want to accidentally commit your bCourses API key!
+canvas_config.json
+
+*.qz.py.html
