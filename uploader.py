@@ -2,7 +2,7 @@ import tkinter
 import tkinter.filedialog
 import tkinter.messagebox
 import os, sys, subprocess, traceback, json
-import pyquiz, pyquiz.html, pyquiz.canvas
+import pyquiz, pyquiz.html
 
 NO_QUIZ_SELECT_MESSAGE = "No quiz file selected"
 NO_QUIZ_SELECT_ERROR = "No quiz file selected."
@@ -137,6 +137,7 @@ def view_command():
 
 
 def upload_command():
+    import pyquiz.canvas
     print("----")
     if quiz_file == None:
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
