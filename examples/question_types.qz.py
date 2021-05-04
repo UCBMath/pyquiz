@@ -1,5 +1,3 @@
-from pyquiz.expr import *
-from pyquiz.rand import *
 from pyquiz import *
 
 begin_quiz(
