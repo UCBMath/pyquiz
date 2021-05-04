@@ -20,7 +20,7 @@ Repeat "after me".
 """)
 short_answer("after me")
 answer_comment("Exactly.")
-comment_general("This is quiz version of a common joke.")
+comment_general("This is a quiz version of a common joke.")
 comment_correct("You got it!")
 comment_incorrect("The idea is to take the text between the quotes as the answer.")
 end_question()
