@@ -1,25 +1,25 @@
 from pyquiz.expr import *
 from pyquiz import *
-import lib.bank1
+import question_bank
 
 begin_quiz(
-    title="Test Quiz 1",
+    title="question_bank_quiz.qz.py",
     description=rf"""
     <p>This is an example quiz.  It uses questions drawn from a question bank.</p>
     """
 )
 
-lib.bank1.q1()
+question_bank.q1()
 
 begin_group()
 for i in range(5):
-    lib.bank1.q2(i)
+    question_bank.q2(i)
 end_group()
 
-lib.bank1.q3()
+question_bank.q3()
 
-lib.bank1.q4()
+question_bank.q4()
 
-lib.bank1.q5()
+question_bank.q5()
 
 end_quiz()

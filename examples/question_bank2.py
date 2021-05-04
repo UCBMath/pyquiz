@@ -1,3 +1,7 @@
+# This is an example question bank, but with randomness.
+#
+# See question_bank2_quiz.qz.py for how it might be used
+
 from pyquiz.expr import *
 from pyquiz.rand import *
 from pyquiz import *

@@ -1,3 +1,5 @@
+# A question bank.  See question_bank_quiz.qz.py to see how it can be used.
+
 from pyquiz.expr import *
 from pyquiz import *
 
@@ -11,7 +13,7 @@ def q1():
     end_question()
 
 def q2(i):
-    """Each value of i in [0,5) gives a variant of the question."""
+    """Each numeric value of i gives a variant of the question."""
 
     a = var("a")
     y = a**2 - 3*a + 1
