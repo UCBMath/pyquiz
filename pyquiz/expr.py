@@ -1,15 +1,36 @@
-# expr.py
-#
-# A simple computer algebra system to aid in generating well-formed
-# LaTeX for dynamically generated questions.
-#
-# Note: instead of dividing with a slash, use the `frac` function,
-# since it is more careful to preserve exactness (i.e., it yields a
-# Fraction rather than a floating-point number).
+r"""This module implements a simple computer algebra system to aid in
+generating well-formed LaTeX for dynamically generated questions.
+It is inspired my Mathematica, so those familiar should feel somewhat at home.
+
+Every expression is either a native Python number type (like `int` or
+`float`), a string, or an `Expr`.  An `Expr` consists of a "head",
+which is an expression indicating the way in which the expression is
+interpreted (it is almost always a string) along with with a list of
+"arguments".  `Expr` implements most of Python's operators, so the
+main way in which expressions are created is by algebraically
+manipulating them.
+
+*Note:* instead of dividing with a slash, use the `frac` function,
+since it is careful to preserve exactness (i.e., it yields a
+`Fraction` rather than a floating-point number).
+
+Expressions can be indexed.  Like Mathematica (**warning:** but
+*unlike* Python) they are 1-indexed.  Since this module is meant to
+help with writing quiz questions for math classes, which use
+1-indexing, we break the Python convention and follow suit.
+
+"""
 
 from collections import defaultdict
 from numbers import Number
 from fractions import Fraction
+
+__all__ = [
+    "Expr", "frac", "expr", "head",
+    "var", "vector", "matrix", "irange", "identity_matrix", "det", "diagonal_matrix",
+    "normalize", "expand", "replace",
+    "reduction"
+]
 
 attributes = defaultdict(set)
 attributes['Plus'].update(["Flat"])
@@ -19,14 +40,15 @@ attributes['Times'].update(["Flat"])
 reductions = []
 
 def reduction(f):
-    """A decorator for defining new reductions.
+    """A decorator for defining new reductions used by `normalize()`.
 
     Usage:
-    ```
+    ```python
     @reduction
     def my_reduction(e):
       return e
     ```
+    This adds `my_reduction` to the list of reductions.
     """
     reductions.append(f)
     return f
@@ -36,9 +58,19 @@ class Expr:
     """This is supposed to be like a Mathematica expression.  Every
     expression has a `head` (an expression) and a list `args` (of
     expressions).  Expressions are either instances of `Expr` or are
-    basic data types like strings or numbers."""
+    basic data types like strings or numbers.
+
+    Given an expression `e`, the string version of `e` (for example,
+    via `str(e)`) is its LaTeX form.  To get a somewhat
+    Python-readable form, use `repr(e)`.
+
+    In Python, matrix multiplication is indicated with `@`, for
+    example `A @ B` (vs Mathematica's `A . B`).
+
+    """
 
     def __init__(self, head, args):
+        """Construct an `Expr` with the given head and list of arguments.  See also `expr()`."""
         self.head = head
         self.args = list(args)
     def __add__(self, b):
@@ -88,6 +120,8 @@ class Expr:
             self.args[key - 1] = value
     def __eq__(self, other):
         """Check if structurally equal."""
+        if self is other:
+            return True
         return (isinstance(other, Expr)
                 and self.head == other.head
                 and len(self.args) == len(other.args)
@@ -99,21 +133,23 @@ class Expr:
         return "expr(%r%s)" % (self.head, "".join(", " + repr(a) for a in self.args))
 
 def frac(a, b):
-    """It's hard to fully overload division in Python, so this is a function that takes the
+    """Divides `a` by `b` exactly.
+
+    It's hard to fully overload division in Python, so this is a function that takes the
     quotient in a way that ensures the the quotient of two integers is a fraction."""
     return normalize(expr("Times", a, expr("Pow", b, -1)))
 
 def expr(head, *args):
-    """A convenience for the Expr constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`."""
+    """A convenience function for the `Expr` constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`."""
     return Expr(head, args)
 
 def head(e):
-    """Gets the `head` of the expression.
+    """Gets the "head" of the expression.
 
     Gives the following values for built-in Python types:
-    - numbers -> "number"
-    - strings -> "string"
-    - lists -> "list"
+    * numbers -> "number"
+    * strings -> "string"
+    * lists and tuples -> "list"
     """
     if isinstance(e, Number):
         return "number"
@@ -125,7 +161,14 @@ def head(e):
         return e.head
 
 def normalize(e):
-    """Mathematica-like expression evaluation routine."""
+    """Mathematica-like expression evaluation routine.  Puts an expression
+    into a sort of normal form by applying all the reduction rules
+    until the expression no longer changes.
+
+    Should not simplify expressions very much, though we allow
+    collection of coefficients for linear combinations and
+    simplifications of monomials.  We also allow applications of functions.
+    """
     if isinstance(e, Number) or isinstance(e, str):
         return e
     elif type(e) == list or type(e) == tuple:
@@ -151,7 +194,7 @@ def normalize(e):
     return e
 
 def expand(e):
-    """Mathematica-like ExpandAll."""
+    """Mathematica-like ExpandAll.  Distributes multiplications over additions everywhere in the expression."""
     if isinstance(e, Number) or isinstance(e, str):
         return e
     elif type(e) == list or type(e) == tuple:
@@ -290,7 +333,7 @@ def rule_part_matrix(e):
         raise Exception("Internal error")
 
 def replace(e, substs):
-    """substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica."""
+    """substs is a list of expression/value pairs to replace in the expression.  Similar to Replace in Mathematica."""
     for p,v in substs:
         if e == p:
             return v
@@ -422,6 +465,13 @@ def tex(e):
 ###
 
 def var(name):
+    """`var("foo")` creates a variable of name "foo".
+
+    A variable can contain LaTeX code, like for example
+    `var(r"\lambda")`.  The `r` indicates "raw string", without which
+    you need a doubled backslash like `var("\\lambda")`.
+
+    """
     return expr("var", name)
 
 
@@ -443,6 +493,7 @@ def identity_matrix(n):
     return matrix(*[[1 if i == j else 0 for j in range(n)] for i in range(n)])
 
 def det(e):
+    """computes the determinant of the given matrix"""
     return normalize(expr("det", e))
 @reduction
 def reduce_det(e):
@@ -499,10 +550,22 @@ def reduce_matrix_inverse(e):
                   [-frac(A[1][0], d), frac(A[0][0], d)])
 
 def irange(lo, hi):
-    """list [lo, lo+1, ..., hi]"""
+    """Inclusive range.  `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.
+
+    This is intended for loops that index a matrix, for example if `A` is a 5x5 matrix, we could compute its trace
+    and print it out by
+    ```python
+    t = 0
+    for i in irange(1, 5):
+      t = t + A[i, i]
+    print(t)
+    ```
+
+    """
     return list(range(lo, hi+1))
 
 def diagonal_matrix(*entries):
+    """`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions."""
     return matrix(*([entries[i] if i == j else 0 for j in range(len(entries))] for i in range(len(entries))))
 
 # M = identity_matrix(3)

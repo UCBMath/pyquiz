@@ -28,9 +28,6 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#reduction">reduction</a>
-            </li>
-            <li>
                     <a class="class" href="#Expr">Expr</a>
                             <ul class="memberlist">
                         <li>
@@ -49,42 +46,6 @@
                     <a class="function" href="#head">head</a>
             </li>
             <li>
-                    <a class="function" href="#normalize">normalize</a>
-            </li>
-            <li>
-                    <a class="function" href="#expand">expand</a>
-            </li>
-            <li>
-                    <a class="function" href="#plus_terms">plus_terms</a>
-            </li>
-            <li>
-                    <a class="function" href="#rule_plus_collect">rule_plus_collect</a>
-            </li>
-            <li>
-                    <a class="function" href="#times_terms">times_terms</a>
-            </li>
-            <li>
-                    <a class="function" href="#rule_times_collect">rule_times_collect</a>
-            </li>
-            <li>
-                    <a class="function" href="#rule_pow_constants">rule_pow_constants</a>
-            </li>
-            <li>
-                    <a class="function" href="#rule_part_matrix">rule_part_matrix</a>
-            </li>
-            <li>
-                    <a class="function" href="#replace">replace</a>
-            </li>
-            <li>
-                    <a class="function" href="#parens">parens</a>
-            </li>
-            <li>
-                    <a class="function" href="#tex_prec">tex_prec</a>
-            </li>
-            <li>
-                    <a class="function" href="#tex">tex</a>
-            </li>
-            <li>
                     <a class="function" href="#var">var</a>
             </li>
             <li>
@@ -94,25 +55,28 @@
                     <a class="function" href="#matrix">matrix</a>
             </li>
             <li>
+                    <a class="function" href="#irange">irange</a>
+            </li>
+            <li>
                     <a class="function" href="#identity_matrix">identity_matrix</a>
             </li>
             <li>
                     <a class="function" href="#det">det</a>
             </li>
             <li>
-                    <a class="function" href="#reduce_det">reduce_det</a>
-            </li>
-            <li>
-                    <a class="function" href="#reduce_matmul">reduce_matmul</a>
-            </li>
-            <li>
-                    <a class="function" href="#reduce_matrix_inverse">reduce_matrix_inverse</a>
-            </li>
-            <li>
-                    <a class="function" href="#irange">irange</a>
-            </li>
-            <li>
                     <a class="function" href="#diagonal_matrix">diagonal_matrix</a>
+            </li>
+            <li>
+                    <a class="function" href="#normalize">normalize</a>
+            </li>
+            <li>
+                    <a class="function" href="#expand">expand</a>
+            </li>
+            <li>
+                    <a class="function" href="#replace">replace</a>
+            </li>
+            <li>
+                    <a class="function" href="#reduction">reduction</a>
             </li>
     </ul>
 
@@ -129,21 +93,63 @@
                     <h1 class="modulename">
 <a href="./../pyquiz.html">pyquiz</a><wbr>.expr    </h1>
 
-                
+                        <div class="docstring"><p>This module implements a simple computer algebra system to aid in
+generating well-formed LaTeX for dynamically generated questions.
+It is inspired my Mathematica, so those familiar should feel somewhat at home.</p>
+
+<p>Every expression is either a native Python number type (like <code>int</code> or
+<code>float</code>), a string, or an <code><a href="#Expr">Expr</a></code>.  An <code><a href="#Expr">Expr</a></code> consists of a "head",
+which is an expression indicating the way in which the expression is
+interpreted (it is almost always a string) along with with a list of
+"arguments".  <code><a href="#Expr">Expr</a></code> implements most of Python's operators, so the
+main way in which expressions are created is by algebraically
+manipulating them.</p>
+
+<p><em>Note:</em> instead of dividing with a slash, use the <code><a href="#frac">frac</a></code> function,
+since it is careful to preserve exactness (i.e., it yields a
+<code>Fraction</code> rather than a floating-point number).</p>
+
+<p>Expressions can be indexed.  Like Mathematica (<strong>warning:</strong> but
+<em>unlike</em> Python) they are 1-indexed.  Since this module is meant to
+help with writing quiz questions for math classes, which use
+1-indexing, we break the Python convention and follow suit.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="c1"># expr.py</span>
-<span class="c1">#</span>
-<span class="c1"># A simple computer algebra system to aid in generating well-formed</span>
-<span class="c1"># LaTeX for dynamically generated questions.</span>
-<span class="c1">#</span>
-<span class="c1"># Note: instead of dividing with a slash, use the `frac` function,</span>
-<span class="c1"># since it is more careful to preserve exactness (i.e., it yields a</span>
-<span class="c1"># Fraction rather than a floating-point number).</span>
+            <div class="codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;This module implements a simple computer algebra system to aid in</span>
+<span class="sd">generating well-formed LaTeX for dynamically generated questions.</span>
+<span class="sd">It is inspired my Mathematica, so those familiar should feel somewhat at home.</span>
+
+<span class="sd">Every expression is either a native Python number type (like `int` or</span>
+<span class="sd">`float`), a string, or an `Expr`.  An `Expr` consists of a &quot;head&quot;,</span>
+<span class="sd">which is an expression indicating the way in which the expression is</span>
+<span class="sd">interpreted (it is almost always a string) along with with a list of</span>
+<span class="sd">&quot;arguments&quot;.  `Expr` implements most of Python&#39;s operators, so the</span>
+<span class="sd">main way in which expressions are created is by algebraically</span>
+<span class="sd">manipulating them.</span>
+
+<span class="sd">*Note:* instead of dividing with a slash, use the `frac` function,</span>
+<span class="sd">since it is careful to preserve exactness (i.e., it yields a</span>
+<span class="sd">`Fraction` rather than a floating-point number).</span>
+
+<span class="sd">Expressions can be indexed.  Like Mathematica (**warning:** but</span>
+<span class="sd">*unlike* Python) they are 1-indexed.  Since this module is meant to</span>
+<span class="sd">help with writing quiz questions for math classes, which use</span>
+<span class="sd">1-indexing, we break the Python convention and follow suit.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Expr&quot;</span><span class="p">,</span> <span class="s2">&quot;frac&quot;</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;irange&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalize&quot;</span><span class="p">,</span> <span class="s2">&quot;expand&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reduction&quot;</span>
+<span class="p">]</span>
 
 <span class="n">attributes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
 <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;Plus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="s2">&quot;Flat&quot;</span><span class="p">])</span>
@@ -153,14 +159,15 @@
 <span class="n">reductions</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="k">def</span> <span class="nf">reduction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A decorator for defining new reductions.</span>
+    <span class="sd">&quot;&quot;&quot;A decorator for defining new reductions used by `normalize()`.</span>
 
 <span class="sd">    Usage:</span>
-<span class="sd">    ```</span>
+<span class="sd">    ```python</span>
 <span class="sd">    @reduction</span>
 <span class="sd">    def my_reduction(e):</span>
 <span class="sd">      return e</span>
 <span class="sd">    ```</span>
+<span class="sd">    This adds `my_reduction` to the list of reductions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">reductions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">f</span>
@@ -170,9 +177,19 @@
     <span class="sd">&quot;&quot;&quot;This is supposed to be like a Mathematica expression.  Every</span>
 <span class="sd">    expression has a `head` (an expression) and a list `args` (of</span>
 <span class="sd">    expressions).  Expressions are either instances of `Expr` or are</span>
-<span class="sd">    basic data types like strings or numbers.&quot;&quot;&quot;</span>
+<span class="sd">    basic data types like strings or numbers.</span>
+
+<span class="sd">    Given an expression `e`, the string version of `e` (for example,</span>
+<span class="sd">    via `str(e)`) is its LaTeX form.  To get a somewhat</span>
+<span class="sd">    Python-readable form, use `repr(e)`.</span>
+
+<span class="sd">    In Python, matrix multiplication is indicated with `@`, for</span>
+<span class="sd">    example `A @ B` (vs Mathematica&#39;s `A . B`).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct an `Expr` with the given head and list of arguments.  See also `expr()`.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">head</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -222,6 +239,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">key</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if structurally equal.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Expr</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">head</span>
                 <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
@@ -233,21 +252,23 @@
         <span class="k">return</span> <span class="s2">&quot;expr(</span><span class="si">%r%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">frac</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;It&#39;s hard to fully overload division in Python, so this is a function that takes the</span>
+    <span class="sd">&quot;&quot;&quot;Divides `a` by `b` exactly.</span>
+
+<span class="sd">    It&#39;s hard to fully overload division in Python, so this is a function that takes the</span>
 <span class="sd">    quotient in a way that ensures the the quotient of two integers is a fraction.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
 
 <span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A convenience for the Expr constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A convenience function for the `Expr` constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gets the `head` of the expression.</span>
+    <span class="sd">&quot;&quot;&quot;Gets the &quot;head&quot; of the expression.</span>
 
 <span class="sd">    Gives the following values for built-in Python types:</span>
-<span class="sd">    - numbers -&gt; &quot;number&quot;</span>
-<span class="sd">    - strings -&gt; &quot;string&quot;</span>
-<span class="sd">    - lists -&gt; &quot;list&quot;</span>
+<span class="sd">    * numbers -&gt; &quot;number&quot;</span>
+<span class="sd">    * strings -&gt; &quot;string&quot;</span>
+<span class="sd">    * lists and tuples -&gt; &quot;list&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;number&quot;</span>
@@ -259,7 +280,14 @@
         <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span>
 
 <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mathematica-like expression evaluation routine.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Mathematica-like expression evaluation routine.  Puts an expression</span>
+<span class="sd">    into a sort of normal form by applying all the reduction rules</span>
+<span class="sd">    until the expression no longer changes.</span>
+
+<span class="sd">    Should not simplify expressions very much, though we allow</span>
+<span class="sd">    collection of coefficients for linear combinations and</span>
+<span class="sd">    simplifications of monomials.  We also allow applications of functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">e</span>
     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
@@ -285,7 +313,7 @@
     <span class="k">return</span> <span class="n">e</span>
 
 <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mathematica-like ExpandAll.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Mathematica-like ExpandAll.  Distributes multiplications over additions everywhere in the expression.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">e</span>
     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
@@ -424,7 +452,7 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Internal error&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">substs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;substs is a list of expression/value pairs to replace in the expression.  Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">p</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">substs</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">v</span>
@@ -556,6 +584,13 @@
 <span class="c1">###</span>
 
 <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
+
+<span class="sd">    A variable can contain LaTeX code, like for example</span>
+<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
 
@@ -577,6 +612,7 @@
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">[[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
 
 <span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;computes the determinant of the given matrix&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 <span class="nd">@reduction</span>
 <span class="k">def</span> <span class="nf">reduce_det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
@@ -633,10 +669,22 @@
                   <span class="p">[</span><span class="o">-</span><span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">),</span> <span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">)])</span>
 
 <span class="k">def</span> <span class="nf">irange</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;list [lo, lo+1, ..., hi]&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Inclusive range.  `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.</span>
+
+<span class="sd">    This is intended for loops that index a matrix, for example if `A` is a 5x5 matrix, we could compute its trace</span>
+<span class="sd">    and print it out by</span>
+<span class="sd">    ```python</span>
+<span class="sd">    t = 0</span>
+<span class="sd">    for i in irange(1, 5):</span>
+<span class="sd">      t = t + A[i, i]</span>
+<span class="sd">    print(t)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">diagonal_matrix</span><span class="p">(</span><span class="o">*</span><span class="n">entries</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))))</span>
 
 <span class="c1"># M = identity_matrix(3)</span>
@@ -650,44 +698,6 @@
         </details>
 
             </section>
-                <section id="reduction">
-                            <div class="attr function"><a class="headerlink" href="#reduction">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">reduction</span><span class="signature">(f)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">reduction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A decorator for defining new reductions.</span>
-
-<span class="sd">    Usage:</span>
-<span class="sd">    ```</span>
-<span class="sd">    @reduction</span>
-<span class="sd">    def my_reduction(e):</span>
-<span class="sd">      return e</span>
-<span class="sd">    ```</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">reductions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>A decorator for defining new reductions.</p>
-
-<p>Usage:</p>
-
-<pre><code>@reduction
-def my_reduction(e):
-  return e
-</code></pre>
-</div>
-
-
-                </section>
                 <section id="Expr">
                                 <div class="attr class">
         <a class="headerlink" href="#Expr">#&nbsp;&nbsp</a>
@@ -703,9 +713,19 @@ def my_reduction(e):
     <span class="sd">&quot;&quot;&quot;This is supposed to be like a Mathematica expression.  Every</span>
 <span class="sd">    expression has a `head` (an expression) and a list `args` (of</span>
 <span class="sd">    expressions).  Expressions are either instances of `Expr` or are</span>
-<span class="sd">    basic data types like strings or numbers.&quot;&quot;&quot;</span>
+<span class="sd">    basic data types like strings or numbers.</span>
+
+<span class="sd">    Given an expression `e`, the string version of `e` (for example,</span>
+<span class="sd">    via `str(e)`) is its LaTeX form.  To get a somewhat</span>
+<span class="sd">    Python-readable form, use `repr(e)`.</span>
+
+<span class="sd">    In Python, matrix multiplication is indicated with `@`, for</span>
+<span class="sd">    example `A @ B` (vs Mathematica&#39;s `A . B`).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct an `Expr` with the given head and list of arguments.  See also `expr()`.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">head</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -755,6 +775,8 @@ def my_reduction(e):
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">key</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if structurally equal.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Expr</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">head</span>
                 <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
@@ -772,6 +794,13 @@ def my_reduction(e):
 expression has a <code><a href="#head">head</a></code> (an expression) and a list <code>args</code> (of
 expressions).  Expressions are either instances of <code><a href="#Expr">Expr</a></code> or are
 basic data types like strings or numbers.</p>
+
+<p>Given an expression <code>e</code>, the string version of <code>e</code> (for example,
+via <code>str(e)</code>) is its LaTeX form.  To get a somewhat
+Python-readable form, use <code>repr(e)</code>.</p>
+
+<p>In Python, matrix multiplication is indicated with <code>@</code>, for
+example <code>A @ B</code> (vs Mathematica's <code>A . B</code>).</p>
 </div>
 
 
@@ -785,13 +814,16 @@ basic data types like strings or numbers.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct an `Expr` with the given head and list of arguments.  See also `expr()`.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">head</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Construct an <code><a href="#Expr">Expr</a></code> with the given head and list of arguments.  See also <code><a href="#expr">expr()</a></code>.</p>
+</div>
+
 
                             </div>
                 </section>
@@ -806,14 +838,18 @@ basic data types like strings or numbers.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">frac</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;It&#39;s hard to fully overload division in Python, so this is a function that takes the</span>
+    <span class="sd">&quot;&quot;&quot;Divides `a` by `b` exactly.</span>
+
+<span class="sd">    It&#39;s hard to fully overload division in Python, so this is a function that takes the</span>
 <span class="sd">    quotient in a way that ensures the the quotient of two integers is a fraction.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>It's hard to fully overload division in Python, so this is a function that takes the
+            <div class="docstring"><p>Divides <code>a</code> by <code>b</code> exactly.</p>
+
+<p>It's hard to fully overload division in Python, so this is a function that takes the
 quotient in a way that ensures the the quotient of two integers is a fraction.</p>
 </div>
 
@@ -830,13 +866,13 @@ quotient in a way that ensures the the quotient of two integers is a fraction.</
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A convenience for the Expr constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A convenience function for the `Expr` constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>A convenience for the Expr constructor.  <code>expr(a, b, c, ...)</code> is <code>Expr(a, [b, c, ...])</code>.</p>
+            <div class="docstring"><p>A convenience function for the <code><a href="#Expr">Expr</a></code> constructor.  <code>expr(a, b, c, ...)</code> is <code>Expr(a, [b, c, ...])</code>.</p>
 </div>
 
 
@@ -852,12 +888,12 @@ quotient in a way that ensures the the quotient of two integers is a fraction.</
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gets the `head` of the expression.</span>
+    <span class="sd">&quot;&quot;&quot;Gets the &quot;head&quot; of the expression.</span>
 
 <span class="sd">    Gives the following values for built-in Python types:</span>
-<span class="sd">    - numbers -&gt; &quot;number&quot;</span>
-<span class="sd">    - strings -&gt; &quot;string&quot;</span>
-<span class="sd">    - lists -&gt; &quot;list&quot;</span>
+<span class="sd">    * numbers -&gt; &quot;number&quot;</span>
+<span class="sd">    * strings -&gt; &quot;string&quot;</span>
+<span class="sd">    * lists and tuples -&gt; &quot;list&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;number&quot;</span>
@@ -871,517 +907,17 @@ quotient in a way that ensures the the quotient of two integers is a fraction.</
 
         </details>
 
-            <div class="docstring"><p>Gets the <code><a href="#head">head</a></code> of the expression.</p>
+            <div class="docstring"><p>Gets the "head" of the expression.</p>
 
 <p>Gives the following values for built-in Python types:</p>
 
 <ul>
 <li>numbers -> "number"</li>
 <li>strings -> "string"</li>
-<li>lists -> "list"</li>
+<li>lists and tuples -> "list"</li>
 </ul>
 </div>
 
-
-                </section>
-                <section id="normalize">
-                            <div class="attr function"><a class="headerlink" href="#normalize">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">normalize</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mathematica-like expression evaluation routine.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
-        <span class="c1"># evaluate to list</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown type of value to normalize.&quot;</span><span class="p">)</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
-        <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
-    <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">reductions</span><span class="p">):</span>
-        <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">e</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Mathematica-like expression evaluation routine.</p>
-</div>
-
-
-                </section>
-                <section id="expand">
-                            <div class="attr function"><a class="headerlink" href="#expand">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">expand</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mathematica-like ExpandAll.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown type of value to expand&quot;</span><span class="p">)</span>
-
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-                    <span class="n">val</span> <span class="o">+=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
-                <span class="k">return</span> <span class="n">expand</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Mathematica-like ExpandAll.</p>
-</div>
-
-
-                </section>
-                <section id="plus_terms">
-                            <div class="attr function"><a class="headerlink" href="#plus_terms">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">plus_terms</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plus_terms</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_plus_collect.&quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span>
-    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Gives a (coeff, expr) pair for a given expression.  Assumes the</span>
-<span class="sd">        expression has been already normalized.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">split</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Helper function for rule_plus_collect.</p>
-</div>
-
-
-                </section>
-                <section id="rule_plus_collect">
-                            <div class="attr function"><a class="headerlink" href="#rule_plus_collect">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_plus_collect</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">rule_plus_collect</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect monomials, adding numeric coefficients.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">plus_terms</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terms</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
-                <span class="n">terms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="n">coeff</span><span class="p">)</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">coeff</span><span class="p">))</span>
-    <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">)))</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">args2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Plus&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Collect monomials, adding numeric coefficients.</p>
-</div>
-
-
-                </section>
-                <section id="times_terms">
-                            <div class="attr function"><a class="headerlink" href="#times_terms">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">times_terms</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">times_terms</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_times_collect.&quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span>
-    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">split</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Helper function for rule_times_collect.</p>
-</div>
-
-
-                </section>
-                <section id="rule_times_collect">
-                            <div class="attr function"><a class="headerlink" href="#rule_times_collect">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_times_collect</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">rule_times_collect</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect multiplicands of the product, combining exponents.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="c1"># collect all powers</span>
-    <span class="c1"># terms is a list of (value, exponent) pairs</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">val</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">times_terms</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-            <span class="n">coeff</span> <span class="o">*=</span> <span class="n">val</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terms</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
-                    <span class="n">terms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">exp</span> <span class="o">+</span> <span class="n">e</span><span class="p">)</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">val</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-    <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">coeff</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">args2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Collect multiplicands of the product, combining exponents.</p>
-</div>
-
-
-                </section>
-                <section id="rule_pow_constants">
-                            <div class="attr function"><a class="headerlink" href="#rule_pow_constants">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_pow_constants</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">rule_pow_constants</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute powers when constants are present.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Compute powers when constants are present.</p>
-</div>
-
-
-                </section>
-                <section id="rule_part_matrix">
-                            <div class="attr function"><a class="headerlink" href="#rule_part_matrix">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_part_matrix</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">rule_part_matrix</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extract a Part of a matrix or vector.  Uses 1-indexing(!)&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Part&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need two indices to index a matrix.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Internal error&quot;</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Extract a Part of a matrix or vector.  Uses 1-indexing(!)</p>
-</div>
-
-
-                </section>
-                <section id="replace">
-                            <div class="attr function"><a class="headerlink" href="#replace">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">replace</span><span class="signature">(e, substs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">substs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">p</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">substs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">v</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">substs</span><span class="p">),</span> <span class="o">*</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">substs</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>substs is a list of variable/value pairs to replace in the expression.  Similar to Replace in Mathematica.</p>
-</div>
-
-
-                </section>
-                <section id="parens">
-                            <div class="attr function"><a class="headerlink" href="#parens">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">parens</span><span class="signature">(par_prec, prec, text)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parens</span><span class="p">(</span><span class="n">par_prec</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">par_prec</span> <span class="o">&gt;</span> <span class="n">prec</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left(&quot;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right)&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">text</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="tex_prec">
-                            <div class="attr function"><a class="headerlink" href="#tex_prec">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">tex_prec</span><span class="signature">(prec, e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_prec</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the LaTeX form of an expression. The prec argument is the</span>
-<span class="sd">    precedence of the expression that contains this one, and it&#39;s up to</span>
-<span class="sd">    this function to add parentheses as necessary.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="c1"># should make it format the number according to some specification</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">denominator</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">numerator</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\tfrac</span><span class="se">{{</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">numerator</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">denominator</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plus_terms</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
-                <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot; + &quot;</span>
-                <span class="k">if</span> <span class="n">coeff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="c1"># if i==0, then this is unary minus</span>
-                    <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">coeff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot; - &quot;</span>
-                    <span class="n">coeff</span> <span class="o">=</span> <span class="o">-</span><span class="n">coeff</span>
-                <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">coeff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
-            <span class="n">numer</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">denom</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">is_neg</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">times_terms</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">and</span> <span class="n">exp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">denom</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="n">exp</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="n">is_neg</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">numer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="n">snumer</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">numer</span><span class="p">:</span>
-                <span class="n">prec2</span> <span class="o">=</span> <span class="mi">30</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">prec</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">snumer</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">snumer</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="n">sdenom</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">denom</span><span class="p">:</span>
-                <span class="n">prec2</span> <span class="o">=</span> <span class="mi">30</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
-                <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">sdenom</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">sdenom</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-\frac</span><span class="se">{{</span><span class="s2">1</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\frac</span><span class="se">{{</span><span class="s2">1</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">snumer</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-\frac</span><span class="se">{{</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\frac</span><span class="se">{{</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;MatTimes&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;^{&quot;</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Part&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span>
-                          <span class="n">tex_prec</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_{&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span>
-                    <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-                    <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\end</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\operatorname{&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">+</span> <span class="s2">&quot;}(&quot;</span> <span class="o">+</span>
-                    <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-                    <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown expression type to tex&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown value to tex &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Returns the LaTeX form of an expression. The prec argument is the
-precedence of the expression that contains this one, and it's up to
-this function to add parentheses as necessary.</p>
-</div>
-
-
-                </section>
-                <section id="tex">
-                            <div class="attr function"><a class="headerlink" href="#tex">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">tex</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
 
                 </section>
                 <section id="var">
@@ -1395,12 +931,25 @@ this function to add parentheses as necessary.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
+
+<span class="sd">    A variable can contain LaTeX code, like for example</span>
+<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p><code>var("foo")</code> creates a variable of name "foo".</p>
+
+<p>A variable can contain LaTeX code, like for example
+<code>var(r"\lambda")</code>.  The <code>r</code> indicates "raw string", without which
+you need a doubled backslash like <code>var("\lambda")</code>.</p>
+</div>
+
 
                 </section>
                 <section id="vector">
@@ -1448,6 +997,48 @@ this function to add parentheses as necessary.</p>
 
 
                 </section>
+                <section id="irange">
+                            <div class="attr function"><a class="headerlink" href="#irange">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">irange</span><span class="signature">(lo, hi)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">irange</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Inclusive range.  `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.</span>
+
+<span class="sd">    This is intended for loops that index a matrix, for example if `A` is a 5x5 matrix, we could compute its trace</span>
+<span class="sd">    and print it out by</span>
+<span class="sd">    ```python</span>
+<span class="sd">    t = 0</span>
+<span class="sd">    for i in irange(1, 5):</span>
+<span class="sd">      t = t + A[i, i]</span>
+<span class="sd">    print(t)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Inclusive range.  <code>irange(lo, hi)</code> gives the list <code>[lo, lo+1, ..., hi]</code>.</p>
+
+<p>This is intended for loops that index a matrix, for example if <code>A</code> is a 5x5 matrix, we could compute its trace
+and print it out by</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+  <span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+</code></pre></div>
+</div>
+
+
+                </section>
                 <section id="identity_matrix">
                             <div class="attr function"><a class="headerlink" href="#identity_matrix">#&nbsp;&nbsp</a>
 
@@ -1482,136 +1073,13 @@ this function to add parentheses as necessary.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;computes the determinant of the given matrix&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-    
-
-                </section>
-                <section id="reduce_det">
-                            <div class="attr function"><a class="headerlink" href="#reduce_det">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">reduce_det</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">reduce_det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;det&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
-            <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c1"># Expand along the first column</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)):</span>
-            <span class="n">submatrix</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
-            <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">expand</span><span class="p">(</span><span class="n">submatrix</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">acc</span>
-
-    <span class="n">r</span> <span class="o">=</span> <span class="n">expand</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">r</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="reduce_matmul">
-                            <div class="attr function"><a class="headerlink" href="#reduce_matmul">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">reduce_matmul</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">reduce_matmul</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;MatTimes&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
-    <span class="n">B</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of rows does not equal number of columns&quot;</span><span class="p">)</span>
-    <span class="n">C</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">C</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
-                <span class="n">x</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
-            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">C</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="reduce_matrix_inverse">
-                            <div class="attr function"><a class="headerlink" href="#reduce_matrix_inverse">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@reduction</div>
-
-            <span class="def">def</span>
-            <span class="name">reduce_matrix_inverse</span><span class="signature">(e)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@reduction</span>
-<span class="k">def</span> <span class="nf">reduce_matrix_inverse</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Pow&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Taking the inverse of a non-square matrix&quot;</span><span class="p">)</span>
-
-    <span class="c1"># TODO be less lazy!</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">e</span>
-
-    <span class="n">d</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">matrix</span><span class="p">([</span><span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">d</span><span class="p">),</span> <span class="o">-</span><span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">d</span><span class="p">)],</span>
-                  <span class="p">[</span><span class="o">-</span><span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">),</span> <span class="n">frac</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">)])</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="irange">
-                            <div class="attr function"><a class="headerlink" href="#irange">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">irange</span><span class="signature">(lo, hi)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">irange</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;list [lo, lo+1, ..., hi]&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>list [lo, lo+1, ..., hi]</p>
+            <div class="docstring"><p>computes the determinant of the given matrix</p>
 </div>
 
 
@@ -1627,12 +1095,180 @@ this function to add parentheses as necessary.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">diagonal_matrix</span><span class="p">(</span><span class="o">*</span><span class="n">entries</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))))</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p><code>diagonal_matrix(a11, a22, ..., ann)</code> gives an nxn matrix whose diagonal is given by these n expressions.</p>
+</div>
+
+
+                </section>
+                <section id="normalize">
+                            <div class="attr function"><a class="headerlink" href="#normalize">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">normalize</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Mathematica-like expression evaluation routine.  Puts an expression</span>
+<span class="sd">    into a sort of normal form by applying all the reduction rules</span>
+<span class="sd">    until the expression no longer changes.</span>
+
+<span class="sd">    Should not simplify expressions very much, though we allow</span>
+<span class="sd">    collection of coefficients for linear combinations and</span>
+<span class="sd">    simplifications of monomials.  We also allow applications of functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">e</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="c1"># evaluate to list</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown type of value to normalize.&quot;</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
+        <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
+                <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">reductions</span><span class="p">):</span>
+        <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mathematica-like expression evaluation routine.  Puts an expression
+into a sort of normal form by applying all the reduction rules
+until the expression no longer changes.</p>
+
+<p>Should not simplify expressions very much, though we allow
+collection of coefficients for linear combinations and
+simplifications of monomials.  We also allow applications of functions.</p>
+</div>
+
+
+                </section>
+                <section id="expand">
+                            <div class="attr function"><a class="headerlink" href="#expand">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">expand</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Mathematica-like ExpandAll.  Distributes multiplications over additions everywhere in the expression.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">e</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown type of value to expand&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">+=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">return</span> <span class="n">expand</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mathematica-like ExpandAll.  Distributes multiplications over additions everywhere in the expression.</p>
+</div>
+
+
+                </section>
+                <section id="replace">
+                            <div class="attr function"><a class="headerlink" href="#replace">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">replace</span><span class="signature">(e, substs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">substs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;substs is a list of expression/value pairs to replace in the expression.  Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">substs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">substs</span><span class="p">),</span> <span class="o">*</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">substs</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">e</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>substs is a list of expression/value pairs to replace in the expression.  Similar to Replace in Mathematica.</p>
+</div>
+
+
+                </section>
+                <section id="reduction">
+                            <div class="attr function"><a class="headerlink" href="#reduction">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">reduction</span><span class="signature">(f)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">reduction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A decorator for defining new reductions used by `normalize()`.</span>
+
+<span class="sd">    Usage:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    @reduction</span>
+<span class="sd">    def my_reduction(e):</span>
+<span class="sd">      return e</span>
+<span class="sd">    ```</span>
+<span class="sd">    This adds `my_reduction` to the list of reductions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reductions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>A decorator for defining new reductions used by <code><a href="#normalize">normalize()</a></code>.</p>
+
+<p>Usage:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@reduction</span>
+<span class="k">def</span> <span class="nf">my_reduction</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">e</span>
+</code></pre></div>
+
+<p>This adds <code>my_reduction</code> to the list of reductions.</p>
+</div>
+
 
                 </section>
     </main>
