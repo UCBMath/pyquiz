@@ -207,10 +207,19 @@ def expand(e):
     if e.head == "Times":
         for i, a in enumerate(args):
             if head(a) == "Plus":
+                rest = expand(normalize(expr("Times", *args[:i], *args[i+1:])))
                 val = 0
                 for b in a.args:
-                    val += expr("Times", *args[:i], b, *args[i+1:])
-                return expand(val)
+                    val += expand(b * rest)
+                return val
+
+    if e.head == "Pow" and type(e.args[1]) == int and e.args[1] != -1 and head(e.args[0]) == "Plus":
+        new_exp = e.args[1] + (-1 if e.args[1] > 0 else 1)
+        rest = expand(normalize(expr("Pow", e.args[0], new_exp)))
+        val = 0
+        for b in e.args[0].args:
+            val += expand(b * rest)
+        return val
 
     return normalize(Expr(e.head, args))
 
@@ -339,6 +348,8 @@ def replace(e, substs):
             return v
     if isinstance(e, Expr):
         return normalize(expr(replace(e.head, substs), *(replace(a, substs) for a in e.args)))
+    elif head(e) == "list":
+        return [replace(a, substs) for a in e]
     else:
         return e
 
