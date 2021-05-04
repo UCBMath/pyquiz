@@ -91,7 +91,7 @@ IN_QUESTION = False
 
 def set_quiz_builder(b):
     """*(Internal: not for quiz authors.)* Sets the current quiz builder."""
-    global BUILDER, LOADED_QUIZZES, IN_QUIZ
+    global BUILDER, LOADED_QUIZZES, IN_QUIZ, IN_QUESTION_GROUP, IN_QUESTION
     BUILDER = b
     LOADED_QUIZZES = []
     IN_QUIZ = False
