@@ -40,6 +40,9 @@
                                 <a class="function" href="#HTMLQuizBuilder.begin_quiz">begin_quiz</a>
                         </li>
                         <li>
+                                <a class="function" href="#HTMLQuizBuilder.end_quiz">end_quiz</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#HTMLQuizBuilder.begin_group">begin_group</a>
                         </li>
                         <li>
@@ -49,10 +52,52 @@
                                 <a class="function" href="#HTMLQuizBuilder.text">text</a>
                         </li>
                         <li>
+                                <a class="function" href="#HTMLQuizBuilder.maybe_points">maybe_points</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_text_only_question">begin_text_only_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_essay_question">begin_essay_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_file_upload_question">begin_file_upload_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_short_answer_question">begin_short_answer_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.short_answer">short_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.fill_in_multiple_blanks_answer">fill_in_multiple_blanks_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_multiple_dropdowns_question">begin_multiple_dropdowns_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.multiple_dropdowns_answer">multiple_dropdowns_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.begin_matching_question">begin_matching_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.matching_answer">matching_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.matching_distractor">matching_distractor</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#HTMLQuizBuilder.begin_numeric_question">begin_numeric_question</a>
                         </li>
                         <li>
                                 <a class="function" href="#HTMLQuizBuilder.numeric_answer">numeric_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.numeric_answer_range">numeric_answer_range</a>
                         </li>
                         <li>
                                 <a class="function" href="#HTMLQuizBuilder.begin_multiple_choice_question">begin_multiple_choice_question</a>
@@ -68,9 +113,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#HTMLQuizBuilder.end_question">end_question</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#HTMLQuizBuilder.end_quiz">end_quiz</a>
                         </li>
                 </ul>
 
@@ -128,6 +170,16 @@
 <span class="s2">            &lt;p&gt;Will replace quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&lt;/p&gt;</span>
 <span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a group. Make sure to use end_group().&quot;</span><span class="p">)</span>
@@ -135,7 +187,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question_group&quot;&gt;</span>
 <span class="s2">        &lt;h2&gt;Question group </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
-<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points each)&lt;/p&gt;</span>
+<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;point&quot;</span> <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;points&quot;</span><span class="si">}</span><span class="s2"> each)&lt;/p&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -158,30 +210,164 @@
 
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">maybe_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;(1 point)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Text-only question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;text_only_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Essay question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;File upload question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Short answer question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Fill in multiple blanks question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple dropdowns question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">correct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &lt;b&gt;(answer)&lt;/b&gt;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Matching question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;matching_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Match </span><span class="si">{</span><span class="n">left</span><span class="si">!r}</span><span class="s2"> to </span><span class="si">{</span><span class="n">right</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Nothing matches to </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &amp;pm; </span><span class="si">{</span><span class="n">margin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
 
-    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: from </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">checkboxes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
@@ -193,13 +379,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Choice: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
@@ -217,16 +403,6 @@
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -278,6 +454,16 @@
 <span class="s2">            &lt;p&gt;Will replace quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&lt;/p&gt;</span>
 <span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a group. Make sure to use end_group().&quot;</span><span class="p">)</span>
@@ -285,7 +471,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question_group&quot;&gt;</span>
 <span class="s2">        &lt;h2&gt;Question group </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
-<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points each)&lt;/p&gt;</span>
+<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;point&quot;</span> <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;points&quot;</span><span class="si">}</span><span class="s2"> each)&lt;/p&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -308,30 +494,164 @@
 
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">maybe_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;(1 point)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Text-only question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;text_only_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Essay question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;File upload question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Short answer question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Fill in multiple blanks question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple dropdowns question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">correct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &lt;b&gt;(answer)&lt;/b&gt;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Matching question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;matching_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Match </span><span class="si">{</span><span class="n">left</span><span class="si">!r}</span><span class="s2"> to </span><span class="si">{</span><span class="n">right</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Nothing matches to </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &amp;pm; </span><span class="si">{</span><span class="n">margin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
 
-    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: from </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">checkboxes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
@@ -343,13 +663,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Choice: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
@@ -367,16 +687,6 @@
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -464,6 +774,32 @@
     
 
                             </div>
+                            <div id="HTMLQuizBuilder.end_quiz" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.end_quiz">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">end_quiz</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
                             <div id="HTMLQuizBuilder.begin_group" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_group">#&nbsp;&nbsp</a>
 
@@ -481,7 +817,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question_group&quot;&gt;</span>
 <span class="s2">        &lt;h2&gt;Question group </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
-<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points each)&lt;/p&gt;</span>
+<span class="s2">        &lt;p&gt;(picking </span><span class="si">{</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;point&quot;</span> <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;points&quot;</span><span class="si">}</span><span class="s2"> each)&lt;/p&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
@@ -542,23 +878,349 @@
     
 
                             </div>
-                            <div id="HTMLQuizBuilder.begin_numeric_question" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_numeric_question">#&nbsp;&nbsp</a>
+                            <div id="HTMLQuizBuilder.maybe_points" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.maybe_points">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">begin_numeric_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
+            <span class="name">maybe_points</span><span class="signature">(self, points)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">maybe_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;(1 point)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2"> points)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_text_only_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_text_only_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_text_only_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Text-only question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;text_only_question&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_essay_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_essay_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_essay_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Essay question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_file_upload_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_file_upload_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_file_upload_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;File upload question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_short_answer_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_short_answer_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_short_answer_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Short answer question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.short_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.short_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">short_answer</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_fill_in_multiple_blanks_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_fill_in_multiple_blanks_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_fill_in_multiple_blanks_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Fill in multiple blanks question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.fill_in_multiple_blanks_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.fill_in_multiple_blanks_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">fill_in_multiple_blanks_answer</span><span class="signature">(self, blank_id, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_multiple_dropdowns_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_multiple_dropdowns_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_multiple_dropdowns_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple dropdowns question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.multiple_dropdowns_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.multiple_dropdowns_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">multiple_dropdowns_answer</span><span class="signature">(self, blank_id, correct, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Answer for </span><span class="si">{</span><span class="n">blank_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">correct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &lt;b&gt;(answer)&lt;/b&gt;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_matching_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_matching_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_matching_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Matching question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;matching_question&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.matching_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.matching_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">matching_answer</span><span class="signature">(self, left, right)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Match </span><span class="si">{</span><span class="n">left</span><span class="si">!r}</span><span class="s2"> to </span><span class="si">{</span><span class="n">right</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.matching_distractor" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.matching_distractor">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">matching_distractor</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Nothing matches to </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.begin_numeric_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.begin_numeric_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_numeric_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
+<span class="s2">        &lt;h3&gt;Numeric question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
@@ -576,13 +1238,43 @@
 
         
             <span class="def">def</span>
-            <span class="name">numeric_answer</span><span class="signature">(self, val, precision=2)</span>:
+            <span class="name">numeric_answer</span><span class="signature">(self, val, margin=None, precision=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &amp;pm; </span><span class="si">{</span><span class="n">margin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> with precision </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.numeric_answer_range" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.numeric_answer_range">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">numeric_answer_range</span><span class="signature">(self, lo, hi)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Numeric answer: from </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -595,19 +1287,21 @@
 
         
             <span class="def">def</span>
-            <span class="name">begin_multiple_choice_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
+            <span class="name">begin_multiple_choice_question</span><span class="signature">(self, name=&#39;&#39;, points=1, checkboxes=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;Multiple choice question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">checkboxes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
@@ -646,18 +1340,18 @@
 
         
             <span class="def">def</span>
-            <span class="name">begin_true_false_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
+            <span class="name">begin_true_false_question</span><span class="signature">(self, name=&#39;&#39;, points=1)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">        &lt;h3&gt;True/false question </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
@@ -707,32 +1401,6 @@
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_HAS_QUESTION</span> <span class="o">=</span> <span class="kc">True</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="HTMLQuizBuilder.end_quiz" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.end_quiz">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">end_quiz</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_question()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;need to end_group()&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not in a quiz&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>

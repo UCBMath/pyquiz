@@ -94,7 +94,7 @@ class CanvasQuizBuilder:
         self.QUIZ = None
 
 
-    def begin_group(self, name="", pick_count=1, points=None):
+    def begin_group(self, name="", pick_count=1, points=1):
         if self.GROUP_ID != None:
             raise Exception("Already in a group. Make sure to use end_group().")
         # Defer actually creating a question group -- the Canvas API
@@ -103,10 +103,9 @@ class CanvasQuizBuilder:
         self.GROUP_ID = "defer"
         self.GROUP_CONFIG = {
             'name': name,
-            'pick_count': pick_count
+            'pick_count': pick_count,
+            'question_points': points
         }
-        if points != None:
-            self.GROUP_CONFIG['question_points'] = points
 
     def end_group(self):
         if self.GROUP_ID == None:
@@ -120,40 +119,45 @@ class CanvasQuizBuilder:
             raise Exception("Not in a question.")
         self.QUESTION_DATA['question_text'] += s
 
-    def begin_essay_question(self, name='', points=None):
+    def begin_text_only_question(self, name=''):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'question_text': MATHJAX,
+            'question_type': "text_only_question"
+        }
+
+    def begin_essay_question(self, name='', points=1):
+        if self.QUESTION_DATA != None:
+            raise Exception("In a question. Make sure to use end_question().")
+        self.QUESTION_DATA = {
+            'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "essay_question"
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
-    def begin_file_upload_question(self, name='', points=None):
+    def begin_file_upload_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "file_upload_question"
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
-
-    def begin_short_answer_question(self, name='', points=None):
+    def begin_short_answer_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "short_answer_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
     def short_answer(self, text):
         # TODO check if setting weight 0 is interesting
@@ -162,17 +166,16 @@ class CanvasQuizBuilder:
             'text': text
         })
 
-    def begin_fill_in_multiple_blanks_question(self, name='', points=None):
+    def begin_fill_in_multiple_blanks_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "fill_in_multiple_blanks_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
     def fill_in_multiple_blanks_answer(self, blank_id, text):
         self.QUESTION_DATA['answers'].append({
@@ -181,17 +184,16 @@ class CanvasQuizBuilder:
             'text': text
         })
 
-    def begin_multiple_dropdowns_question(self, name='', points=None):
+    def begin_multiple_dropdowns_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "multiple_dropdowns_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
     def multiple_dropdowns_answer(self, blank_id, correct, text):
         self.QUESTION_DATA['answers'].append({
@@ -200,17 +202,39 @@ class CanvasQuizBuilder:
             'text': text
         })
 
-    def begin_numeric_question(self, name='', points=None):
+    def begin_matching_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
+            'question_text': MATHJAX,
+            'question_type': "matching_question",
+            'answers': [],
+            'matching_answer_incorrect_matches': ""
+        }
+
+    def matching_answer(self, left, right):
+        self.QUESTION_DATA['answers'].append({
+            'answer_match_left': left,
+            'answer_match_right': right
+        })
+    def matching_distractor(self, text):
+        assert isinstance(text, str)
+        incorrect = [s for s in self.QUESTION_DATA['matching_answer_incorrect_matches'].split("\n") if s]
+        incorrect.append(text)
+        self.QUESTION_DATA['matching_answer_incorrect_matches'] = "\n".join(incorrect)
+
+    def begin_numeric_question(self, name='', points=1):
+        if self.QUESTION_DATA != None:
+            raise Exception("In a question. Make sure to use end_question().")
+        self.QUESTION_DATA = {
+            'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "numerical_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
 
     def numeric_answer(self, val, margin=None, precision=None):
         if margin != None and precision != None:
@@ -242,18 +266,16 @@ class CanvasQuizBuilder:
             'answer_range_end': hi
         })
 
-    def begin_multiple_choice_question(self, name='', points=None, checkboxes=False):
+    def begin_multiple_choice_question(self, name='', points=1, checkboxes=False):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "multiple_answers_question" if checkboxes else "multiple_choice_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
-
 
     def multiple_choice_answer(self, correct, text):
         self.QUESTION_DATA['answers'].append({
@@ -261,18 +283,16 @@ class CanvasQuizBuilder:
             'text': text
         })
 
-    def begin_true_false_question(self, name='', points=None):
+    def begin_true_false_question(self, name='', points=1):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
         self.QUESTION_DATA = {
             'question_name': name,
+            'points_possible': points,
             'question_text': MATHJAX,
             'question_type': "true_false_question",
             'answers': []
         }
-        if points != None:
-            self.QUESTION_DATA['points_possible'] = points
-
 
     def true_false_answer(self, correct_value):
         self.QUESTION_DATA['answers'].append({

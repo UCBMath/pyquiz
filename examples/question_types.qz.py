@@ -21,6 +21,12 @@ Upload a file.
 """)
 end_question()
 
+begin_text_only_question()
+text(rf"""
+Think about something then imagine the thought.
+""")
+end_question()
+
 begin_short_answer_question()
 text(rf"""
 Repeat "after me".
@@ -46,6 +52,16 @@ multiple_dropdowns_answer("color2", True, "blue")
 multiple_dropdowns_answer("color2", False, "taupe")
 end_question()
 
+begin_matching_question()
+text(rf"""
+Match the letter to its index in the alphabet.
+""")
+matching_answer("A", "1")
+matching_answer("B", "2")
+matching_answer("C", "3")
+matching_distractor("300")
+matching_distractor("5.4")
+end_question()
 
 begin_numeric_question()
 text(rf"""

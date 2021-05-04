@@ -46,28 +46,13 @@
                     <a class="function" href="#para">para</a>
             </li>
             <li>
-                    <a class="function" href="#begin_essay_question">begin_essay_question</a>
-            </li>
-            <li>
-                    <a class="function" href="#begin_file_upload_question">begin_file_upload_question</a>
+                    <a class="function" href="#begin_text_only_question">begin_text_only_question</a>
             </li>
             <li>
                     <a class="function" href="#begin_short_answer_question">begin_short_answer_question</a>
             </li>
             <li>
                     <a class="function" href="#short_answer">short_answer</a>
-            </li>
-            <li>
-                    <a class="function" href="#begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question</a>
-            </li>
-            <li>
-                    <a class="function" href="#fill_in_multiple_blanks_answer">fill_in_multiple_blanks_answer</a>
-            </li>
-            <li>
-                    <a class="function" href="#begin_multiple_dropdowns_question">begin_multiple_dropdowns_question</a>
-            </li>
-            <li>
-                    <a class="function" href="#multiple_dropdowns_answer">multiple_dropdowns_answer</a>
             </li>
             <li>
                     <a class="function" href="#begin_numeric_question">begin_numeric_question</a>
@@ -89,6 +74,33 @@
             </li>
             <li>
                     <a class="function" href="#true_false_answer">true_false_answer</a>
+            </li>
+            <li>
+                    <a class="function" href="#begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question</a>
+            </li>
+            <li>
+                    <a class="function" href="#fill_in_multiple_blanks_answer">fill_in_multiple_blanks_answer</a>
+            </li>
+            <li>
+                    <a class="function" href="#begin_multiple_dropdowns_question">begin_multiple_dropdowns_question</a>
+            </li>
+            <li>
+                    <a class="function" href="#multiple_dropdowns_answer">multiple_dropdowns_answer</a>
+            </li>
+            <li>
+                    <a class="function" href="#begin_matching_question">begin_matching_question</a>
+            </li>
+            <li>
+                    <a class="function" href="#matching_answer">matching_answer</a>
+            </li>
+            <li>
+                    <a class="function" href="#matching_distractor">matching_distractor</a>
+            </li>
+            <li>
+                    <a class="function" href="#begin_essay_question">begin_essay_question</a>
+            </li>
+            <li>
+                    <a class="function" href="#begin_file_upload_question">begin_file_upload_question</a>
             </li>
             <li>
                     <a class="function" href="#end_question">end_question</a>
@@ -124,9 +136,29 @@ functions, which are specified in this module.</p>
 groups begin with <code><a href="#begin_group">begin_group()</a></code> and end with <code><a href="#end_group">end_group()</a></code>.  Questions begin with one of the functions listed below and end with <code><a href="#end_question">end_question()</a></code>:</p>
 
 <ul>
-<li><p><code><a href="#begin_numeric_question">begin_numeric_question()</a></code> with <code><a href="#numeric_answer">numeric_answer()</a></code>.</p></li>
-<li><p><code><a href="#begin_multiple_choice_question">begin_multiple_choice_question()</a></code> with <code><a href="#multiple_choice_answer">multiple_choice_answer()</a></code>.</p></li>
-<li><p><code><a href="#begin_true_false_question">begin_true_false_question()</a></code> with <code><a href="#true_false_answer">true_false_answer()</a></code>.</p></li>
+<li><p><code><a href="#begin_text_only_question">begin_text_only_question()</a></code> for an ungraded answer-free portion of
+a quiz.  Useful for giving directions partway through a quiz or
+prompting some other work.</p></li>
+<li><p><code><a href="#begin_short_answer_question">begin_short_answer_question()</a></code> with <code><a href="#short_answer">short_answer()</a></code> for a question
+with a specified short answer, for example a one-word answer.</p></li>
+<li><p><code><a href="#begin_numeric_question">begin_numeric_question()</a></code> with <code><a href="#numeric_answer">numeric_answer()</a></code> and
+<code><a href="#numeric_answer_range">numeric_answer_range()</a></code> for a short answer that is interpreted
+numerically.</p></li>
+<li><p><code><a href="#begin_multiple_choice_question">begin_multiple_choice_question()</a></code> with <code><a href="#multiple_choice_answer">multiple_choice_answer()</a></code>
+for standard multiple-choice questions.</p></li>
+<li><p><code><a href="#begin_true_false_question">begin_true_false_question()</a></code> with <code><a href="#true_false_answer">true_false_answer()</a></code> for
+standard true/false questions.</p></li>
+<li><p><code><a href="#begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question()</a></code> with
+<code><a href="#fill_in_multiple_blanks_answer">fill_in_multiple_blanks_answer()</a></code> for a fill-in-the-blanks question
+with multiple clozes.</p></li>
+<li><p><code><a href="#begin_multiple_dropdowns_question">begin_multiple_dropdowns_question()</a></code> with
+<code><a href="#multiple_dropdowns_answer">multiple_dropdowns_answer()</a></code> for a fill-in-the-blanks question
+where each cloze is given as a drop-down dialog.</p></li>
+<li><p><code><a href="#begin_matching_question">begin_matching_question()</a></code> with <code><a href="#matching_answer">matching_answer()</a></code> and
+<code><a href="#matching_distractor">matching_distractor()</a></code> for a question where each item in a list is
+matched to one of a given set of items.</p></li>
+<li><p><code><a href="#begin_essay_question">begin_essay_question()</a></code> for a free-form textual answer (not automatically graded).</p></li>
+<li><p><code><a href="#begin_file_upload_question">begin_file_upload_question()</a></code> for a free-form answer, uploaded as a file (not automatically graded).</p></li>
 </ul>
 
 <p>The text of a question is given by one or more <code><a href="#text">text()</a></code> and <code><a href="#para">para()</a></code> calls.</p>
@@ -146,11 +178,38 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">Quizzes begin with `begin_quiz()` and end with `end_quiz()`.  Quiz</span>
 <span class="sd">groups begin with `begin_group()` and end with `end_group()`.  Questions begin with one of the functions listed below and end with `end_question()`:</span>
 
-<span class="sd">* `begin_numeric_question()` with `numeric_answer()`.</span>
+<span class="sd">* `begin_text_only_question()` for an ungraded answer-free portion of</span>
+<span class="sd">  a quiz.  Useful for giving directions partway through a quiz or</span>
+<span class="sd">  prompting some other work.</span>
 
-<span class="sd">* `begin_multiple_choice_question()` with `multiple_choice_answer()`.</span>
+<span class="sd">* `begin_short_answer_question()` with `short_answer()` for a question</span>
+<span class="sd">  with a specified short answer, for example a one-word answer.</span>
 
-<span class="sd">* `begin_true_false_question()` with `true_false_answer()`.</span>
+<span class="sd">* `begin_numeric_question()` with `numeric_answer()` and</span>
+<span class="sd">  `numeric_answer_range()` for a short answer that is interpreted</span>
+<span class="sd">  numerically.</span>
+
+<span class="sd">* `begin_multiple_choice_question()` with `multiple_choice_answer()`</span>
+<span class="sd">  for standard multiple-choice questions.</span>
+
+<span class="sd">* `begin_true_false_question()` with `true_false_answer()` for</span>
+<span class="sd">  standard true/false questions.</span>
+
+<span class="sd">* `begin_fill_in_multiple_blanks_question()` with</span>
+<span class="sd">  `fill_in_multiple_blanks_answer()` for a fill-in-the-blanks question</span>
+<span class="sd">  with multiple clozes.</span>
+
+<span class="sd">* `begin_multiple_dropdowns_question()` with</span>
+<span class="sd">  `multiple_dropdowns_answer()` for a fill-in-the-blanks question</span>
+<span class="sd">  where each cloze is given as a drop-down dialog.</span>
+
+<span class="sd">* `begin_matching_question()` with `matching_answer()` and</span>
+<span class="sd">  `matching_distractor()` for a question where each item in a list is</span>
+<span class="sd">  matched to one of a given set of items.</span>
+
+<span class="sd">* `begin_essay_question()` for a free-form textual answer (not automatically graded).</span>
+
+<span class="sd">* `begin_file_upload_question()` for a free-form answer, uploaded as a file (not automatically graded).</span>
 
 <span class="sd">The text of a question is given by one or more `text()` and `para()` calls.</span>
 
@@ -167,14 +226,17 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="s2">&quot;begin_group&quot;</span><span class="p">,</span> <span class="s2">&quot;end_group&quot;</span><span class="p">,</span>
     <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;para&quot;</span><span class="p">,</span>
 
-    <span class="s2">&quot;begin_essay_question&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;begin_file_upload_question&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_text_only_question&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_short_answer_question&quot;</span><span class="p">,</span> <span class="s2">&quot;short_answer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;begin_fill_in_multiple_blanks_question&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_in_multiple_blanks_answer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;begin_multiple_dropdowns_question&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple_dropdowns_answer&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_numeric_question&quot;</span><span class="p">,</span> <span class="s2">&quot;numeric_answer&quot;</span><span class="p">,</span> <span class="s2">&quot;numeric_answer_range&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_multiple_choice_question&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple_choice_answer&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_true_false_question&quot;</span><span class="p">,</span> <span class="s2">&quot;true_false_answer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_fill_in_multiple_blanks_question&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_in_multiple_blanks_answer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_multiple_dropdowns_question&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple_dropdowns_answer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_matching_question&quot;</span><span class="p">,</span> <span class="s2">&quot;matching_answer&quot;</span><span class="p">,</span> <span class="s2">&quot;matching_distractor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_essay_question&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_file_upload_question&quot;</span><span class="p">,</span>
+
     <span class="s2">&quot;end_question&quot;</span><span class="p">,</span>
 
     <span class="s2">&quot;set_quiz_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;get_loaded_quizzes&quot;</span><span class="p">,</span> <span class="s2">&quot;is_in_quiz&quot;</span>
@@ -267,7 +329,7 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_quiz</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new question group, which is ended with `end_group()`.</span>
 <span class="sd">    All questions created between `begin_group()` and `end_group()` will be added</span>
 <span class="sd">    to this question group.</span>
@@ -296,90 +358,153 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_group</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text to the current question.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the current question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
+<span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">text</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin an essay question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a text-only question.  This is an answer-free question, useful</span>
+<span class="sd">    for prompting reading, setting up the context for some following</span>
+<span class="sd">    questions, or otherwise providing directions.  End with `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;text only&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a free-form essay question. End with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;essay&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a file upload question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a file upload question. End with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;file upload&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a short answer question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a short-answer question.  Accepted answers are specified with</span>
+<span class="sd">    calls to `short_answer()`. End with `end_question()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;short answer&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a short answer question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a short answer question.  Can be called multiple</span>
+<span class="sd">    times for multiple acceptible answers.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;short answer&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.  Each blank is given by</span>
+<span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;). End with</span>
+<span class="sd">    `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;fill in multiple blanks&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question.  The `blank_id` is</span>
+<span class="sd">    the text in square brackets in the body of the question.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;fill in multiple blanks&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question, just like</span>
+<span class="sd">    `begin_fill_in_multiple_blanks_question()` but the blanks are</span>
+<span class="sd">    drop-down dialogs showing possible answers. Each blank is given by</span>
+<span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;).  End</span>
+<span class="sd">    with `end_question()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple dropdowns&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An answer to a multilpe dropdowns question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a multiple dropdowns question.  The `blank_id` refers</span>
+<span class="sd">    to the text in square brackets in the body of the question, and</span>
+<span class="sd">    `correct` is `True` or `False` whether it is one of the expected</span>
+<span class="sd">    responses.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple dropdowns&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a numeric question.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a matching question.  A list of &quot;left&quot; items are matched</span>
+<span class="sd">    against a set of &quot;right&quot; items, and the &quot;right&quot; items might have mixed</span>
+<span class="sd">    amongst them a set of &quot;distractors.&quot; End with `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;matching question&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a matching question.  The &quot;left&quot; item is shown in a</span>
+<span class="sd">    list in the left, and the &quot;right&quot; item is added to a set of things</span>
+<span class="sd">    matched.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A distractor to a matching question.  Shows up in the set of &quot;right&quot; items.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a numeric question.  Like `begin_short_answer_question()` but</span>
+<span class="sd">    the answer is interpreted numerically. End with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;numeric question&quot;</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a numeric question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a numeric question.</span>
+
+<span class="sd">    * If `margin` is set, then an acceptible answer is `val` plus or minus `margin`.</span>
+<span class="sd">    </span>
+<span class="sd">    * If `precision` is set, then an acceptible answer is that number</span>
+<span class="sd">      of decimal places of `val` in scientific notation.</span>
+
+<span class="sd">    If neither `margin` nor `precision` is set, then `margin=0`,</span>
+<span class="sd">    meaning an exact answer.  At most one can be set.</span>
+
+<span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a numeric question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a numeric question, where the answer lies in the</span>
+<span class="sd">    closed interval `[val_lo, val_hi]`.</span>
+
+<span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a multiple choice question.  Ended with `end_question()`.</span>
 
 <span class="sd">    * If `checkboxes` is `True`, then multiple answers can be</span>
 <span class="sd">      selected, and the student is expected to select all the correct</span>
 <span class="sd">      answers.</span>
 
+<span class="sd">    End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
@@ -399,7 +524,7 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
@@ -529,12 +654,12 @@ published quiz.  Unpublish the quiz first from Canvas.</p>
 
         
             <span class="def">def</span>
-            <span class="name">begin_group</span><span class="signature">(name=&#39;&#39;, pick_count=1, points=None)</span>:
+            <span class="name">begin_group</span><span class="signature">(name=&#39;&#39;, pick_count=1, points=1)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new question group, which is ended with `end_group()`.</span>
 <span class="sd">    All questions created between `begin_group()` and `end_group()` will be added</span>
 <span class="sd">    to this question group.</span>
@@ -608,14 +733,14 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text to the current question.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Attach the given text to the current question.</p>
+            <div class="docstring"><p>Attach the given text to the body of the current question.</p>
 </div>
 
 
@@ -631,64 +756,45 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the current question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
+<span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">text</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Attach the given text as a paragraph to the current question.  This simply wraps the text in an HTML paragraph tag.</p>
+            <div class="docstring"><p>Attach the given text as a paragraph to the body of the current
+question.  This simply wraps the text in an HTML paragraph tag.</p>
 </div>
 
 
                 </section>
-                <section id="begin_essay_question">
-                            <div class="attr function"><a class="headerlink" href="#begin_essay_question">#&nbsp;&nbsp</a>
+                <section id="begin_text_only_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_text_only_question">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">begin_essay_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
+            <span class="name">begin_text_only_question</span><span class="signature">(name=&#39;&#39;)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin an essay question.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a text-only question.  This is an answer-free question, useful</span>
+<span class="sd">    for prompting reading, setting up the context for some following</span>
+<span class="sd">    questions, or otherwise providing directions.  End with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;essay&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;text only&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Begin an essay question.</p>
-</div>
-
-
-                </section>
-                <section id="begin_file_upload_question">
-                            <div class="attr function"><a class="headerlink" href="#begin_file_upload_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_file_upload_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a file upload question.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;file upload&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Begin a file upload question.</p>
+            <div class="docstring"><p>Begin a text-only question.  This is an answer-free question, useful
+for prompting reading, setting up the context for some following
+questions, or otherwise providing directions.  End with <code><a href="#end_question">end_question()</a></code>.</p>
 </div>
 
 
@@ -698,13 +804,15 @@ to this question group.</p>
 
         
             <span class="def">def</span>
-            <span class="name">begin_short_answer_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
+            <span class="name">begin_short_answer_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a short answer question.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a short-answer question.  Accepted answers are specified with</span>
+<span class="sd">    calls to `short_answer()`. End with `end_question()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;short answer&quot;</span>
@@ -713,7 +821,8 @@ to this question group.</p>
 
         </details>
 
-            <div class="docstring"><p>Begin a short answer question.</p>
+            <div class="docstring"><p>Begin a short-answer question.  Accepted answers are specified with
+calls to <code><a href="#short_answer">short_answer()</a></code>. End with <code><a href="#end_question">end_question()</a></code>.</p>
 </div>
 
 
@@ -729,110 +838,16 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a short answer question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a short answer question.  Can be called multiple</span>
+<span class="sd">    times for multiple acceptible answers.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;short answer&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>The answer to a short answer question</p>
-</div>
-
-
-                </section>
-                <section id="begin_fill_in_multiple_blanks_question">
-                            <div class="attr function"><a class="headerlink" href="#begin_fill_in_multiple_blanks_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_fill_in_multiple_blanks_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;fill in multiple blanks&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Begin a fill-in-multiple-blanks question.</p>
-</div>
-
-
-                </section>
-                <section id="fill_in_multiple_blanks_answer">
-                            <div class="attr function"><a class="headerlink" href="#fill_in_multiple_blanks_answer">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">fill_in_multiple_blanks_answer</span><span class="signature">(blank_id, text)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;fill in multiple blanks&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>An answer to a fill-in-multiple-blanks question</p>
-</div>
-
-
-                </section>
-                <section id="begin_multiple_dropdowns_question">
-                            <div class="attr function"><a class="headerlink" href="#begin_multiple_dropdowns_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_multiple_dropdowns_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple dropdowns&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Begin a fill-in-multiple-blanks question.</p>
-</div>
-
-
-                </section>
-                <section id="multiple_dropdowns_answer">
-                            <div class="attr function"><a class="headerlink" href="#multiple_dropdowns_answer">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">multiple_dropdowns_answer</span><span class="signature">(blank_id, correct, text)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An answer to a multilpe dropdowns question&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple dropdowns&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>An answer to a multilpe dropdowns question</p>
+            <div class="docstring"><p>The answer to a short answer question.  Can be called multiple
+times for multiple acceptible answers.</p>
 </div>
 
 
@@ -842,13 +857,14 @@ to this question group.</p>
 
         
             <span class="def">def</span>
-            <span class="name">begin_numeric_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
+            <span class="name">begin_numeric_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a numeric question.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a numeric question.  Like `begin_short_answer_question()` but</span>
+<span class="sd">    the answer is interpreted numerically. End with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
     <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;numeric question&quot;</span>
@@ -857,7 +873,8 @@ to this question group.</p>
 
         </details>
 
-            <div class="docstring"><p>Begin a numeric question.</p>
+            <div class="docstring"><p>Begin a numeric question.  Like <code><a href="#begin_short_answer_question">begin_short_answer_question()</a></code> but
+the answer is interpreted numerically. End with <code><a href="#end_question">end_question()</a></code>.</p>
 </div>
 
 
@@ -873,14 +890,36 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a numeric question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a numeric question.</span>
+
+<span class="sd">    * If `margin` is set, then an acceptible answer is `val` plus or minus `margin`.</span>
+<span class="sd">    </span>
+<span class="sd">    * If `precision` is set, then an acceptible answer is that number</span>
+<span class="sd">      of decimal places of `val` in scientific notation.</span>
+
+<span class="sd">    If neither `margin` nor `precision` is set, then `margin=0`,</span>
+<span class="sd">    meaning an exact answer.  At most one can be set.</span>
+
+<span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>The answer to a numeric question</p>
+            <div class="docstring"><p>The answer to a numeric question.</p>
+
+<ul>
+<li><p>If <code>margin</code> is set, then an acceptible answer is <code>val</code> plus or minus <code>margin</code>.</p></li>
+<li><p>If <code>precision</code> is set, then an acceptible answer is that number
+of decimal places of <code>val</code> in scientific notation.</p></li>
+</ul>
+
+<p>If neither <code>margin</code> nor <code>precision</code> is set, then <code>margin=0</code>,
+meaning an exact answer.  At most one can be set.</p>
+
+<p>A numeric question may have multiple <code><a href="#numeric_answer">numeric_answer()</a></code> and <code><a href="#numeric_answer_range">numeric_answer_range()</a></code> calls.</p>
 </div>
 
 
@@ -896,14 +935,22 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The answer to a numeric question&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The answer to a numeric question, where the answer lies in the</span>
+<span class="sd">    closed interval `[val_lo, val_hi]`.</span>
+
+<span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
     <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>The answer to a numeric question</p>
+            <div class="docstring"><p>The answer to a numeric question, where the answer lies in the
+closed interval <code>[val_lo, val_hi]</code>.</p>
+
+<p>A numeric question may have multiple <code><a href="#numeric_answer">numeric_answer()</a></code> and <code><a href="#numeric_answer_range">numeric_answer_range()</a></code> calls.</p>
 </div>
 
 
@@ -913,18 +960,19 @@ to this question group.</p>
 
         
             <span class="def">def</span>
-            <span class="name">begin_multiple_choice_question</span><span class="signature">(name=&#39;&#39;, points=None, checkboxes=False)</span>:
+            <span class="name">begin_multiple_choice_question</span><span class="signature">(name=&#39;&#39;, points=1, checkboxes=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a multiple choice question.  Ended with `end_question()`.</span>
 
 <span class="sd">    * If `checkboxes` is `True`, then multiple answers can be</span>
 <span class="sd">      selected, and the student is expected to select all the correct</span>
 <span class="sd">      answers.</span>
 
+<span class="sd">    End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
@@ -941,6 +989,8 @@ to this question group.</p>
 selected, and the student is expected to select all the correct
 answers.</li>
 </ul>
+
+<p>End with <code><a href="#end_question">end_question()</a></code>.</p>
 </div>
 
 
@@ -987,12 +1037,12 @@ is a correct answer.  There may be multiple correct answers.</li>
 
         
             <span class="def">def</span>
-            <span class="name">begin_true_false_question</span><span class="signature">(name=&#39;&#39;, points=None)</span>:
+            <span class="name">begin_true_false_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUESTION</span>
     <span class="n">check_in_quiz</span><span class="p">()</span>
@@ -1034,6 +1084,252 @@ is a correct answer.  There may be multiple correct answers.</li>
 <ul>
 <li><code>correct_value</code> is <code>True</code> or <code>False</code> depending on whether the answer is "true" or "false."</li>
 </ul>
+</div>
+
+
+                </section>
+                <section id="begin_fill_in_multiple_blanks_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_fill_in_multiple_blanks_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_fill_in_multiple_blanks_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.  Each blank is given by</span>
+<span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;). End with</span>
+<span class="sd">    `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;fill in multiple blanks&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Begin a fill-in-multiple-blanks question.  Each blank is given by
+text in square brackets (for example, "Roses are [color]"). End with
+<code><a href="#end_question">end_question()</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="fill_in_multiple_blanks_answer">
+                            <div class="attr function"><a class="headerlink" href="#fill_in_multiple_blanks_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">fill_in_multiple_blanks_answer</span><span class="signature">(blank_id, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question.  The `blank_id` is</span>
+<span class="sd">    the text in square brackets in the body of the question.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;fill in multiple blanks&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>An answer to a fill-in-multiple-blanks question.  The <code>blank_id</code> is
+the text in square brackets in the body of the question.</p>
+</div>
+
+
+                </section>
+                <section id="begin_multiple_dropdowns_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_multiple_dropdowns_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_multiple_dropdowns_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question, just like</span>
+<span class="sd">    `begin_fill_in_multiple_blanks_question()` but the blanks are</span>
+<span class="sd">    drop-down dialogs showing possible answers. Each blank is given by</span>
+<span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;).  End</span>
+<span class="sd">    with `end_question()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple dropdowns&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Begin a fill-in-multiple-blanks question, just like
+<code><a href="#begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question()</a></code> but the blanks are
+drop-down dialogs showing possible answers. Each blank is given by
+text in square brackets (for example, "Roses are [color]").  End
+with <code><a href="#end_question">end_question()</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="multiple_dropdowns_answer">
+                            <div class="attr function"><a class="headerlink" href="#multiple_dropdowns_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">multiple_dropdowns_answer</span><span class="signature">(blank_id, correct, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a multiple dropdowns question.  The `blank_id` refers</span>
+<span class="sd">    to the text in square brackets in the body of the question, and</span>
+<span class="sd">    `correct` is `True` or `False` whether it is one of the expected</span>
+<span class="sd">    responses.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple dropdowns&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>An answer to a multiple dropdowns question.  The <code>blank_id</code> refers
+to the text in square brackets in the body of the question, and
+<code>correct</code> is <code>True</code> or <code>False</code> whether it is one of the expected
+responses.</p>
+</div>
+
+
+                </section>
+                <section id="begin_matching_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_matching_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_matching_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a matching question.  A list of &quot;left&quot; items are matched</span>
+<span class="sd">    against a set of &quot;right&quot; items, and the &quot;right&quot; items might have mixed</span>
+<span class="sd">    amongst them a set of &quot;distractors.&quot; End with `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;matching question&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Begin a matching question.  A list of "left" items are matched
+against a set of "right" items, and the "right" items might have mixed
+amongst them a set of "distractors." End with <code><a href="#end_question">end_question()</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="matching_answer">
+                            <div class="attr function"><a class="headerlink" href="#matching_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">matching_answer</span><span class="signature">(left, right)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An answer to a matching question.  The &quot;left&quot; item is shown in a</span>
+<span class="sd">    list in the left, and the &quot;right&quot; item is added to a set of things</span>
+<span class="sd">    matched.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>An answer to a matching question.  The "left" item is shown in a
+list in the left, and the "right" item is added to a set of things
+matched.</p>
+</div>
+
+
+                </section>
+                <section id="matching_distractor">
+                            <div class="attr function"><a class="headerlink" href="#matching_distractor">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">matching_distractor</span><span class="signature">(text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A distractor to a matching question.  Shows up in the set of &quot;right&quot; items.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>A distractor to a matching question.  Shows up in the set of "right" items.</p>
+</div>
+
+
+                </section>
+                <section id="begin_essay_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_essay_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_essay_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a free-form essay question. End with `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;essay&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Begin a free-form essay question. End with <code><a href="#end_question">end_question()</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="begin_file_upload_question">
+                            <div class="attr function"><a class="headerlink" href="#begin_file_upload_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_file_upload_question</span><span class="signature">(name=&#39;&#39;, points=1)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Begin a file upload question. End with `end_question()`.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">IN_QUESTION</span>
+    <span class="n">check_in_quiz</span><span class="p">()</span>
+    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;file upload&quot;</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Begin a file upload question. End with <code><a href="#end_question">end_question()</a></code>.</p>
 </div>
 
 
