@@ -46,28 +46,55 @@
                                 <a class="function" href="#CanvasQuizBuilder.end_group">end_group</a>
                         </li>
                         <li>
-                                <a class="function" href="#CanvasQuizBuilder.begin_numeric_question">begin_numeric_question</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#CanvasQuizBuilder.begin_multiple_choice_question">begin_multiple_choice_question</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#CanvasQuizBuilder.begin_true_false_question">begin_true_false_question</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#CanvasQuizBuilder.text">text</a>
                         </li>
                         <li>
-                                <a class="function" href="#CanvasQuizBuilder.end_question">end_question</a>
+                                <a class="function" href="#CanvasQuizBuilder.begin_essay_question">begin_essay_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_file_upload_question">begin_file_upload_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_short_answer_question">begin_short_answer_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.short_answer">short_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_fill_in_multiple_blanks_question">begin_fill_in_multiple_blanks_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.fill_in_multiple_blanks_answer">fill_in_multiple_blanks_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_multiple_dropdowns_question">begin_multiple_dropdowns_question</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.multiple_dropdowns_answer">multiple_dropdowns_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_numeric_question">begin_numeric_question</a>
                         </li>
                         <li>
                                 <a class="function" href="#CanvasQuizBuilder.numeric_answer">numeric_answer</a>
                         </li>
                         <li>
+                                <a class="function" href="#CanvasQuizBuilder.numeric_answer_range">numeric_answer_range</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_multiple_choice_question">begin_multiple_choice_question</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#CanvasQuizBuilder.multiple_choice_answer">multiple_choice_answer</a>
                         </li>
                         <li>
+                                <a class="function" href="#CanvasQuizBuilder.begin_true_false_question">begin_true_false_question</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#CanvasQuizBuilder.true_false_answer">true_false_answer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.end_question">end_question</a>
                         </li>
                 </ul>
 
@@ -87,14 +114,21 @@
                     <h1 class="modulename">
 <a href="./../pyquiz.html">pyquiz</a><wbr>.canvas    </h1>
 
-                
+                        <div class="docstring"><p>This is the quiz builder (see <code><a href="builder.html">pyquiz.builder</a></code>) for Canvas output.  Quiz writers should not need to refer to this module.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">canvasapi</span> <span class="kn">import</span> <span class="n">Canvas</span>
+            <div class="codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is the quiz builder (see `pyquiz.builder`) for Canvas output.  Quiz writers should not need to refer to this module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">canvasapi</span> <span class="kn">import</span> <span class="n">Canvas</span>
 <span class="kn">from</span> <span class="nn">canvasapi.exceptions</span> <span class="kn">import</span> <span class="n">ResourceDoesNotExist</span>
 
 <span class="c1"># By adding this to a Canvas question, it enables MathJax for the page.</span>
-<span class="n">MATHJAX</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;&lt;p style=&quot;display: none;&quot; aria-hidden=&quot;true&quot;&gt;&lt;math&gt;&lt;/math&gt;Requires JavaScript to see MathJax.&lt;/p&gt;&quot;&quot;&quot;</span>
+<span class="n">MATHJAX</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;&lt;p style=&quot;display: none;&quot; aria-hidden=&quot;true&quot;&gt;&lt;math&gt;&lt;/math&gt;Requires JavaScript enabled to see MathJax equations.&lt;/p&gt;&quot;&quot;&quot;</span>
 
 <span class="k">class</span> <span class="nc">CanvasQuizBuilder</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">course_id</span><span class="p">):</span>
@@ -104,11 +138,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz.  Otherwise, look up the quiz by the title.  If one</span>
-<span class="sd">        doesn&#39;t exist already, create one.  Otherwise, if `replace` is `True`, then edit the quiz in-place (and</span>
-<span class="sd">        delete all existing questions), preserving the quiz ID.  Otherwise delete all quizzes with the same title</span>
-<span class="sd">        and start from scratch.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
+<span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
+<span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
+<span class="sd">        one.  All existing questions are deleted.</span>
+
+<span class="sd">        Warning: question groups will only be deleted if it has at</span>
+<span class="sd">        least one question in it.  You may need to manually delete</span>
+<span class="sd">        empty question groups in Canvas if they exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing title for quiz&quot;</span><span class="p">)</span>
@@ -129,6 +168,8 @@
             <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
 
+        <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="nb">id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quiz</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -136,34 +177,32 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is no quiz yet with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">!=</span> <span class="n">title</span><span class="p">:</span>
                 <span class="c1"># This is a safeguard against accidentally obliterating an existing quiz.</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Change it in Canvas first.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Manually change the title in Canvas first.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Is there a quiz with the same title? If so, edit it.</span>
-            <span class="k">for</span> <span class="n">quiz</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                        <span class="k">continue</span>
-                    <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published&quot;</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-                    <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
-                    <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
-                            <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
-                        <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                    <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
-                    <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
+                    <span class="n">quiz</span> <span class="o">=</span> <span class="n">q</span>
                     <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Otherwise, create it</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
+            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
+                    <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
+                <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
+            <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create a new quiz</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new quiz&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -176,7 +215,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a group. Make sure to use end_group().&quot;</span><span class="p">)</span>
         <span class="c1"># Defer actually creating a question group -- the Canvas API</span>
@@ -185,9 +224,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="s2">&quot;defer&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span><span class="p">,</span>
-            <span class="s1">&#39;question_points&#39;</span><span class="p">:</span> <span class="n">points</span>
+            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">[</span><span class="s1">&#39;question_points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
     <span class="k">def</span> <span class="nf">end_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
@@ -196,73 +236,164 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Empty question group.  All question groups must have at least one question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
 
-
-    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-
     <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;question_text&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
 
-    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
-        <span class="c1"># ensure GROUP_ID</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="c1"># TODO check if setting weight 0 is interesting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
-            <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">correct</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;exact_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_exact&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_error_margin&#39;</span><span class="p">:</span> <span class="n">margin</span>
+            <span class="p">})</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+
+    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;range_answer&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_start&#39;</span><span class="p">:</span> <span class="n">lo</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_end&#39;</span><span class="p">:</span> <span class="n">hi</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_answers_question&quot;</span> <span class="k">if</span> <span class="n">checkboxes</span> <span class="k">else</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
 
     <span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">correct</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
 
     <span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correct_value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
@@ -273,6 +404,23 @@
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">correct_value</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
             <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the question group if deferred (why defer? Canvas</span>
+        <span class="c1"># doesn&#39;t give you a way to get a list of question groups for</span>
+        <span class="c1"># a quiz, so it&#39;s safest to guarantee there is at least one</span>
+        <span class="c1"># question per question group)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -297,11 +445,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz.  Otherwise, look up the quiz by the title.  If one</span>
-<span class="sd">        doesn&#39;t exist already, create one.  Otherwise, if `replace` is `True`, then edit the quiz in-place (and</span>
-<span class="sd">        delete all existing questions), preserving the quiz ID.  Otherwise delete all quizzes with the same title</span>
-<span class="sd">        and start from scratch.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
+<span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
+<span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
+<span class="sd">        one.  All existing questions are deleted.</span>
+
+<span class="sd">        Warning: question groups will only be deleted if it has at</span>
+<span class="sd">        least one question in it.  You may need to manually delete</span>
+<span class="sd">        empty question groups in Canvas if they exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing title for quiz&quot;</span><span class="p">)</span>
@@ -322,6 +475,8 @@
             <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
 
+        <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="nb">id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quiz</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -329,34 +484,32 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is no quiz yet with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">!=</span> <span class="n">title</span><span class="p">:</span>
                 <span class="c1"># This is a safeguard against accidentally obliterating an existing quiz.</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Change it in Canvas first.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Manually change the title in Canvas first.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Is there a quiz with the same title? If so, edit it.</span>
-            <span class="k">for</span> <span class="n">quiz</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                        <span class="k">continue</span>
-                    <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published&quot;</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-                    <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
-                    <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
-                            <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
-                        <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                    <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
-                    <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
+                    <span class="n">quiz</span> <span class="o">=</span> <span class="n">q</span>
                     <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Otherwise, create it</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
+            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
+                    <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
+                <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
+            <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create a new quiz</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new quiz&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -369,7 +522,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a group. Make sure to use end_group().&quot;</span><span class="p">)</span>
         <span class="c1"># Defer actually creating a question group -- the Canvas API</span>
@@ -378,9 +531,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="s2">&quot;defer&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span><span class="p">,</span>
-            <span class="s1">&#39;question_points&#39;</span><span class="p">:</span> <span class="n">points</span>
+            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">[</span><span class="s1">&#39;question_points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
     <span class="k">def</span> <span class="nf">end_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
@@ -389,73 +543,164 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Empty question group.  All question groups must have at least one question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
 
-
-    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-
-
     <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;question_text&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
 
-    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
-        <span class="c1"># ensure GROUP_ID</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="c1"># TODO check if setting weight 0 is interesting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
-            <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">correct</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;exact_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_exact&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_error_margin&#39;</span><span class="p">:</span> <span class="n">margin</span>
+            <span class="p">})</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+
+    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;range_answer&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_start&#39;</span><span class="p">:</span> <span class="n">lo</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_end&#39;</span><span class="p">:</span> <span class="n">hi</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_answers_question&quot;</span> <span class="k">if</span> <span class="n">checkboxes</span> <span class="k">else</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
 
     <span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">correct</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+
 
     <span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correct_value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
@@ -466,6 +711,23 @@
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">correct_value</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
             <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span>
         <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the question group if deferred (why defer? Canvas</span>
+        <span class="c1"># doesn&#39;t give you a way to get a list of question groups for</span>
+        <span class="c1"># a quiz, so it&#39;s safest to guarantee there is at least one</span>
+        <span class="c1"># question per question group)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -499,16 +761,21 @@
 
         
             <span class="def">def</span>
-            <span class="name">begin_quiz</span><span class="signature">(self, title=None, description=&#39;&#39;, replace=True, id=None)</span>:
+            <span class="name">begin_quiz</span><span class="signature">(self, id=None, title=None, description=&#39;&#39;)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz.  Otherwise, look up the quiz by the title.  If one</span>
-<span class="sd">        doesn&#39;t exist already, create one.  Otherwise, if `replace` is `True`, then edit the quiz in-place (and</span>
-<span class="sd">        delete all existing questions), preserving the quiz ID.  Otherwise delete all quizzes with the same title</span>
-<span class="sd">        and start from scratch.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
+<span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
+<span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
+<span class="sd">        one.  All existing questions are deleted.</span>
+
+<span class="sd">        Warning: question groups will only be deleted if it has at</span>
+<span class="sd">        least one question in it.  You may need to manually delete</span>
+<span class="sd">        empty question groups in Canvas if they exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing title for quiz&quot;</span><span class="p">)</span>
@@ -529,6 +796,8 @@
             <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
 
+        <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="nb">id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quiz</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -536,41 +805,44 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is no quiz yet with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">!=</span> <span class="n">title</span><span class="p">:</span>
                 <span class="c1"># This is a safeguard against accidentally obliterating an existing quiz.</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Change it in Canvas first.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> has the title </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s2">, not </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2">.  Manually change the title in Canvas first.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Is there a quiz with the same title? If so, edit it.</span>
-            <span class="k">for</span> <span class="n">quiz</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                        <span class="k">continue</span>
-                    <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published&quot;</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-                    <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
-                    <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
-                            <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
-                        <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                    <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
-                    <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
-                        <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">get_quizzes</span><span class="p">(</span><span class="n">search_term</span><span class="o">=</span><span class="n">title</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
+                    <span class="n">quiz</span> <span class="o">=</span> <span class="n">q</span>
                     <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Otherwise, create it</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
+            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
+                    <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">)</span>
+                <span class="n">question</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
+            <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create a new quiz</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new quiz&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">course</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz_config</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>If the <code>id</code> is given, then edit the existing quiz.  Otherwise, look up the quiz by the title.  If one
-doesn't exist already, create one.  Otherwise, if <code>replace</code> is <code>True</code>, then edit the quiz in-place (and
-delete all existing questions), preserving the quiz ID.  Otherwise delete all quizzes with the same title
-and start from scratch.</p>
+            <div class="docstring"><p>If the <code>id</code> is given, then edit the existing quiz (raising an error
+of no such quiz exists), otherwise look up a quiz by that
+title and if one with that title doesn't exist already, create
+one.  All existing questions are deleted.</p>
+
+<p>Warning: question groups will only be deleted if it has at
+least one question in it.  You may need to manually delete
+empty question groups in Canvas if they exist.</p>
 </div>
 
 
@@ -606,12 +878,12 @@ and start from scratch.</p>
 
         
             <span class="def">def</span>
-            <span class="name">begin_group</span><span class="signature">(self, name=&#39;&#39;, pick_count=1, points=1)</span>:
+            <span class="name">begin_group</span><span class="signature">(self, name=&#39;&#39;, pick_count=1, points=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a group. Make sure to use end_group().&quot;</span><span class="p">)</span>
         <span class="c1"># Defer actually creating a question group -- the Canvas API</span>
@@ -620,9 +892,10 @@ and start from scratch.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="s2">&quot;defer&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span><span class="p">,</span>
-            <span class="s1">&#39;question_points&#39;</span><span class="p">:</span> <span class="n">points</span>
+            <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">pick_count</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">[</span><span class="s1">&#39;question_points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 </pre></div>
 
         </details>
@@ -653,87 +926,6 @@ and start from scratch.</p>
     
 
                             </div>
-                            <div id="CanvasQuizBuilder.begin_numeric_question" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_numeric_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_numeric_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="CanvasQuizBuilder.begin_multiple_choice_question" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_multiple_choice_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_multiple_choice_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="CanvasQuizBuilder.begin_true_false_question" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_true_false_question">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">begin_true_false_question</span><span class="signature">(self, name=&#39;&#39;)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
-            <span class="s1">&#39;points_possible&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
-        <span class="p">}</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="CanvasQuizBuilder.text" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.text">#&nbsp;&nbsp</a>
 
@@ -755,29 +947,234 @@ and start from scratch.</p>
     
 
                             </div>
-                            <div id="CanvasQuizBuilder.end_question" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.end_question">#&nbsp;&nbsp</a>
+                            <div id="CanvasQuizBuilder.begin_essay_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_essay_question">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">end_question</span><span class="signature">(self)</span>:
+            <span class="name">begin_essay_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;essay_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
 
-        <span class="c1"># ensure GROUP_ID</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+        </details>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_file_upload_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_file_upload_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_file_upload_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;file_upload_question&quot;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_short_answer_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_short_answer_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_short_answer_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.short_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.short_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">short_answer</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="c1"># TODO check if setting weight 0 is interesting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_fill_in_multiple_blanks_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_fill_in_multiple_blanks_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_fill_in_multiple_blanks_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.fill_in_multiple_blanks_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.fill_in_multiple_blanks_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">fill_in_multiple_blanks_answer</span><span class="signature">(self, blank_id, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_multiple_dropdowns_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_multiple_dropdowns_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_multiple_dropdowns_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.multiple_dropdowns_answer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.multiple_dropdowns_answer">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">multiple_dropdowns_answer</span><span class="signature">(self, blank_id, correct, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">correct</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;blank_id&#39;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">,</span>
+            <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span>
+        <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_numeric_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_numeric_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_numeric_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 </pre></div>
 
         </details>
@@ -790,18 +1187,84 @@ and start from scratch.</p>
 
         
             <span class="def">def</span>
-            <span class="name">numeric_answer</span><span class="signature">(self, val, precision=2)</span>:
+            <span class="name">numeric_answer</span><span class="signature">(self, val, margin=None, precision=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;exact_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_exact&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_error_margin&#39;</span><span class="p">:</span> <span class="n">margin</span>
+            <span class="p">})</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
+                <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.numeric_answer_range" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.numeric_answer_range">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">numeric_answer_range</span><span class="signature">(self, lo, hi)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;precision_answer&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;answer_approximate&#39;</span><span class="p">:</span> <span class="n">val</span><span class="p">,</span>
-            <span class="s1">&#39;answer_precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+            <span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">:</span> <span class="s1">&#39;range_answer&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_start&#39;</span><span class="p">:</span> <span class="n">lo</span><span class="p">,</span>
+            <span class="s1">&#39;answer_range_end&#39;</span><span class="p">:</span> <span class="n">hi</span>
         <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.begin_multiple_choice_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_multiple_choice_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_multiple_choice_question</span><span class="signature">(self, name=&#39;&#39;, points=None, checkboxes=False)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;multiple_answers_question&quot;</span> <span class="k">if</span> <span class="n">checkboxes</span> <span class="k">else</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
 </pre></div>
 
         </details>
@@ -831,6 +1294,34 @@ and start from scratch.</p>
     
 
                             </div>
+                            <div id="CanvasQuizBuilder.begin_true_false_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.begin_true_false_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">begin_true_false_question</span><span class="signature">(self, name=&#39;&#39;, points=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;In a question. Make sure to use end_question().&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;question_text&#39;</span><span class="p">:</span> <span class="n">MATHJAX</span><span class="p">,</span>
+            <span class="s1">&#39;question_type&#39;</span><span class="p">:</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;answers&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;points_possible&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
                             <div id="CanvasQuizBuilder.true_false_answer" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.true_false_answer">#&nbsp;&nbsp</a>
 
@@ -850,6 +1341,39 @@ and start from scratch.</p>
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">correct_value</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
             <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span>
         <span class="p">})</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.end_question" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.end_question">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">end_question</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the question group if deferred (why defer? Canvas</span>
+        <span class="c1"># doesn&#39;t give you a way to get a list of question groups for</span>
+        <span class="c1"># a quiz, so it&#39;s safest to guarantee there is at least one</span>
+        <span class="c1"># question per question group)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">==</span> <span class="s2">&quot;defer&quot;</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question_group</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
