@@ -52,6 +52,18 @@
                                 <a class="function" href="#HTMLQuizBuilder.text">text</a>
                         </li>
                         <li>
+                                <a class="function" href="#HTMLQuizBuilder.comment_general">comment_general</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.comment_correct">comment_correct</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.comment_incorrect">comment_incorrect</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#HTMLQuizBuilder.answer_comment">answer_comment</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#HTMLQuizBuilder.maybe_points">maybe_points</a>
                         </li>
                         <li>
@@ -209,6 +221,23 @@
 <span class="s2">        </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment (for all responses): </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for correct answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for incorrect answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Comment for this answer: </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">maybe_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
@@ -493,6 +522,23 @@
 <span class="s2">        </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment (for all responses): </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for correct answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for incorrect answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Comment for this answer: </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">maybe_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IN_GROUP</span><span class="p">:</span>
@@ -871,6 +917,90 @@
 <span class="s2">        </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.comment_general" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.comment_general">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_general</span><span class="signature">(self, s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment (for all responses): </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.comment_correct" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.comment_correct">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_correct</span><span class="signature">(self, s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for correct answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.comment_incorrect" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.comment_incorrect">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_incorrect</span><span class="signature">(self, s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;Comment for incorrect answers: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="HTMLQuizBuilder.answer_comment" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#HTMLQuizBuilder.answer_comment">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">answer_comment</span><span class="signature">(self, comment)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Comment for this answer: </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>

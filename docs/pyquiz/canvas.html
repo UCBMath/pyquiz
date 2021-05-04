@@ -49,6 +49,18 @@
                                 <a class="function" href="#CanvasQuizBuilder.text">text</a>
                         </li>
                         <li>
+                                <a class="function" href="#CanvasQuizBuilder.comment_general">comment_general</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.comment_correct">comment_correct</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.comment_incorrect">comment_incorrect</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CanvasQuizBuilder.answer_comment">answer_comment</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#CanvasQuizBuilder.begin_text_only_question">begin_text_only_question</a>
                         </li>
                         <li>
@@ -251,6 +263,23 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;question_text&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;neutral_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;correct_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;incorrect_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to this question&quot;</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">answer</span><span class="p">[</span><span class="s1">&#39;comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments_html&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">comment</span>
 
     <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -578,6 +607,23 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;question_text&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;neutral_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;correct_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;incorrect_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to this question&quot;</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">answer</span><span class="p">[</span><span class="s1">&#39;comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments_html&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">comment</span>
 
     <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -991,6 +1037,87 @@ empty question groups in Canvas if they exist.</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;question_text&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.comment_general" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.comment_general">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_general</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;neutral_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.comment_correct" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.comment_correct">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_correct</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;correct_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.comment_incorrect" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.comment_incorrect">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_incorrect</span><span class="signature">(self, text)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;incorrect_comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="CanvasQuizBuilder.answer_comment" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CanvasQuizBuilder.answer_comment">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">answer_comment</span><span class="signature">(self, comment)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not in a question&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to this question&quot;</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;answers&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">answer</span><span class="p">[</span><span class="s1">&#39;comments_html&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments_html&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">comment</span>
 </pre></div>
 
         </details>

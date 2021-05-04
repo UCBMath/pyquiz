@@ -103,6 +103,18 @@
                     <a class="function" href="#begin_file_upload_question">begin_file_upload_question</a>
             </li>
             <li>
+                    <a class="function" href="#comment_general">comment_general</a>
+            </li>
+            <li>
+                    <a class="function" href="#comment_correct">comment_correct</a>
+            </li>
+            <li>
+                    <a class="function" href="#comment_incorrect">comment_incorrect</a>
+            </li>
+            <li>
+                    <a class="function" href="#answer_comment">answer_comment</a>
+            </li>
+            <li>
                     <a class="function" href="#end_question">end_question</a>
             </li>
             <li>
@@ -163,6 +175,15 @@ matched to one of a given set of items.</p></li>
 
 <p>The text of a question is given by one or more <code><a href="#text">text()</a></code> and <code><a href="#para">para()</a></code> calls.</p>
 
+<p>Feedback can be provided to a student using the following functions:</p>
+
+<ul>
+<li><p><code><a href="#comment_general">comment_general()</a></code> for general comments about a question.</p></li>
+<li><p><code><a href="#comment_correct">comment_correct()</a></code> for feedback about correctly answered questions.</p></li>
+<li><p><code><a href="#comment_incorrect">comment_incorrect()</a></code> for feedback about incorrectly answered questions.</p></li>
+<li><p><code><a href="#answer_comment">answer_comment()</a></code> for feedback about specific answers given by a student.</p></li>
+</ul>
+
 <p><em>(Internal: not for quiz authors.)</em> By setting the quiz builder with
 <code><a href="#set_quiz_builder">set_quiz_builder</a></code> before executing a quiz file (done by the uploader
 UI for example), the resulting quiz can have different effects.  For
@@ -213,6 +234,16 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">The text of a question is given by one or more `text()` and `para()` calls.</span>
 
+<span class="sd">Feedback can be provided to a student using the following functions:</span>
+
+<span class="sd">* `comment_general()` for general comments about a question.</span>
+
+<span class="sd">* `comment_correct()` for feedback about correctly answered questions.</span>
+
+<span class="sd">* `comment_incorrect()` for feedback about incorrectly answered questions.</span>
+
+<span class="sd">* `answer_comment()` for feedback about specific answers given by a student.</span>
+
 <span class="sd">*(Internal: not for quiz authors.)* By setting the quiz builder with</span>
 <span class="sd">`set_quiz_builder` before executing a quiz file (done by the uploader</span>
 <span class="sd">UI for example), the resulting quiz can have different effects.  For</span>
@@ -236,6 +267,9 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="s2">&quot;begin_matching_question&quot;</span><span class="p">,</span> <span class="s2">&quot;matching_answer&quot;</span><span class="p">,</span> <span class="s2">&quot;matching_distractor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_essay_question&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_file_upload_question&quot;</span><span class="p">,</span>
+
+    <span class="s2">&quot;comment_general&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_correct&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_incorrect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;answer_comment&quot;</span><span class="p">,</span>
 
     <span class="s2">&quot;end_question&quot;</span><span class="p">,</span>
 
@@ -367,6 +401,49 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">text</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
+<span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
+<span class="sd">    question. This comment is shown to the student after they take the</span>
+<span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment for incorrect answers to the current</span>
+<span class="sd">    question.  This comment is shown to the student after they take</span>
+<span class="sd">    the quiz if they got the question incorrect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer to the current</span>
+<span class="sd">    question.  This comment is shown to the student at the end of the</span>
+<span class="sd">    quiz if they selected this answer for most question types.  In a</span>
+<span class="sd">    matching question, an answer comment is shown if a student missed</span>
+<span class="sd">    the match.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    begin_short_answer_question()</span>
+<span class="sd">    text(&quot;The answer is A or B&quot;)</span>
+<span class="sd">    short_answer(&quot;A&quot;)</span>
+<span class="sd">    answer_comment(&quot;Awesome!&quot;)</span>
+<span class="sd">    short_answer(&quot;B&quot;)</span>
+<span class="sd">    answer_comment(&quot;Brilliant!&quot;)</span>
+<span class="sd">    end_question()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a text-only question.  This is an answer-free question, useful</span>
@@ -1330,6 +1407,141 @@ matched.</p>
         </details>
 
             <div class="docstring"><p>Begin a file upload question. End with <code><a href="#end_question">end_question()</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="comment_general">
+                            <div class="attr function"><a class="headerlink" href="#comment_general">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_general</span><span class="signature">(s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
+<span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Attach the given general comment to the current question.  This
+comment is always shown to the student after they take the quiz.</p>
+</div>
+
+
+                </section>
+                <section id="comment_correct">
+                            <div class="attr function"><a class="headerlink" href="#comment_correct">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_correct</span><span class="signature">(s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
+<span class="sd">    question. This comment is shown to the student after they take the</span>
+<span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Attach the given comment for correct answers to the current
+question. This comment is shown to the student after they take the
+quiz if they got the question correct.</p>
+</div>
+
+
+                </section>
+                <section id="comment_incorrect">
+                            <div class="attr function"><a class="headerlink" href="#comment_incorrect">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">comment_incorrect</span><span class="signature">(s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment for incorrect answers to the current</span>
+<span class="sd">    question.  This comment is shown to the student after they take</span>
+<span class="sd">    the quiz if they got the question incorrect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Attach the given comment for incorrect answers to the current
+question.  This comment is shown to the student after they take
+the quiz if they got the question incorrect.</p>
+</div>
+
+
+                </section>
+                <section id="answer_comment">
+                            <div class="attr function"><a class="headerlink" href="#answer_comment">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">answer_comment</span><span class="signature">(s)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer to the current</span>
+<span class="sd">    question.  This comment is shown to the student at the end of the</span>
+<span class="sd">    quiz if they selected this answer for most question types.  In a</span>
+<span class="sd">    matching question, an answer comment is shown if a student missed</span>
+<span class="sd">    the match.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    begin_short_answer_question()</span>
+<span class="sd">    text(&quot;The answer is A or B&quot;)</span>
+<span class="sd">    short_answer(&quot;A&quot;)</span>
+<span class="sd">    answer_comment(&quot;Awesome!&quot;)</span>
+<span class="sd">    short_answer(&quot;B&quot;)</span>
+<span class="sd">    answer_comment(&quot;Brilliant!&quot;)</span>
+<span class="sd">    end_question()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Attach the given comment to the previous answer to the current
+question.  This comment is shown to the student at the end of the
+quiz if they selected this answer for most question types.  In a
+matching question, an answer comment is shown if a student missed
+the match.</p>
+
+<p>For example,</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">begin_short_answer_question</span><span class="p">()</span>
+<span class="n">text</span><span class="p">(</span><span class="s2">&quot;The answer is A or B&quot;</span><span class="p">)</span>
+<span class="n">short_answer</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
+<span class="n">answer_comment</span><span class="p">(</span><span class="s2">&quot;Awesome!&quot;</span><span class="p">)</span>
+<span class="n">short_answer</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+<span class="n">answer_comment</span><span class="p">(</span><span class="s2">&quot;Brilliant!&quot;</span><span class="p">)</span>
+<span class="n">end_question</span><span class="p">()</span>
+</code></pre></div>
 </div>
 
 

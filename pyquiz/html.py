@@ -73,6 +73,23 @@ class HTMLQuizBuilder:
 
         """)
 
+    def comment_general(self, s):
+        self.write(f"""
+        <p>General comment (for all responses): {s}</p>
+        """)
+    def comment_correct(self, s):
+        self.write(f"""
+        <p>Comment for correct answers: {s}</p>
+        """)
+    def comment_incorrect(self, s):
+        self.write(f"""
+        <p>Comment for incorrect answers: {s}</p>
+        """)
+    def answer_comment(self, comment):
+        if not self.QUESTION_DATA:
+            raise Exception("Not in a question")
+        self.write(f"<p>Comment for this answer: {comment}</p>")
+
     def maybe_points(self, points):
         if not self.IN_GROUP:
             if points == 1:

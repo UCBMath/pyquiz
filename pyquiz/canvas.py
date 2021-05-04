@@ -119,6 +119,23 @@ class CanvasQuizBuilder:
             raise Exception("Not in a question.")
         self.QUESTION_DATA['question_text'] += s
 
+    def comment_general(self, text):
+        self.QUESTION_DATA['neutral_comments_html'] = text
+
+    def comment_correct(self, text):
+        self.QUESTION_DATA['correct_comments_html'] = text
+
+    def comment_incorrect(self, text):
+        self.QUESTION_DATA['incorrect_comments_html'] = text
+
+    def answer_comment(self, comment):
+        if self.QUESTION_DATA == None:
+            raise Exception("Not in a question")
+        if not self.QUESTION_DATA['answers']:
+            raise Exception("No answers to this question")
+        answer = self.QUESTION_DATA['answers'][-1]
+        answer['comments_html'] = answer.get('comments_html', "") + comment
+
     def begin_text_only_question(self, name=''):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")

@@ -39,6 +39,16 @@ groups begin with `begin_group()` and end with `end_group()`.  Questions begin w
 
 The text of a question is given by one or more `text()` and `para()` calls.
 
+Feedback can be provided to a student using the following functions:
+
+* `comment_general()` for general comments about a question.
+
+* `comment_correct()` for feedback about correctly answered questions.
+
+* `comment_incorrect()` for feedback about incorrectly answered questions.
+
+* `answer_comment()` for feedback about specific answers given by a student.
+
 *(Internal: not for quiz authors.)* By setting the quiz builder with
 `set_quiz_builder` before executing a quiz file (done by the uploader
 UI for example), the resulting quiz can have different effects.  For
@@ -62,6 +72,9 @@ __all__ = [
     "begin_matching_question", "matching_answer", "matching_distractor",
     "begin_essay_question",
     "begin_file_upload_question",
+
+    "comment_general", "comment_correct", "comment_incorrect",
+    "answer_comment",
 
     "end_question",
 
@@ -193,6 +206,49 @@ def para(s):
     question.  This simply wraps the text in an HTML paragraph tag."""
     check_in_question(True)
     text("<p>" + s + "</p>")
+
+def comment_general(s):
+    """Attach the given general comment to the current question.  This
+    comment is always shown to the student after they take the quiz."""
+    check_in_question(True)
+    BUILDER.comment_general(s)
+
+def comment_correct(s):
+    """Attach the given comment for correct answers to the current
+    question. This comment is shown to the student after they take the
+    quiz if they got the question correct."""
+    check_in_question(True)
+    BUILDER.comment_correct(s)
+
+def comment_incorrect(s):
+    """Attach the given comment for incorrect answers to the current
+    question.  This comment is shown to the student after they take
+    the quiz if they got the question incorrect.
+    """
+    check_in_question(True)
+    BUILDER.comment_incorrect(s)
+
+def answer_comment(s):
+    """Attach the given comment to the previous answer to the current
+    question.  This comment is shown to the student at the end of the
+    quiz if they selected this answer for most question types.  In a
+    matching question, an answer comment is shown if a student missed
+    the match.
+
+    For example,
+    ```python
+    begin_short_answer_question()
+    text("The answer is A or B")
+    short_answer("A")
+    answer_comment("Awesome!")
+    short_answer("B")
+    answer_comment("Brilliant!")
+    end_question()
+    ```
+
+    """
+    check_in_question(True)
+    BUILDER.answer_comment(s)
 
 def begin_text_only_question(name=''):
     """Begin a text-only question.  This is an answer-free question, useful
