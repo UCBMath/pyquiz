@@ -8,7 +8,7 @@ class HTMLQuizBuilder:
     def write(self, s):
         self.QUIZ.write(s)
 
-    def begin_quiz(self, id=None, title=None, description="", replace=True):
+    def begin_quiz(self, id=None, title=None, description=""):
         if title == None:
             raise Exception("Missing quiz title.")
         self.write(f"""
@@ -54,6 +54,15 @@ class HTMLQuizBuilder:
         """)
         self.IN_GROUP = False
 
+    def text(self, s):
+        if self.QUESTION_DATA == None:
+            raise Exception("Not currently in a question.")
+        self.write(f"""
+
+        {s}
+
+        """)
+
     def begin_numeric_question(self, name=''):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
@@ -66,6 +75,9 @@ class HTMLQuizBuilder:
         self.QUESTION_DATA = {
             'question_type': "numerical_question",
         }
+
+    def numeric_answer(self, val, precision=2):
+        self.write(f"<p>Numeric answer: {val} with precision {precision}</p>")
 
     def begin_multiple_choice_question(self, name=''):
         if self.QUESTION_DATA != None:
@@ -80,6 +92,12 @@ class HTMLQuizBuilder:
             'question_type': "multiple_choice_question",
         }
 
+    def multiple_choice_answer(self, correct, text):
+        if correct:
+            self.write(f"<p>Choice: {text} <b>(answer)</b></p>")
+        else:
+            self.write(f"<p>Choice: {text}</p>")
+
     def begin_true_false_question(self, name=''):
         if self.QUESTION_DATA != None:
             raise Exception("In a question. Make sure to use end_question().")
@@ -93,14 +111,8 @@ class HTMLQuizBuilder:
             'question_type': "true_false_question",
         }
 
-    def text(self, s):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not currently in a question.")
-        self.write(f"""
-
-        {s}
-
-        """)
+    def true_false_answer(self, correct_value):
+        self.write(f"<p>Answer: {correct_value}</p>")
 
     def end_question(self):
         if self.QUESTION_DATA == None:
@@ -110,18 +122,6 @@ class HTMLQuizBuilder:
         """)
         self.QUESTION_DATA = None
         self.GROUP_HAS_QUESTION = True
-
-    def numeric_answer(self, val, precision=2):
-        self.write(f"<p>Numeric answer: {val} with precision {precision}</p>")
-
-    def multiple_choice_answer(self, correct, text):
-        if correct:
-            self.write(f"<p>Choice: {text} <b>(answer)</b></p>")
-        else:
-            self.write(f"<p>Choice: {text}</p>")
-
-    def true_false_answer(self, correct_value):
-        self.write(f"<p>Answer: {correct_value}</p>")
 
     def end_quiz(self):
         if self.QUESTION_DATA != None:
