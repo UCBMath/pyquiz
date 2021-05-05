@@ -32,7 +32,7 @@ __all__ = [
     "rows", "cols",
     "row_reduce", "rank",
     "irange", "identity_matrix", "det", "diagonal_matrix",
-    "normalize", "expand", "replace",
+    "evaluate", "expand", "replace",
     "reduction"
 ]
 
@@ -44,7 +44,7 @@ attributes['Times'].update(["Flat"])
 reductions = []
 
 def reduction(f):
-    """A decorator for defining new reductions used by `normalize()`.
+    """A decorator for defining new reductions used by `evaluate()`.
 
     Usage:
     ```python
@@ -78,39 +78,39 @@ class Expr:
         self.head = head
         self.args = list(args)
     def __add__(self, b):
-        return normalize(expr("Plus", self, b))
+        return evaluate(expr("Plus", self, b))
     def __radd__(self, a):
-        return normalize(expr("Plus", a, self))
+        return evaluate(expr("Plus", a, self))
     def __mul__(self, b):
-        return normalize(expr("Times", self, b))
+        return evaluate(expr("Times", self, b))
     def __rmul__(self, a):
-        return normalize(expr("Times", a, self))
+        return evaluate(expr("Times", a, self))
     def __sub__(self, b):
-        return normalize(expr("Plus", self, expr("Times", -1, b)))
+        return evaluate(expr("Plus", self, expr("Times", -1, b)))
     def __rsub__(self, a):
-        return normalize(expr("Plus", a, expr("Times", -1, self)))
+        return evaluate(expr("Plus", a, expr("Times", -1, self)))
     def __neg__(self):
-        return normalize(expr("Times", -1, self))
+        return evaluate(expr("Times", -1, self))
     def __pow__(self, b):
-        return normalize(expr("Pow", self, b))
+        return evaluate(expr("Pow", self, b))
     def __rpow__(self, a):
-        return normalize(expr("Pow", a, self))
+        return evaluate(expr("Pow", a, self))
     def __matmul__(self, b):
-        return normalize(expr("MatTimes", self, b))
+        return evaluate(expr("MatTimes", self, b))
     def __rmatmul__(self, a):
-        return normalize(expr("MatTimes", a, self))
+        return evaluate(expr("MatTimes", a, self))
     # These are commented out because the use of slash for division makes
     # it more likely to accidentally create floating-point numbers when exact
     # numbers were wanted.
     #def __truediv__(self, b):
-    #    return normalize(expr("Times", self, expr("Pow", b, -1)))
+    #    return evaluate(expr("Times", self, expr("Pow", b, -1)))
     #def __rtruediv__(self, a):
-    #    return normalize(expr("Times", a, expr("Pow", self, -1)))
+    #    return evaluate(expr("Times", a, expr("Pow", self, -1)))
     def __getitem__(self, key):
         if type(key) == tuple:
-            return normalize(expr("Part", self, *key))
+            return evaluate(expr("Part", self, *key))
         else:
-            return normalize(expr("Part", self, key))
+            return evaluate(expr("Part", self, key))
     def __setitem__(self, key, value):
         """Uses one-indexing (!)"""
         if type(key) == tuple:
@@ -141,7 +141,7 @@ def frac(a, b):
 
     It's hard to fully overload division in Python, so this is a function that takes the
     quotient in a way that ensures the the quotient of two integers is a fraction."""
-    return normalize(expr("Times", a, expr("Pow", b, -1)))
+    return evaluate(expr("Times", a, expr("Pow", b, -1)))
 
 def expr(head, *args):
     """A convenience function for the `Expr` constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`."""
@@ -164,7 +164,7 @@ def head(e):
     else:
         return e.head
 
-def normalize(e):
+def evaluate(e):
     """Mathematica-like expression evaluation routine.  Puts an expression
     into a sort of normal form by applying all the reduction rules
     until the expression no longer changes.
@@ -177,11 +177,11 @@ def normalize(e):
         return e
     elif type(e) == list or type(e) == tuple:
         # evaluate to list
-        return [normalize(x) for x in e]
+        return [evaluate(x) for x in e]
     elif type(e) != Expr:
-        raise ValueError("Unknown type of value to normalize.")
-    h = normalize(e.head)
-    args = [normalize(a) for a in e.args]
+        raise ValueError("Unknown type of value to evaluate.")
+    h = evaluate(e.head)
+    args = [evaluate(a) for a in e.args]
     if "Flat" in attributes[h]:
         args2 = []
         for a in args:
@@ -194,7 +194,7 @@ def normalize(e):
     for rule in reversed(reductions):
         e2 = rule(e)
         if e2 != e:
-            return normalize(e2)
+            return evaluate(e2)
     return e
 
 def expand(e):
@@ -211,7 +211,7 @@ def expand(e):
     if e.head == "Times":
         for i, a in enumerate(args):
             if head(a) == "Plus":
-                rest = expand(normalize(expr("Times", *args[:i], *args[i+1:])))
+                rest = expand(evaluate(expr("Times", *args[:i], *args[i+1:])))
                 val = 0
                 for b in a.args:
                     val += expand(b * rest)
@@ -219,22 +219,22 @@ def expand(e):
 
     if e.head == "Pow" and type(e.args[1]) == int and e.args[1] != -1 and head(e.args[0]) == "Plus":
         new_exp = e.args[1] + (-1 if e.args[1] > 0 else 1)
-        rest = expand(normalize(expr("Pow", e.args[0], new_exp)))
+        rest = expand(evaluate(expr("Pow", e.args[0], new_exp)))
         val = 0
         for b in e.args[0].args:
             val += expand(b * rest)
         return val
 
-    return normalize(Expr(e.head, args))
+    return evaluate(Expr(e.head, args))
 
 def plus_terms(e):
     """Helper function for rule_plus_collect."""
     assert head(e) == "Plus"
     def split(a):
         """Gives a (coeff, expr) pair for a given expression.  Assumes the
-        expression has been already normalized."""
+        expression has been already evaluated."""
         if head(a) == "Times" and len(a.args) >= 1 and isinstance(a.args[0], Number):
-            return (a.args[0], normalize(expr("Times", *a.args[1:])))
+            return (a.args[0], evaluate(expr("Times", *a.args[1:])))
         elif isinstance(a, Number):
             return (a, 1)
         else:
@@ -261,7 +261,7 @@ def rule_plus_collect(e):
         elif t == 1:
             args2.append(c)
         else:
-            args2.append(normalize(expr("Times", c, t)))
+            args2.append(evaluate(expr("Times", c, t)))
     if len(args2) == 0:
         return 0
     elif len(args2) == 1:
@@ -302,7 +302,7 @@ def rule_times_collect(e):
     if coeff != 1:
         args2.append(coeff)
     for v, e in terms:
-        v = normalize(expr("Pow", v, e))
+        v = evaluate(expr("Pow", v, e))
         if v != 1:
             args2.append(v)
     if len(args2) == 0:
@@ -351,7 +351,7 @@ def replace(e, substs):
         if e == p:
             return v
     if isinstance(e, Expr):
-        return normalize(expr(replace(e.head, substs), *(replace(a, substs) for a in e.args)))
+        return evaluate(expr(replace(e.head, substs), *(replace(a, substs) for a in e.args)))
     elif head(e) == "list":
         return [replace(a, substs) for a in e]
     else:
@@ -534,7 +534,7 @@ def identity_matrix(n):
 
 def det(e):
     """computes the determinant of the given matrix"""
-    return normalize(expr("det", e))
+    return evaluate(expr("det", e))
 @reduction
 def reduce_det(e):
     if head(e) != "det" or head(e.args[0]) != "matrix":
@@ -570,7 +570,7 @@ def reduce_matmul(e):
             x = 0
             for k in range(len(A[0])):
                 x += A[i][k] * B[k][j]
-            row.append(normalize(x))
+            row.append(evaluate(x))
     return matrix(*C)
 
 def adj(e):
@@ -599,7 +599,7 @@ def reduce_matrix_inverse(e):
     a = adj(e.args[0])
     return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
-def row_reduce(e, rref=True):
+def row_reduce(e, rref=True, steps_out=None):
     """Puts the matrix into row echelon form.
 
     * If `rref=True` then gives the reduced row echelon form.
@@ -607,6 +607,14 @@ def row_reduce(e, rref=True):
     * If `rref=False` then gives row echelon form.
 
     Follows the algorithm in Lay.
+
+    If `steps_out` if set to a list of your choosing, then it will be
+    populated with TeX for each rule that was applied.
+    ```python
+    steps = []
+    row_reduce(A, steps_out=steps)
+    print(",".join(steps))
+    ```
     """
     if head(e) != "matrix":
         raise ValueError("expecting matrix")
@@ -619,14 +627,23 @@ def row_reduce(e, rref=True):
     def swap(i, j):
         # R_i <-> R_j
         mat[i], mat[j] = mat[j], mat[i]
+        if steps_out != None:
+            steps_out.append(rf"R_{i} \leftrightarrow R_{j}")
     def scale(i, c):
         # c * R_i -> R_i
         for k in range(cols):
             mat[i][k] *= c
+        if steps_out != None:
+            Ri = var(f"R_{i}")
+            steps_out.append(rf"{c * Ri} \rightarrow {Ri}")
     def replace(i, j, c):
         # R_i + c * R_j -> R_i
         for k in range(cols):
             mat[i][k] += c * mat[j][k]
+        if steps_out != None:
+            Ri = var(f"R_{i}")
+            Rj = var(f"R_{j}")
+            steps_out.append(rf"{Ri + c * Rj} \rightarrow {Ri}")
     def is_zero(i):
         # whether row i is a zero row
         return all(mat[i][k] == 0 for k in range(cols))
@@ -644,7 +661,7 @@ def row_reduce(e, rref=True):
             last_nz -= 1
         if mat[i][j] == 0:
             for k in range(i + 1, last_nz + 1):
-                if mat[k][j] == 0:
+                if mat[k][j] != 0:
                     swap(i, k)
                     break
         if mat[i][j] == 0:
