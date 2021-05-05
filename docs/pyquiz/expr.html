@@ -55,6 +55,12 @@
                     <a class="function" href="#matrix">matrix</a>
             </li>
             <li>
+                    <a class="function" href="#is_vector">is_vector</a>
+            </li>
+            <li>
+                    <a class="function" href="#tex_vector_as_tuple">tex_vector_as_tuple</a>
+            </li>
+            <li>
                     <a class="function" href="#irange">irange</a>
             </li>
             <li>
@@ -146,7 +152,9 @@ help with writing quiz questions for math classes, which use
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;Expr&quot;</span><span class="p">,</span> <span class="s2">&quot;frac&quot;</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;irange&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;var&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;is_vector&quot;</span><span class="p">,</span> <span class="s2">&quot;tex_vector_as_tuple&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;irange&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span>
     <span class="s2">&quot;normalize&quot;</span><span class="p">,</span> <span class="s2">&quot;expand&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
     <span class="s2">&quot;reduction&quot;</span>
 <span class="p">]</span>
@@ -575,6 +583,8 @@ help with writing quiz questions for math classes, which use
         <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="ow">and</span> <span class="n">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
             <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span>
                     <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
                     <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\end</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -611,11 +621,34 @@ help with writing quiz questions for math classes, which use
 
 <span class="k">def</span> <span class="nf">vector</span><span class="p">(</span><span class="o">*</span><span class="n">elts</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;example: vector(1,2,3) returns matrix([1], [2], [3])&quot;&quot;&quot;</span>
-    <span class="c1">#return Expr(&quot;Vector&quot;, elts)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We don&#39;t allow vectors to have no elements.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;example: matrix([1,2],[3,4]) for rows [1,2] and [3,4].&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We don&#39;t allow matrices to have no rows.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in matrix have the same length.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A vector is a matrix whose rows each have one entry.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">def</span> <span class="nf">tex_vector_as_tuple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    tex_vector_as_tuple(True)</span>
+<span class="sd">    print(vector(1, 2))</span>
+<span class="sd">    ```</span>
+<span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
+    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
 
 <span class="k">def</span> <span class="nf">identity_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the n by n identity matrix.&quot;&quot;&quot;</span>
@@ -975,7 +1008,8 @@ you need a doubled backslash like <code>var("\lambda")</code>.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">vector</span><span class="p">(</span><span class="o">*</span><span class="n">elts</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;example: vector(1,2,3) returns matrix([1], [2], [3])&quot;&quot;&quot;</span>
-    <span class="c1">#return Expr(&quot;Vector&quot;, elts)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We don&#39;t allow vectors to have no elements.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">])</span>
 </pre></div>
 
@@ -998,12 +1032,77 @@ you need a doubled backslash like <code>var("\lambda")</code>.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;example: matrix([1,2],[3,4]) for rows [1,2] and [3,4].&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We don&#39;t allow matrices to have no rows.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in matrix have the same length.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>example: matrix([1,2],[3,4]) for rows [1,2] and [3,4].</p>
+</div>
+
+
+                </section>
+                <section id="is_vector">
+                            <div class="attr function"><a class="headerlink" href="#is_vector">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">is_vector</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A vector is a matrix whose rows each have one entry.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>A vector is a matrix whose rows each have one entry.</p>
+</div>
+
+
+                </section>
+                <section id="tex_vector_as_tuple">
+                            <div class="attr function"><a class="headerlink" href="#tex_vector_as_tuple">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">tex_vector_as_tuple</span><span class="signature">(state)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_vector_as_tuple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    tex_vector_as_tuple(True)</span>
+<span class="sd">    print(vector(1, 2))</span>
+<span class="sd">    ```</span>
+<span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
+    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</p>
+
+<p>For example,</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">tex_vector_as_tuple</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+
+<p>prints out "<code>(1,2)</code>" rather than "<code>\begin{bmatrix}1\\2\end{bmatrix}</code>".</p>
 </div>
 
 

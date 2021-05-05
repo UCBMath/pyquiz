@@ -27,7 +27,9 @@ from fractions import Fraction
 
 __all__ = [
     "Expr", "frac", "expr", "head",
-    "var", "vector", "matrix", "irange", "identity_matrix", "det", "diagonal_matrix",
+    "var",
+    "vector", "matrix", "is_vector", "tex_vector_as_tuple",
+    "irange", "identity_matrix", "det", "diagonal_matrix",
     "normalize", "expand", "replace",
     "reduction"
 ]
@@ -456,6 +458,8 @@ def tex_prec(prec, e):
         elif e.head == "var":
             return e.args[0]
         elif e.head == "matrix":
+            if TEX_VECTOR_AS_TUPLE and is_vector(e):
+                return "(" + ",".join(tex_prec(0, row[0]) for row in e.args) + ")"
             return (r"\begin{bmatrix}"
                     + r"\\".join("&".join(tex_prec(0, x) for x in row) for row in e.args)
                     + r"\end{bmatrix}")
@@ -492,11 +496,34 @@ def var(name):
 
 def vector(*elts):
     """example: vector(1,2,3) returns matrix([1], [2], [3])"""
-    #return Expr("Vector", elts)
+    if len(elts) == 0:
+        raise ValueError("We don't allow vectors to have no elements.")
     return Expr("matrix", [[elt] for elt in elts])
 def matrix(*rows):
     """example: matrix([1,2],[3,4]) for rows [1,2] and [3,4]."""
+    if len(rows) == 0:
+        raise ValueError("We don't allow matrices to have no rows.")
+    if any(len(row) != len(rows[0]) for row in rows):
+        raise ValueError("Not all rows in matrix have the same length.")
     return Expr("matrix", rows)
+
+def is_vector(e):
+    """A vector is a matrix whose rows each have one entry."""
+    return head(e) == "matrix" and len(e.args[0]) == 1
+
+TEX_VECTOR_AS_TUPLE = False
+def tex_vector_as_tuple(state):
+    r"""Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.
+
+    For example,
+    ```python
+    tex_vector_as_tuple(True)
+    print(vector(1, 2))
+    ```
+    prints out "`(1,2)`" rather than "`\begin{bmatrix}1\\2\end{bmatrix}`".
+    """
+    global TEX_VECTOR_AS_TUPLE
+    TEX_VECTOR_AS_TUPLE = state
 
 def identity_matrix(n):
     """Returns the n by n identity matrix."""
