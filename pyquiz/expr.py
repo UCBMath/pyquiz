@@ -683,11 +683,8 @@ def cols(e):
 def rank(e):
     """Gives the rank of the matrix"""
     e = row_reduce(e, rref=False)
-    r = 0
-    for i in irange(min(rows(e), cols(e))):
-        if e[i,i] != 0:
-            r += 1
-    return r
+    assert head(e) == "matrix"
+    return sum(1 for row in e.args if not all(v == 0 for v in row))
 
 def irange(a, b=None):
     """Inclusive range.
