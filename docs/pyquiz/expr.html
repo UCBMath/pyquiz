@@ -96,6 +96,9 @@
             <li>
                     <a class="function" href="#reduction">reduction</a>
             </li>
+            <li>
+                    <a class="function" href="#tex">tex</a>
+            </li>
     </ul>
 
 
@@ -170,8 +173,13 @@ help with writing quiz questions for math classes, which use
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span>
     <span class="s2">&quot;irange&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span>
     <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span> <span class="s2">&quot;expand&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;reduction&quot;</span>
+    <span class="s2">&quot;reduction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tex&quot;</span>
 <span class="p">]</span>
+
+<span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="c1"># A hack: make it so that the string form of a Fraction is its tex form</span>
+    <span class="n">Fraction</span><span class="o">.</span><span class="fm">__str__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">tex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <span class="n">attributes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
 <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;Plus&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="s2">&quot;Flat&quot;</span><span class="p">])</span>
@@ -612,6 +620,7 @@ help with writing quiz questions for math classes, which use
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown value to tex &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">tex</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the TeX form of an expression.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 
 <span class="c1">###</span>
@@ -1726,6 +1735,28 @@ simplifications of monomials.  We also allow applications of functions.</p>
 </code></pre></div>
 
 <p>This adds <code>my_reduction</code> to the list of reductions.</p>
+</div>
+
+
+                </section>
+                <section id="tex">
+                            <div class="attr function"><a class="headerlink" href="#tex">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">tex</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the TeX form of an expression.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Return the TeX form of an expression.</p>
 </div>
 
 

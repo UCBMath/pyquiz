@@ -252,6 +252,8 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;begin_quiz&quot;</span><span class="p">,</span> <span class="s2">&quot;end_quiz&quot;</span><span class="p">,</span>
     <span class="s2">&quot;begin_group&quot;</span><span class="p">,</span> <span class="s2">&quot;end_group&quot;</span><span class="p">,</span>
@@ -560,8 +562,10 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting number&quot;</span><span class="p">)</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a numeric question, where the answer lies in the</span>
@@ -570,8 +574,12 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting lower bound to be number&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_hi</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting upper bound to be number&quot;</span><span class="p">)</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -979,8 +987,10 @@ the answer is interpreted numerically. End with <code><a href="#end_question">en
 
 <span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting number&quot;</span><span class="p">)</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1018,8 +1028,12 @@ meaning an exact answer.  At most one can be set.</p>
 <span class="sd">    A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting lower bound to be number&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_hi</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting upper bound to be number&quot;</span><span class="p">)</span>
     <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">))</span>
 </pre></div>
 
         </details>

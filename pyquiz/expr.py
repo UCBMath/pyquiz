@@ -33,8 +33,13 @@ __all__ = [
     "row_reduce", "rank",
     "irange", "identity_matrix", "det", "diagonal_matrix",
     "evaluate", "expand", "replace",
-    "reduction"
+    "reduction",
+    "tex"
 ]
+
+if True:
+    # A hack: make it so that the string form of a Fraction is its tex form
+    Fraction.__str__ = lambda self: tex(self)
 
 attributes = defaultdict(set)
 attributes['Plus'].update(["Flat"])
@@ -475,6 +480,7 @@ def tex_prec(prec, e):
         raise ValueError("unknown value to tex " + repr(e))
 
 def tex(e):
+    """Return the TeX form of an expression."""
     return tex_prec(0, e)
 
 ###
