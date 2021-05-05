@@ -57,6 +57,8 @@ example, `pyquiz.html` creates an HTML output file, and
 
 """
 
+from numbers import Number
+
 __all__ = [
     "begin_quiz", "end_quiz",
     "begin_group", "end_group",
@@ -365,8 +367,10 @@ def numeric_answer(val, margin=None, precision=None):
 
     A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.
     """
+    if not isinstance(val, Number):
+        raise ValueError("Expecting number")
     check_in_question("numeric question")
-    BUILDER.numeric_answer(val, margin=margin, precision=precision)
+    BUILDER.numeric_answer(float(val), margin=margin, precision=precision)
 
 def numeric_answer_range(val_lo, val_hi):
     """The answer to a numeric question, where the answer lies in the
@@ -375,8 +379,12 @@ def numeric_answer_range(val_lo, val_hi):
     A numeric question may have multiple `numeric_answer()` and `numeric_answer_range()` calls.
 
     """
+    if not isinstance(val_lo, Number):
+        raise ValueError("Expecting lower bound to be number")
+    if not isinstance(val_hi, Number):
+        raise ValueError("Expecting upper bound to be number")
     check_in_question("numeric question")
-    BUILDER.numeric_answer_range(val_lo, val_hi)
+    BUILDER.numeric_answer_range(float(val_lo), float(val_hi))
 
 
 def begin_multiple_choice_question(name='', points=1, checkboxes=False):
