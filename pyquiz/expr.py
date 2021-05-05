@@ -593,10 +593,6 @@ def reduce_matrix_inverse(e):
     if len(A) != len(A[0]):
         raise ValueError("Taking the inverse of a non-square matrix")
 
-    # TODO be less lazy!
-    if len(A) != 2:
-        return e
-
     d = det(e.args[0])
     a = adj(e.args[0])
     return matrix(*[[frac(v, d) for v in row] for row in a.args])
