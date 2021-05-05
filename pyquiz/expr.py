@@ -29,6 +29,8 @@ __all__ = [
     "Expr", "frac", "expr", "head",
     "var",
     "vector", "matrix", "is_vector", "tex_vector_as_tuple",
+    "rows", "cols",
+    "row_reduce", "rank",
     "irange", "identity_matrix", "det", "diagonal_matrix",
     "normalize", "expand", "replace",
     "reduction"
@@ -597,8 +599,101 @@ def reduce_matrix_inverse(e):
     a = adj(e.args[0])
     return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
-def irange(lo, hi):
-    """Inclusive range.  `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.
+def row_reduce(e, rref=True):
+    """Puts the matrix into row echelon form.
+
+    * If `rref=True` then gives the reduced row echelon form.
+
+    * If `rref=False` then gives row echelon form.
+
+    Follows the algorithm in Lay.
+    """
+    if head(e) != "matrix":
+        raise ValueError("expecting matrix")
+
+    # copy the matrix
+    mat = [[v for v in row] for row in e.args]
+
+    rows = len(mat)
+    cols = len(mat[0])
+    def swap(i, j):
+        # R_i <-> R_j
+        mat[i], mat[j] = mat[j], mat[i]
+    def scale(i, c):
+        # c * R_i -> R_i
+        for k in range(cols):
+            mat[i][k] *= c
+    def replace(i, j, c):
+        # R_i + c * R_j -> R_i
+        for k in range(cols):
+            mat[i][k] += c * mat[j][k]
+    def is_zero(i):
+        # whether row i is a zero row
+        return all(mat[i][k] == 0 for k in range(cols))
+
+    i = 0
+    j = 0
+    last_nz = rows - 1
+    while last_nz >= 0 and is_zero(last_nz):
+        last_nz -= 1
+    while i < rows and j < cols:
+        if is_zero(i):
+            if i >= last_nz:
+                break
+            swap(i, last_nz)
+            last_nz -= 1
+        if mat[i][j] == 0:
+            for k in range(i + 1, last_nz + 1):
+                if mat[k][j] == 0:
+                    swap(i, k)
+                    break
+        if mat[i][j] == 0:
+            j += 1
+            continue
+        if mat[i][j] != 1:
+            scale(i, frac(1, mat[i][j]))
+        for k in range(i + 1, last_nz + 1):
+            if mat[k][j] != 0:
+                replace(k, i, -mat[k][j])
+        i += 1
+        j += 1
+    if rref:
+        for i in range(last_nz, -1, -1):
+            for j in range(cols):
+                if mat[i][j] != 0:
+                    # in fact, the entry is 1
+                    for k in range(i - 1, -1, -1):
+                        if mat[k][j] != 0:
+                            replace(k, i, -mat[k][j])
+                    break
+    return matrix(*mat)
+
+def rows(e):
+    """Gives the number of rows in the matrix."""
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    return len(e.args)
+
+def cols(e):
+    """Gives the number of columns in the matrix."""
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    return len(e.args[0])
+
+def rank(e):
+    """Gives the rank of the matrix"""
+    e = row_reduce(e, rref=False)
+    r = 0
+    for i in irange(min(rows(e), cols(e))):
+        if e[i,i] != 0:
+            r += 1
+    return r
+
+def irange(a, b=None):
+    """Inclusive range.
+
+    * `irange(hi)` gives the list `[1, 2, ..., hi]`.
+    * `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.
 
     This is intended for loops that index a matrix, for example if `A` is a 5x5 matrix, we could compute its trace
     and print it out by
@@ -610,6 +705,10 @@ def irange(lo, hi):
     ```
 
     """
+    if b == None:
+        lo, hi = 1, a
+    else:
+        lo, hi = a, b
     return list(range(lo, hi+1))
 
 def diagonal_matrix(*entries):
