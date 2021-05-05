@@ -571,6 +571,20 @@ def reduce_matmul(e):
             row.append(normalize(x))
     return matrix(*C)
 
+def adj(e):
+    """computes the adjugate matrix"""
+    if head(e) != "matrix":
+        raise ValueError("expecting matrix")
+    rows = e.args
+    if len(rows) != len(rows[0]):
+        raise ValueError("expecting square matrix")
+    n = len(rows)
+    def C(i0, j0):
+        """(i,j) cofactor"""
+        rows2 = [[v for j,v in enumerate(row) if j != j0] for i,row in enumerate(rows) if i != i0]
+        return det(matrix(*rows2))
+    return matrix(*[[(-1)**(i + j) * C(j, i) for j in range(n)] for i in range(n)])
+
 @reduction
 def reduce_matrix_inverse(e):
     if head(e) != "Pow" or head(e.args[0]) != "matrix" or e.args[1] != -1:
@@ -584,8 +598,8 @@ def reduce_matrix_inverse(e):
         return e
 
     d = det(e.args[0])
-    return matrix([frac(A[1][1], d), -frac(A[0][1], d)],
-                  [-frac(A[1][0], d), frac(A[0][0], d)])
+    a = adj(e.args[0])
+    return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
 def irange(lo, hi):
     """Inclusive range.  `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.
