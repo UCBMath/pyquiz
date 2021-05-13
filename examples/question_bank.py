@@ -24,7 +24,7 @@ def q2(i):
     <p>Suppose \(a={i}\).  What is \(y={y}\)?</p>
     """)
 
-    numeric_answer(replace(y, [(a, i)]),
+    numeric_answer(replace(y, a, i),
                    precision=2)
 
     end_question()
