@@ -3,6 +3,7 @@ Functions for matrices and vectors.
 """
 
 from .core import *
+from .manipulate import *
 
 __all__ = [
     "vector", "matrix", "is_vector",

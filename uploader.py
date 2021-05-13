@@ -95,13 +95,17 @@ def exec_quiz(quiz_filename):
 
     print("Loaded quizzes with titles: " + ", ".join(pyquiz.get_loaded_quizzes()))
 
+def get_html_file(quiz_file):
+    #return quiz_file + ".html"
+    return "preview.html"
+
 def preview_command():
     print("----")
     if quiz_file == None:
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
 
-    html_file = quiz_file + ".html"
+    html_file = get_html_file(quiz_file)
     builder = pyquiz.html.HTMLQuizBuilder(html_file)
     pyquiz.set_quiz_builder(builder)
 
@@ -119,7 +123,7 @@ def view_command():
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
 
-    html_file = quiz_file + ".html"
+    html_file = get_html_file(quiz_file)
 
     if not os.path.isfile(html_file):
         tkinter.messagebox.showerror("Error", NO_PREVIEW_FILE)
