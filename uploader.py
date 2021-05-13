@@ -11,7 +11,10 @@ BAD_CANVAS_CONFIG_ERROR = "Malformed canvas_config.json file."
 MISSING_END_QUIZ = "Missing end_quiz() in quiz file."
 NO_PREVIEW_FILE = "Generate an HTML preview first."
 
+UPLOADER_STATE_FILE = ".uploader_state.json"
+
 root = tkinter.Tk()
+root.geometry("+50+50")
 root.title("PyQuiz Uploader")
 
 class ErrorWindow(tkinter.Toplevel):
@@ -57,17 +60,41 @@ window.pack(fill=tkinter.BOTH, expand=True)
 
 quiz_file = None
 
+uploader_state = None
+
+def save_uploader_state():
+    try:
+        with open(UPLOADER_STATE_FILE, "w") as fout:
+            json.dump(uploader_state, fout)
+    except:
+        pass
+
+def update_choose_label():
+    if quiz_file:
+        choose_label['text'] = f"'{os.path.basename(quiz_file)}'"
+    else:
+        choose_label['text'] = NO_QUIZ_SELECT_MESSAGE
+
 def choose_command():
     global quiz_file
+    options = {}
+    if quiz_file:
+        try:
+            options['initialdir'] = os.path.dirname(quiz_file)
+        except:
+            pass
     filepath = tkinter.filedialog.askopenfilename(
-        filetypes=[("Quiz files", "*.py")]
+        parent=root,
+        filetypes=[("Quiz files", "*.py"),
+                   ("All files", "*")],
+        **options
     )
-    if not filepath:
-        choose_label['text'] = NO_QUIZ_SELECT_MESSAGE
-        quiz_file = None
-    else:
-        choose_label['text'] = f"'{os.path.basename(filepath)}'"
+    if filepath:
         quiz_file = filepath
+        uploader_state['quiz_file'] = filepath
+        save_uploader_state()
+
+    update_choose_label()
 
 class additional_path:
     def __init__(self, path):
@@ -256,5 +283,18 @@ class StdoutRedirector:
 
 sys.stdout = StdoutRedirector(stdout_text, sys.stdout)
 sys.stderr = StdoutRedirector(stdout_text, sys.stderr)
+
+try:
+    with open(UPLOADER_STATE_FILE, "r") as fin:
+        uploader_state = json.load(fin)
+except:
+    pass
+
+if not isinstance(uploader_state, dict):
+    uploader_state = {}
+
+if "quiz_file" in uploader_state:
+    quiz_file = uploader_state['quiz_file']
+    update_choose_label()
 
 window.mainloop()
