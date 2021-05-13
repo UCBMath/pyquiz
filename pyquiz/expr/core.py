@@ -1,4 +1,10 @@
-r"""This module defines core functionality for expressions.
+r"""This module defines core functionality for expressions.  In
+addition to some built-in Python types, there is the compound `Expr`
+type for symbolic expressions.
+
+Like Mathematica, subtraction and division don't exist.  Instead, `a - b` is
+`a + (-1)*b` and `a / b` is `a * b**-1`.
+
 """
 
 from collections import defaultdict
@@ -67,18 +73,42 @@ class Expr:
         """Uses one-indexing (!)"""
         # TODO turn this into something more extensible
 
+        if self.head != "matrix":
+            raise ValueError("Can only set entries for matrices and vectors")
+
         # copy-on-write, sort of.
         self.args = list(self.args)
 
+        def set1(idx):
+            if type(idx) != int:
+                raise ValueError("Expecting integer for index")
+            elif not (1 <= idx <= len(self.args)):
+                raise ValueError("Index out of range")
+            else:
+                if len(self.args[0]) != 1:
+                    raise ValueError("Expecting vector, not matrix")
+                self.args[idx - 1][0] = value
+        def set2(idx1, idx2):
+            if type(idx1) != int:
+                raise ValueError("Expecting integer for first index")
+            if type(idx2) != int:
+                raise ValueError("Expecting integer for second index")
+            elif not (1 <= idx1 <= len(self.args)):
+                raise ValueError("First index out of range")
+            elif not (1 <= idx2 <= len(self.args[0])):
+                raise ValueError("Second index out of range")
+            else:
+                self.args[idx1 - 1][idx2 - 1] = value
+
         if type(key) == tuple:
             if len(key) == 1:
-                self.args[key[0] - 1] = value
+                set1(key[0])
             elif len(key) == 2:
-                self.args[key[0] - 1][key[1] - 1] = value
+                set2(key[0], key[1])
             else:
-                raise TypeError("setitem for Expr only supports indexing up to two levels deep.")
+                raise ValueError("Expecting either 1 or 2 indices")
         else:
-            self.args[key - 1] = value
+            set1(key)
     def __iter__(self):
         """Iterate over the arguments of the expression."""
         return iter(self.args)
@@ -147,6 +177,8 @@ one at a time in reverse order.
 """
 
 class Inapplicable(Exception):
+    """An exception to signal that a rule (for example a downvalue) does
+    not apply, so the next rule should be tried."""
     pass
 
 def function_arity(f):
@@ -322,7 +354,7 @@ def irange(a, b=None):
     and print it out by
     ```python
     t = 0
-    for i in irange(cols(A)):
+    for i in irange(ncols(A)):
       t = t + A[i, i]
     print(t)
     ```

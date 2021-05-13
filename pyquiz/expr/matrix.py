@@ -6,19 +6,20 @@ from .core import *
 
 __all__ = [
     "vector", "matrix", "is_vector",
-    "rows", "cols",
+    "nrows", "ncols", "rows", "cols",
+    "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
     "row_reduce", "rank", "nullity",
     "det"
 ]
 
 def vector(*elts):
-    """example: vector(1,2,3) returns matrix([1], [2], [3])"""
+    """Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`"""
     if len(elts) == 0:
         raise ValueError("We require vectors to have at least one row.")
     return Expr("matrix", [[elt] for elt in elts])
 def matrix(*rows):
-    """example: matrix([1,2],[3,4]) for rows [1,2] and [3,4]."""
+    """Example: `matrix([1,2],[3,4])` for a matrix with rows `[1,2]` and `[3,4]`."""
     if len(rows) == 0:
         raise ValueError("We require matrices to have at least one row and column.")
     if any(len(row) != len(rows[0]) for row in rows):
@@ -41,19 +42,83 @@ def identity_matrix(n):
 
 def is_vector(e):
     """A vector is a matrix whose rows each have one entry."""
-    return head(e) == "matrix" and cols(e) == 1
+    return head(e) == "matrix" and ncols(e) == 1
 
-def rows(e):
+def nrows(e):
     """Gives the number of rows in the matrix."""
     if head(e) != "matrix":
         raise ValueError("expecting a matrix")
     return len(e.args)
 
-def cols(e):
+def ncols(e):
     """Gives the number of columns in the matrix."""
     if head(e) != "matrix":
         raise ValueError("expecting a matrix")
     return len(e.args[0])
+
+def rows(e):
+    """Returns a list of the rows of the matrix as column vectors."""
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    return [vector(*row) for row in e.args]
+
+def cols(e):
+    """Returns a list of the columns of the matrix as column vectors."""
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    return [vector(*col) for col in zip(*e.args)]
+
+def transpose(e):
+    """Returns the transpose of the matrix."""
+    return matrix(*(list(col) for col in zip(*e.args)))
+
+def matrix_with_cols(*cols):
+    """Returns a matrix with the columns given by the column vectors.
+    More generally, accepts matrices all with the same number of rows,
+    and produces a block matrix of the matrices horizontally
+    concatenated.
+
+    Identity: `A == matrix_with_cols(*cols(A))`
+
+    Example: `matrix_with_cols(A, v)` is an augmented matrix.
+
+    """
+
+    if len(cols) == 0:
+        raise ValueError("Matrices must have at least one column.")
+    if not all(head(c) == "matrix" for c in cols):
+        raise ValueError("Not all the arguments are matrices")
+    m = nrows(cols[0])
+    if not all(m == nrows(c) for c in cols):
+        raise ValueError("Not all the matrices have the same number of rows.")
+
+    rows = []
+    for i in range(m):
+        row = []
+        rows.append(row)
+        for c in cols:
+            row.extend(c.args[i])
+    return Expr("matrix", rows)
+
+def matrix_with_rows(*rows):
+    """Returns a matrix with the rows given by the row vectors.  More
+    generally, accepts matrices all with the same number of columns,
+    and produces a block matrix of the matrices vertically
+    concatenated.
+    """
+
+    if len(rows) == 0:
+        raise ValueError("Matrices must have at least one row.")
+    if not all(head(r) == "matrix" for r in rows):
+        raise ValueError("Not all the arguments are matrices")
+    n = ncols(rows[0])
+    if not all(n == ncols(r) for r in rows):
+        raise ValueError("Not all the matrices have the same number of columns.")
+
+    mrows = []
+    for r in rows:
+        mrows.extend(r.args)
+    return Expr("matrix", mrows)
 
 @downvalue("Part")
 def rule_part_vector(e, idx):
@@ -62,10 +127,10 @@ def rule_part_vector(e, idx):
         raise Inapplicable
     if type(idx) != int:
         raise ValueError(f"Expecting integer for index, not {idx}")
-    if cols(e) != 1:
+    if ncols(e) != 1:
         raise ValueError(f"Need two indices to index a matrix, not one.")
-    if not (1 <= idx <= rows(e)):
-        raise ValueError(f"Index {idx} is out of bounds for vector of length {rows(e)}.")
+    if not (1 <= idx <= nrows(e)):
+        raise ValueError(f"Index {idx} is out of bounds for vector of length {nrows(e)}.")
     return e.args[idx - 1][0]
 
 @downvalue("Part")
@@ -77,10 +142,10 @@ def rule_part_matrix(e, idx1, idx2):
         raise ValueError(f"Expecting integer for first index, not {idx}")
     if type(idx2) != int:
         raise ValueError(f"Expecting integer for second index, not {idx}")
-    if not (1 <= idx1 <= rows(e)):
-        raise ValueError(f"First index {idx1} is out of bounds for matrix with {rows(e)} rows.")
-    if not (1 <= idx2 <= cols(e)):
-        raise ValueError(f"Second index {idx2} is out of bounds for matrix with {cols(e)} columns.")
+    if not (1 <= idx1 <= nrows(e)):
+        raise ValueError(f"First index {idx1} is out of bounds for matrix with {nrows(e)} rows.")
+    if not (1 <= idx2 <= ncols(e)):
+        raise ValueError(f"Second index {idx2} is out of bounds for matrix with {ncols(e)} columns.")
     return e.args[idx1 - 1][idx2 - 1]
 
 @downvalue("det", def_expr=True)
@@ -107,15 +172,15 @@ def det(e):
 def reduce_matmul(A, B):
     if head(A) != "matrix" or head(B) != "matrix":
         raise Inapplicable
-    if cols(A) != rows(B):
+    if ncols(A) != nrows(B):
         raise ValueError("Number of columns of first argument does not equal number of rows of second argument")
     C = []
-    for i in irange(rows(A)):
+    for i in irange(nrows(A)):
         row = []
         C.append(row)
-        for j in irange(cols(B)):
+        for j in irange(ncols(B)):
             x = 0
-            for k in irange(cols(A)):
+            for k in irange(ncols(A)):
                 x += A[i,k] * B[k,j]
             row.append(x)
     return matrix(*C)
@@ -140,7 +205,7 @@ def reduce_matrix_inverse(A, n):
     if head(A) != "matrix" or n != -1:
         raise Inapplicable
 
-    if rows(A) != cols(A):
+    if nrows(A) != ncols(A):
         raise ValueError("Taking the inverse of a non-square matrix")
 
     d = det(A)
@@ -248,4 +313,4 @@ def nullity(e):
     """Gives the nullity of the matrix"""
     if head(e) != "matrix":
         raise Inapplicable
-    return cols(e) - rank(e)
+    return ncols(e) - rank(e)

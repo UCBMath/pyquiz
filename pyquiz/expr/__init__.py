@@ -30,12 +30,14 @@ To use expressions, you just need to import this module:
 from pyquiz.expr import *
 ```
 
-# Arithmetic expressions
-
 # Modules
 
 Overview of submodules:
-* `pyquiz.expr.core`
+* `pyquiz.expr.core` defines `Expr` and expression evaluation.
+* `pyquiz.expr.arith` gives evaluation rules for arithmetic expressions.
+* `pyquiz.expr.manipulate` gives functions such as `expand`.
+* `pyquiz.expr.matrix` defines matrices and associated functions.
+* `pyquiz.expr.tex_form` defines the `tex` function.
 """
 
 from .core import *
