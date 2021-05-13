@@ -30,38 +30,12 @@ __all__ = [
     "var",
     "vector", "matrix", "is_vector", "tex_vector_as_tuple",
     "rows", "cols",
-    "row_reduce", "rank",
+    "row_reduce", "rank", "nullity",
     "irange", "identity_matrix", "det", "diagonal_matrix",
     "evaluate", "expand", "replace",
-    "reduction",
+    "downvalue", "DeferEval",
     "tex"
 ]
-
-if True:
-    # A hack: make it so that the string form of a Fraction is its tex form
-    Fraction.__str__ = lambda self: tex(self)
-
-attributes = defaultdict(set)
-attributes['Plus'].update(["Flat"])
-attributes['Times'].update(["Flat"])
-
-# A list of reduction rules
-reductions = []
-
-def reduction(f):
-    """A decorator for defining new reductions used by `evaluate()`.
-
-    Usage:
-    ```python
-    @reduction
-    def my_reduction(e):
-      return e
-    ```
-    This adds `my_reduction` to the list of reductions.
-    """
-    reductions.append(f)
-    return f
-
 
 class Expr:
     """This is supposed to be like a Mathematica expression.  Every
@@ -81,7 +55,7 @@ class Expr:
     def __init__(self, head, args):
         """Construct an `Expr` with the given head and list of arguments.  See also `expr()`."""
         self.head = head
-        self.args = list(args)
+        self.args = args
     def __add__(self, b):
         return evaluate(expr("Plus", self, b))
     def __radd__(self, a):
@@ -118,6 +92,11 @@ class Expr:
             return evaluate(expr("Part", self, key))
     def __setitem__(self, key, value):
         """Uses one-indexing (!)"""
+        # TODO turn this into something more extensible
+
+        # copy-on-write, sort of.
+        self.args = list(self.args)
+
         if type(key) == tuple:
             if len(key) == 1:
                 self.args[key[0] - 1] = value
@@ -127,6 +106,11 @@ class Expr:
                 raise TypeError("setitem for Expr only supports indexing up to two levels deep.")
         else:
             self.args[key - 1] = value
+    def __iter__(self):
+        """Iterate over the arguments of the expression."""
+        return iter(self.args)
+    def __len__(self):
+        return len(self.args)
     def __eq__(self, other):
         """Check if structurally equal."""
         if self is other:
@@ -141,13 +125,6 @@ class Expr:
     def __repr__(self):
         return "expr(%r%s)" % (self.head, "".join(", " + repr(a) for a in self.args))
 
-def frac(a, b):
-    """Divides `a` by `b` exactly.
-
-    It's hard to fully overload division in Python, so this is a function that takes the
-    quotient in a way that ensures the the quotient of two integers is a fraction."""
-    return evaluate(expr("Times", a, expr("Pow", b, -1)))
-
 def expr(head, *args):
     """A convenience function for the `Expr` constructor.  `expr(a, b, c, ...)` is `Expr(a, [b, c, ...])`."""
     return Expr(head, args)
@@ -159,6 +136,7 @@ def head(e):
     * numbers -> "number"
     * strings -> "string"
     * lists and tuples -> "list"
+    * `Expr` -> the `head` attribute of the object
     """
     if isinstance(e, Number):
         return "number"
@@ -169,14 +147,167 @@ def head(e):
     else:
         return e.head
 
+def frac(a, b):
+    """Divides `a` by `b` exactly.
+
+    It's hard to fully overload division in Python, so this is a function that takes the
+    quotient in a way that ensures the the quotient of two integers is a fraction."""
+    return evaluate(expr("Times", a, expr("Pow", b, -1)))
+
+
+attributes = defaultdict(set)
+r"""Attributes control some additional evaluation rules that apply before
+other evaluation rules.
+
+* "Flat" takes nested expressions and flattens them.
+  For example, `expr("Plus", expr("Plus", a, b), expr("Plus", c, d), e)`
+  becomes `expr("Plus", a, b, c, d, e)`.
+"""
+attributes['Plus'].update(["Flat"])
+attributes['Times'].update(["Flat"])
+
+downvalues = defaultdict(list)
+r"""Using the Mathematica terminology, a downvalue is an evaluation
+rule attached to a particular head.  During the evaluation of an `Expr`,
+if the head is a string then all the downvalues for that head are considered
+one at a time in reverse order.
+"""
+
+class DeferEval(Exception):
+    pass
+
+def function_arity(f):
+    """Returns the arity of `f`, which describes the number of positional
+    arguments that `f` can accept.  Requires that `f` not be a builtin
+    since it uses `inspect.signature` to calculate the arity.
+
+    Returns: (lo, hi) where `lo` is the minimum number of positional
+    arguments `f` accepts, and `hi` is the maximum (`float('inf')` if
+    it can accept arbitrarily many).
+
+    Examples:
+    ```python
+    def f1(a, b): pass       # arity = (2, 2)
+    def f2(a, b=2): pass     # arity = (1, 2)
+    def f3(a, b, *c): pass   # arity = (2, float('inf'))
+    def f4(a, b=2, *c): pass # arity = (1, float('inf'))
+    ```
+
+    """
+    import inspect
+    lo = 0
+    hi = 0
+    for param in inspect.signature(f).parameters.values():
+        if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
+            if param.default is param.empty:
+                lo += 1
+            hi += 1
+        elif param.kind == param.VAR_POSITIONAL:
+            hi = float('inf')
+    return (lo, hi)
+
+def downvalue(head, with_expr=False, def_expr=False):
+    """(internal) A decorator for adding new downvalues for a particular
+    head.  The function receives the arguments of the expression as
+    arguments if `with_expr=False`, and otherwise it receives the
+    expression itself as its sole argument.  In the case
+    `with_expr=False`, the arity of the function is considered when
+    applying this downvalue, raising `DeferEval` if there aren't the
+    correct number of arguments.
+
+    If `def_expr` is `True`, then the decorator replaces the function
+    with, essentially, `evaluate(expr(head, ...arguments))`.  This is
+    to make it easy to define new types of expressions that really
+    only have one downvalue.  If `with_expr` is `True`, then the arity
+    is unbounded, and otherwise it uses the arity of the function.
+
+    If `def_expr` is `False`, then the function that's defined is
+    whatever gets added to the downvalues list.  This is so you can
+    refer to it and remove it if you don't want a certain evaluation
+    rule to apply.  (Note: if `def_expr` is `True` then the downvalue
+    itself is *not* returned.)
+
+    Example:
+    ```python
+    @downvalue("f", def_expr=True)
+    def f(x):
+      if not isinstance(x, int):
+        raise DeferEval
+      return x + 1
+    ```
+    Since `def_expr=True`, this creates a function `f` that takes one
+    argument and returns `evaluate(expr("f", x))`.
+
+    """
+    assert isinstance(head, str)
+    import functools
+    def add_downvalue(f):
+        if with_expr:
+            # f itself is the downvalue
+            downvalues[head].append(f)
+            if def_expr:
+                # return an expression constructor with no arity constraints
+                @functools.wraps(f)
+                def mk(*args):
+                    return evaluate(Expr(head, args))
+                return mk
+            else:
+                # otherwise return what was added to downvalues
+                return f
+        else:
+            # need to wrap f in a function that extracts the arguments
+            lo, hi = function_arity(f)
+            @functools.wraps(f)
+            def _f(e):
+                if lo <= len(e.args) <= hi:
+                    return f(*e.args)
+                else:
+                    raise DeferEval
+            downvalues[head].append(_f)
+            if def_expr:
+                # return an expression constructor with arity constraints drawn from f
+                @functools.wraps(f)
+                def mk(*args):
+                    if lo <= len(args) <= hi:
+                        return evaluate(Expr(head, args))
+                    else:
+                        if hi == float('inf'):
+                            raise ValueError(f"{head} expression expecting at least {lo} arguments")
+                        else:
+                            raise ValueError(f"{head} expression expecting between {lo} and {hi} arguments")
+                return def_expr
+            else:
+                # otherwise return what was added to downvalues
+                return _f
+    return add_downvalue
+
+
 def evaluate(e):
     """Mathematica-like expression evaluation routine.  Puts an expression
-    into a sort of normal form by applying all the reduction rules
-    until the expression no longer changes.
+    into a sort of normal form by applying all the evaluation rules
+    until the expression no longer changes.  This function is (or at
+    least should be) idempotent in that `evaluate(evaluate(e)) == evaluate(e)`.
 
-    Should not simplify expressions very much, though we allow
-    collection of coefficients for linear combinations and
-    simplifications of monomials.  We also allow applications of functions.
+    It is not meant to be an expression simplifier, though we do let
+    it collect coefficients and exponents in linear combinations and
+    monomials.  We also allow applications of functions, for instance
+    through the downvalues mechanism.
+
+    * Simple expressions like literal numbers or strings are returned as-is.
+    * Python lists/tuples are evaluated by evaluating their elements.  They are returned as lists.
+    * Compound expressions (`Expr`) are evaluated according to the following steps:
+      * The head and arguments are evaluated.
+      * If the head is a string with the "Flat" attribute, then each
+        argument with the same head is replaced with its arguments
+        spliced in, effectively flattening the expression.  (This is
+        meant to be used for associative operations where it is more
+        convenient deal with the associated operad.)
+      * If the head is a string with an associated list of `downvalues` (Mathematica terminology)
+        then the downvalues are attempted to be applied in reverse order.
+        If a downvalue raises `DeferEval` or it returns an expression that is equal to what it was given,
+        then the next is tried in succession.  Otherwise, the resulting expression is (recursively) evaluated.
+      * The evaluated expression is returned.
+
     """
     if isinstance(e, Number) or isinstance(e, str):
         return e
@@ -184,10 +315,11 @@ def evaluate(e):
         # evaluate to list
         return [evaluate(x) for x in e]
     elif type(e) != Expr:
-        raise ValueError("Unknown type of value to evaluate.")
+        raise ValueError(f"Unknown type of value ({type(e)!r}) to evaluate.")
     h = evaluate(e.head)
     args = [evaluate(a) for a in e.args]
     if "Flat" in attributes[h]:
+        # assumes all arguments have been flattened by the recursive `evaluate`
         args2 = []
         for a in args:
             if head(a) == h:
@@ -196,20 +328,25 @@ def evaluate(e):
                 args2.append(a)
         args = args2
     e = Expr(h, args)
-    for rule in reversed(reductions):
-        e2 = rule(e)
+    if not isinstance(e.head, str):
+        return e
+    for rule in reversed(downvalues[e.head]):
+        try:
+            e2 = rule(e)
+        except DeferEval:
+            continue
         if e2 != e:
             return evaluate(e2)
     return e
 
 def expand(e):
-    """Mathematica-like ExpandAll.  Distributes multiplications over additions everywhere in the expression."""
+    """Mathematica-like `ExpandAll`.  Distributes multiplications over additions everywhere in the expression."""
     if isinstance(e, Number) or isinstance(e, str):
         return e
     elif type(e) == list or type(e) == tuple:
         return [expand(x) for x in e]
     elif type(e) != Expr:
-        raise ValueError("Unknown type of value to expand")
+        raise ValueError(f"Unknown type of value ({type(e)!r}) to expand.")
 
     args = [expand(a) for a in e.args]
 
@@ -246,11 +383,9 @@ def plus_terms(e):
             return (1, a)
     return [split(a) for a in e.args]
 
-@reduction
+@downvalue("Plus", with_expr=True)
 def rule_plus_collect(e):
     """Collect monomials, adding numeric coefficients."""
-    if head(e) != "Plus":
-        return e
     terms = []
     for coeff, b in plus_terms(e):
         for i, (t, c) in enumerate(terms):
@@ -284,11 +419,9 @@ def times_terms(e):
             return (a, 1)
     return [split(a) for a in e.args]
 
-@reduction
+@downvalue("Times", with_expr=True)
 def rule_times_collect(e):
     """Collect multiplicands of the product, combining exponents."""
-    if head(e) != "Times":
-        return e
     # collect all powers
     # terms is a list of (value, exponent) pairs
     terms = []
@@ -317,36 +450,34 @@ def rule_times_collect(e):
     else:
         return expr("Times", *args2)
 
-@reduction
-def rule_pow_constants(e):
+@downvalue("Pow")
+def rule_pow_constants(a, b):
     """Compute powers when constants are present."""
-    if head(e) != "Pow":
-        return e
-    elif e.args[1] == 0:
+    if a == 0:
         return 1
-    elif e.args[1] == 1:
-        return e.args[0]
-    elif type(e.args[0]) == int and isinstance(e.args[1], Number):
-        return Fraction(e.args[0]) ** e.args[1]
-    elif isinstance(e.args[0], Number) and isinstance(e.args[1], Number):
-        return e.args[0] ** e.args[1]
+    elif b == 1:
+        return a
+    elif type(a) == int and isinstance(b, Number):
+        return Fraction(a) ** b
+    elif isinstance(a, Number) and isinstance(b, Number):
+        return a ** b
     else:
-        return e
+        raise DeferEval
 
-@reduction
-def rule_part_matrix(e):
+@downvalue("Part")
+def rule_part_matrix(e, *idxs):
     """Extract a Part of a matrix or vector.  Uses 1-indexing(!)"""
-    if head(e) != "Part" or head(e.args[0]) != "matrix" or len(e.args) not in (2, 3):
-        return e
-    if not all(type(x) == int for x in e.args[1:]):
-        return e
-    if len(e.args) == 2:
-        row = e.args[0].args[e.args[1] - 1]
+    if head(e) != "matrix" or not (1 <= len(idxs) <= 2):
+        raise DeferEval
+    if not all(type(x) == int for x in idxs):
+        raise DeferEval
+    if len(idxs) == 1:
+        row = e.args[idxs[0] - 1]
         if len(row) != 1:
             raise ValueError("Need two indices to index a matrix.")
         return row[0]
-    elif len(e.args) == 3:
-        return e.args[0].args[e.args[1] - 1][e.args[2] - 1]
+    elif len(idxs) == 2:
+        return e.args[idxs[0] - 1][idxs[1] - 1]
     else:
         raise Exception("Internal error")
 
@@ -483,6 +614,10 @@ def tex(e):
     """Return the TeX form of an expression."""
     return tex_prec(0, e)
 
+if True:
+    # A hack: monkey patch so that the string form of a Fraction is its TeX form
+    Fraction.__str__ = lambda self: tex(self)
+
 ###
 ### Useful constructors
 ###
@@ -493,6 +628,11 @@ def var(name):
     A variable can contain LaTeX code, like for example
     `var(r"\lambda")`.  The `r` indicates "raw string", without which
     you need a doubled backslash like `var("\\lambda")`.
+
+    Example:
+    ```python
+    a = var("a")
+    ```
 
     """
     return expr("var", name)
@@ -538,13 +678,11 @@ def identity_matrix(n):
     assert isinstance(n, int)
     return matrix(*[[1 if i == j else 0 for j in range(n)] for i in range(n)])
 
+@downvalue("det", def_expr=True)
 def det(e):
-    """computes the determinant of the given matrix"""
-    return evaluate(expr("det", e))
-@reduction
-def reduce_det(e):
-    if head(e) != "det" or head(e.args[0]) != "matrix":
-        return e
+    """Computes the determinant of the given matrix"""
+    if head(e) != "matrix":
+        raise DeferEval
     def expand(rows):
         if len(rows) == 1:
             assert len(rows[0]) == 1
@@ -556,33 +694,32 @@ def reduce_det(e):
             acc += (-1) ** i * rows[i][0] * expand(submatrix)
         return acc
 
-    r = expand(e.args[0].args)
+    r = expand(e.args)
     return r
 
-# TODO make this an "expansion"?
-@reduction
-def reduce_matmul(e):
-    if head(e) != "MatTimes" or head(e.args[0]) != "matrix" or head(e.args[1]) != "matrix":
-        return e
-    A = e.args[0].args
-    B = e.args[1].args
-    if len(A[0]) != len(B):
-        raise ValueError("Number of rows does not equal number of columns")
+# TODO make this an "expansion" that doesn't apply during evaluation?
+@downvalue("MatTimes")
+def reduce_matmul(A, B):
+    if head(A) != "matrix" or head(B) != "matrix":
+        raise DeferEval
+    if cols(A) != rows(B):
+        raise ValueError("Number of columns of first argument does not equal number of rows of second argument")
     C = []
-    for i in range(len(A)):
+    for i in irange(rows(A)):
         row = []
         C.append(row)
-        for j in range(len(B[0])):
+        for j in irange(cols(B)):
             x = 0
-            for k in range(len(A[0])):
-                x += A[i][k] * B[k][j]
-            row.append(evaluate(x))
+            for k in irange(cols(A)):
+                x += A[i,k] * B[k,j]
+            row.append(x)
     return matrix(*C)
 
+@downvalue("adj", def_expr=True)
 def adj(e):
-    """computes the adjugate matrix"""
+    """Computes the adjugate matrix"""
     if head(e) != "matrix":
-        raise ValueError("expecting matrix")
+        raise DeferEval
     rows = e.args
     if len(rows) != len(rows[0]):
         raise ValueError("expecting square matrix")
@@ -593,16 +730,16 @@ def adj(e):
         return det(matrix(*rows2))
     return matrix(*[[(-1)**(i + j) * C(j, i) for j in range(n)] for i in range(n)])
 
-@reduction
-def reduce_matrix_inverse(e):
-    if head(e) != "Pow" or head(e.args[0]) != "matrix" or e.args[1] != -1:
-        return e
-    A = e.args[0].args
+@downvalue("Pow")
+def reduce_matrix_inverse(A, n):
+    if head(A) != "matrix" or n != -1:
+        raise DeferEval
+
     if len(A) != len(A[0]):
         raise ValueError("Taking the inverse of a non-square matrix")
 
-    d = det(e.args[0])
-    a = adj(e.args[0])
+    d = det(A)
+    a = adj(A)
     return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
 def row_reduce(e, rref=True, steps_out=None):
@@ -703,11 +840,21 @@ def cols(e):
         raise ValueError("expecting a matrix")
     return len(e.args[0])
 
+@downvalue("rank", def_expr=True)
 def rank(e):
     """Gives the rank of the matrix"""
+    if head(e) != "matrix":
+        raise DeferEval
     e = row_reduce(e, rref=False)
     assert head(e) == "matrix"
     return sum(1 for row in e.args if not all(v == 0 for v in row))
+
+@downvalue("nullity", def_expr=True)
+def nullity(e):
+    """Gives the nullity of the matrix"""
+    if head(e) != "matrix":
+        raise DeferEval
+    return cols(e) - rank(e)
 
 def irange(a, b=None):
     """Inclusive range.
@@ -715,11 +862,11 @@ def irange(a, b=None):
     * `irange(hi)` gives the list `[1, 2, ..., hi]`.
     * `irange(lo, hi)` gives the list `[lo, lo+1, ..., hi]`.
 
-    This is intended for loops that index a matrix, for example if `A` is a 5x5 matrix, we could compute its trace
+    This is intended for loops that index a matrix, for example if `A` is a square matrix, we could compute its trace
     and print it out by
     ```python
     t = 0
-    for i in irange(1, 5):
+    for i in irange(cols(A)):
       t = t + A[i, i]
     print(t)
     ```
