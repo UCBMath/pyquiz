@@ -25,6 +25,7 @@ def normalize_deriv_spec(spec):
                 break
         else:
             spec2.append([v, n])
+    # delete entries for 0th derivatives
     for i in range(len(spec2) - 1, -1, -1):
         if spec2[i][1] == 0:
             del spec2[i]
@@ -49,7 +50,7 @@ def Dt(e, *spec, constants=[]):
     for i, s in enumerate(spec):
         if head(s) == "var":
             v, n = s, 1
-        elif type(s) == tuple:
+        elif type(s) in (tuple, list):
             if len(s) != 2:
                 raise ValueError("tuple in spec should have length 2")
             v, n = s
@@ -58,57 +59,75 @@ def Dt(e, *spec, constants=[]):
 
         if head(v) != "var":
             raise ValueError("can only take derivatives with respect to variables")
-        if type(n) != int or n < 0:
-            raise ValueError("can only take a positive integer number of derivatives")
 
         spec[i] = [v, n]
 
     return evaluate(expr("Deriv", e, spec, constants))
 
 def split_spec(spec):
-    """Returns `(spec2, v)`, where `spec` is equivalent to `[*spec2, (v, 1)]`."""
-    if len(spec) == 1:
-        spec0, (v, n) = [], spec[0]
-    else:
-        spec0, (v, n) = spec
-    if n == 1:
-        return (spec0, v)
-    else:
-        spec0.append((v, n - 1))
-        return (spec0, v)
+    """Returns `(spec2, v)`, where `spec` is equivalent to `[*spec2, (v, 1)]`,
+    or `(spec, None)` if it can't be done.
+    Chooses the last element of the spec with an `int`."""
+    for i in range(len(spec) - 1, -1, -1):
+        v, n = spec[i]
+        if type(n) == int:
+            if n < 0:
+                raise ValueError(f"The derivative spec ({v}, {n}) is negative.")
+            elif n == 1:
+                return (spec[:i] + spec[i+1:], v)
+            else:
+                return (spec[:i] + [(v, n - 1)] + spec[i+1:], v)
+    return (spec, None)
+
+def spec_for_var(spec, var):
+    """For a spec and a variable, returns (spec2, n) where n is the number
+    of times it says to take the derivative for that variable (0 by
+    default)."""
+    for i, (v, n) in enumerate(spec):
+        if v == var:
+            return (spec[:i] + spec[i+1:], n)
+    return (spec, 0)
 
 @downvalue("Deriv")
 def rule_deriv_basic(e, spec, constants):
     spec2 = normalize_deriv_spec(spec)
     if spec2 != spec:
-        print(spec, spec2)
         return expr("Deriv", e, spec2, constants)
     elif len(spec) == 0:
         return e
     elif head(e) == "number" or head(e) == "const":
-        return 0
+        spec2, v = split_spec(spec)
+        if v == None:
+            raise Inapplicable
+        else:
+            return 0
     elif head(e) == "var":
         if e in constants:
             return 0
-        elif any(e == v for v, n in spec):
-            if sum(n for v, n in spec) > 1:
+        spec2, n = spec_for_var(spec, e)
+        if type(n) == int:
+            if n > 1:
                 return 0
-            else:
-                return 1
-        else:
-            raise Inapplicable
-    elif head(e) == "Deriv" and e.args[3] == constants:
-        return expr("Deriv", e.args[1], spec + e.args[2], constants)
+            elif n == 1:
+                return expr("Deriv", 1, spec2, constants)
+        raise Inapplicable
+    elif head(e) == "Deriv" and e.args[2] == constants:
+        # join the derivatives
+        return expr("Deriv", e.args[0], spec + e.args[1], constants)
     elif head(e) == "Plus":
         return Expr("Plus", [expr("Deriv", x, spec, constants) for x in e])
     elif head(e) == "Times":
         spec2, v = split_spec(spec)
+        if v == None:
+            raise Inapplicable
         deriv = 0
         for i in range(len(e.args)):
             deriv += expr("Times", *e.args[:i], expr("Deriv", e.args[i], [(v, 1)], constants), *e.args[i+1:])
         return expr("Deriv", deriv, spec2, constants)
     elif head(e) == "Pow":
         spec2, v = split_spec(spec)
+        if v == None:
+            raise Inapplicable
         a, b = e.args
         da = expr("Deriv", a, [(v, 1)], constants)
         db = expr("Deriv", b, [(v, 1)], constants)
