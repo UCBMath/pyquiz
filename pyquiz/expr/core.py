@@ -385,6 +385,8 @@ def var(name):
 
     See also `const`.  In contrast, a `var` can depend on other variables.
     """
+    if not isinstance(name, str):
+        raise ValueError("Expecting string")
     return expr("var", name)
 
 def const(name):
@@ -401,4 +403,6 @@ def const(name):
 
     See also `var`.  In constrast, a `const` is assumed to be a fixed constant scalar value.
     """
+    if not isinstance(name, str):
+        raise ValueError("Expecting string")
     return expr("const", name)
