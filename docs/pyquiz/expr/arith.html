@@ -31,19 +31,25 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#split_summand">split_summand</a>
+                    <a class="function" href="#exp">exp</a>
             </li>
             <li>
-                    <a class="function" href="#rule_plus_collect">rule_plus_collect</a>
+                    <a class="function" href="#ln">ln</a>
             </li>
             <li>
-                    <a class="function" href="#split_multiplicand">split_multiplicand</a>
+                    <a class="variable" href="#E">E</a>
             </li>
             <li>
-                    <a class="function" href="#rule_times_collect">rule_times_collect</a>
+                    <a class="variable" href="#Pi">Pi</a>
             </li>
             <li>
-                    <a class="function" href="#rule_pow_constants">rule_pow_constants</a>
+                    <a class="variable" href="#I">I</a>
+            </li>
+            <li>
+                    <a class="function" href="#sin">sin</a>
+            </li>
+            <li>
+                    <a class="function" href="#cos">cos</a>
             </li>
     </ul>
 
@@ -75,14 +81,18 @@ simplification of linear combinations and monomials.</p>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;ln&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;Pi&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;sin&quot;</span><span class="p">,</span> <span class="s2">&quot;cos&quot;</span>
 <span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">split_summand</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_plus_collect.  Gives a (coeff, expr) pair</span>
-<span class="sd">    for a given expression.  Assumes the expression has been already</span>
-<span class="sd">    evaluated.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+    <span class="sd">&quot;&quot;&quot;Helper function for `rule_plus_collect`.  Gives a (coeff, expr)</span>
+<span class="sd">    pair for a given expression.  Assumes the expression has been</span>
+<span class="sd">    already evaluated.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -113,7 +123,7 @@ simplification of linear combinations and monomials.</p>
         <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Plus&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">split_multiplicand</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_times_collect.  Returns (power, expr).&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Helper function for `rule_times_collect`.  Returns (power, expr).&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
@@ -137,6 +147,8 @@ simplification of linear combinations and monomials.</p>
                     <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exp</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">coeff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
     <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">coeff</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
@@ -149,7 +161,15 @@ simplification of linear combinations and monomials.</p>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">args2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
+        <span class="c1"># sort args2 so that most functions occur last</span>
+        <span class="n">args3</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;const&quot;</span><span class="p">,</span> <span class="s2">&quot;Plus&quot;</span><span class="p">,</span> <span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="s2">&quot;Pow&quot;</span><span class="p">):</span>
+                <span class="n">args3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args3</span><span class="p">,</span> <span class="o">*</span><span class="n">fns</span><span class="p">)</span>
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">rule_pow_constants</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -165,191 +185,219 @@ simplification of linear combinations and monomials.</p>
         <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="n">b</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
-</pre></div>
 
-        </details>
-
-            </section>
-                <section id="split_summand">
-                            <div class="attr function"><a class="headerlink" href="#split_summand">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">split_summand</span><span class="signature">(a)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">split_summand</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_plus_collect.  Gives a (coeff, expr) pair</span>
-<span class="sd">    for a given expression.  Assumes the expression has been already</span>
-<span class="sd">    evaluated.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Helper function for rule_plus_collect.  Gives a (coeff, expr) pair
-for a given expression.  Assumes the expression has been already
-evaluated.</p>
-</div>
-
-
-                </section>
-                <section id="rule_plus_collect">
-                            <div class="attr function"><a class="headerlink" href="#rule_plus_collect">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@downvalue(&#39;Plus&#39;)</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_plus_collect</span><span class="signature">(*args)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Plus&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">rule_plus_collect</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect monomials, adding numeric coefficients of repeated monomials.&quot;&quot;&quot;</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">split_summand</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terms</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
-                <span class="n">terms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">coeff</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
-    <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">t</span>
-        <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">args2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Plus&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Collect monomials, adding numeric coefficients of repeated monomials.</p>
-</div>
-
-
-                </section>
-                <section id="split_multiplicand">
-                            <div class="attr function"><a class="headerlink" href="#split_multiplicand">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">split_multiplicand</span><span class="signature">(a)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">split_multiplicand</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function for rule_times_collect.  Returns (power, expr).&quot;&quot;&quot;</span>
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_pow_pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`(a0 ** a1) ** b == a0 ** (a1 * b)`&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-</pre></div>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
 
-        </details>
+<span class="n">E</span> <span class="o">=</span> <span class="n">const</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
+<span class="n">Pi</span> <span class="o">=</span> <span class="n">const</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\pi&quot;</span><span class="p">)</span>
+<span class="n">I</span> <span class="o">=</span> <span class="n">const</span><span class="p">(</span><span class="s2">&quot;I&quot;</span><span class="p">)</span>
 
-            <div class="docstring"><p>Helper function for rule_times_collect.  Returns (power, expr).</p>
-</div>
-
-
-                </section>
-                <section id="rule_times_collect">
-                            <div class="attr function"><a class="headerlink" href="#rule_times_collect">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@downvalue(&#39;Times&#39;)</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_times_collect</span><span class="signature">(*args)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">rule_times_collect</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect multiplicands of the product, combining exponents.&quot;&quot;&quot;</span>
-    <span class="c1"># collect all powers</span>
-    <span class="c1"># terms is a list of (value, exponent) pairs</span>
-    <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">exp</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">split_multiplicand</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-            <span class="n">coeff</span> <span class="o">*=</span> <span class="n">val</span>
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_I_pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="n">I</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span> <span class="o">%</span> <span class="mi">4</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">I</span>
+        <span class="k">elif</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terms</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
-                    <span class="n">terms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp</span> <span class="o">+</span> <span class="n">e</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exp</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
-    <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">coeff</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">**</span> <span class="n">e</span>
-        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">args2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">I</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args2</span><span class="p">)</span>
-</pre></div>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
 
-        </details>
+<span class="c1"># TODO: add rationalization of complex divisors</span>
+<span class="c1">#@downvalue(&quot;Pow&quot;)</span>
+<span class="c1">#def rule_I_div(a, b):</span>
+<span class="c1">#    if not (type(b) == int and b &lt; 0):</span>
+<span class="c1">#        raise Inapplicable</span>
+<span class="c1">#    if </span>
 
-            <div class="docstring"><p>Collect multiplicands of the product, combining exponents.</p>
-</div>
+<span class="k">def</span> <span class="nf">exp</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The exponential function with base *e*, referred to using `E`.  Just returns `E ** x`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">E</span> <span class="o">**</span> <span class="n">x</span>
 
-
-                </section>
-                <section id="rule_pow_constants">
-                            <div class="attr function"><a class="headerlink" href="#rule_pow_constants">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@downvalue(&#39;Pow&#39;)</div>
-
-            <span class="def">def</span>
-            <span class="name">rule_pow_constants</span><span class="signature">(a, b)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">rule_pow_constants</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute powers when constants are present.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;ln&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ln</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The natural logarithm.  The base of the logarithm is referred to by `E`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ln(0) is undefined&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="n">E</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">a</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="c1"># This ensures it will be exact if possible.</span>
-        <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="n">b</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="n">b</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">E</span><span class="p">:</span> <span class="c1"># simplification: ln(E ** t) == t</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_exp_ln</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assumes x is in the correct domain, simplifying `E ** ln(x) == x`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="n">E</span> <span class="ow">and</span> <span class="n">head</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ln&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;sin&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sin</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The sine function.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;cos&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cos</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The cosine function.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Compute powers when constants are present.</p>
+            </section>
+                <section id="exp">
+                            <div class="attr function"><a class="headerlink" href="#exp">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">exp</span><span class="signature">(x)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exp</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The exponential function with base *e*, referred to using `E`.  Just returns `E ** x`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">E</span> <span class="o">**</span> <span class="n">x</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>The exponential function with base <em>e</em>, referred to using <code><a href="#E">E</a></code>.  Just returns <code>E ** x</code>.</p>
+</div>
+
+
+                </section>
+                <section id="ln">
+                            <div class="attr function"><a class="headerlink" href="#ln">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;ln&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">ln</span><span class="signature">(x)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;ln&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ln</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The natural logarithm.  The base of the logarithm is referred to by `E`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ln(0) is undefined&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="n">E</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">E</span><span class="p">:</span> <span class="c1"># simplification: ln(E ** t) == t</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>The natural logarithm.  The base of the logarithm is referred to by <code><a href="#E">E</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="E">
+                                <div class="attr variable"><a class="headerlink" href="#E">#&nbsp;&nbsp</a>
+
+        <span class="name">E</span><span class="default_value"> = expr(&#39;const&#39;, &#39;e&#39;)</span>
+    </div>
+
+    
+
+                </section>
+                <section id="Pi">
+                                <div class="attr variable"><a class="headerlink" href="#Pi">#&nbsp;&nbsp</a>
+
+        <span class="name">Pi</span><span class="default_value"> = expr(&#39;const&#39;, &#39;\\pi&#39;)</span>
+    </div>
+
+    
+
+                </section>
+                <section id="I">
+                                <div class="attr variable"><a class="headerlink" href="#I">#&nbsp;&nbsp</a>
+
+        <span class="name">I</span><span class="default_value"> = expr(&#39;const&#39;, &#39;I&#39;)</span>
+    </div>
+
+    
+
+                </section>
+                <section id="sin">
+                            <div class="attr function"><a class="headerlink" href="#sin">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;sin&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">sin</span><span class="signature">(x)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;sin&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sin</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The sine function.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>The sine function.</p>
+</div>
+
+
+                </section>
+                <section id="cos">
+                            <div class="attr function"><a class="headerlink" href="#cos">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;cos&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">cos</span><span class="signature">(x)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;cos&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cos</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The cosine function.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>The cosine function.</p>
 </div>
 
 

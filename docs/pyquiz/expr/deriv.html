@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="pdoc 7.0.0" />
-    <title>pyquiz.expr.tex_form API documentation</title>
+    <title>pyquiz.expr.deriv API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
 
@@ -31,10 +31,10 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#tex">tex</a>
+                    <a class="function" href="#D">D</a>
             </li>
             <li>
-                    <a class="function" href="#tex_vector_as_tuple">tex_vector_as_tuple</a>
+                    <a class="variable" href="#t">t</a>
             </li>
     </ul>
 
@@ -49,301 +49,275 @@
     <main class="pdoc">
             <section>
                     <h1 class="modulename">
-<a href="./../../pyquiz.html">pyquiz</a><wbr>.<a href="./../expr.html">expr</a><wbr>.tex_form    </h1>
+<a href="./../../pyquiz.html">pyquiz</a><wbr>.<a href="./../expr.html">expr</a><wbr>.deriv    </h1>
 
-                        <div class="docstring"><p>The function <code><a href="#tex">tex</a></code> gives the LaTeX form of an expression.</p>
+                        <div class="docstring"><p>Symbolic differentiation and differential equations.</p>
+
+<p>Exports the variable <code><a href="#t">t</a></code> for convenience.</p>
 </div>
 
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The function `tex` gives the LaTeX form of an expression.</span>
+<span class="sd">Symbolic differentiation and differential equations.</span>
 
-
+<span class="sd">Exports the variable `t` for convenience.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.arith</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;tex&quot;</span><span class="p">,</span> <span class="s2">&quot;tex_vector_as_tuple&quot;</span>
+    <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span>
 <span class="p">]</span>
 
-<span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="k">def</span> <span class="nf">tex_vector_as_tuple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The default independent variable for the purpose of outputting TeX for derivatives.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    For example,</span>
-<span class="sd">    ```python</span>
-<span class="sd">    tex_vector_as_tuple(True)</span>
-<span class="sd">    print(vector(1, 2))</span>
-<span class="sd">    ```</span>
-<span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
+<span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;The total derivative of the expression `e` according to the</span>
+<span class="sd">    specification `spec`.  This is akin to Mathematica&#39;s `Dt`.  All</span>
+<span class="sd">    variables (`var`) are assumed to be functions of the variables in the spec</span>
+<span class="sd">    unless they are present in the `constants` list.  Every constant (`const`) is</span>
+<span class="sd">    a constant.  Variables in the spec are assumed not to be functions of the</span>
+<span class="sd">    other spec variables.</span>
+
+<span class="sd">    * `Dt(e, v)` is `d/dv e`</span>
+<span class="sd">    * `Dt(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
+<span class="sd">    * `Dt(e, [v, n])` is `d^n/dv^n e`</span>
+
+<span class="sd">    A `[v, 0]` spec entry indicates that `v` is an independent variable.  For example,</span>
+<span class="sd">    `Dt(x*y, [x, 0], y)` gives `x`, where `Dt(x*y, y)` gives `Dt(x, y)*y + x`.</span>
+
+<span class="sd">    It is fine having symbolic expressions in the specification.</span>
+
+<span class="sd">    All functions are presumed to be smooth enough to permit changes in</span>
+<span class="sd">    the order of differentiation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
-    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">)</span>
 
-<span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
-<span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">tex_deriv_use_primes</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;If `state` is `True` (the default), then derivatives with exactly</span>
-<span class="sd">    one independent variable are rendered using prime notation, if</span>
-<span class="sd">    that variable is the one set by `tex_deriv_indep_var`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_USE_PRIMES</span>
-    <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="n">state</span>
-
-<span class="k">def</span> <span class="nf">tex_deriv_indep_var</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Set the independent variable used by the feature in `tex_deriv_use_primes`.</span>
-<span class="sd">    By default, the variable is `var(&quot;t&quot;)`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_INDEP_VAR</span>
-    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span>
-    <span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span>
-
-<span class="k">def</span> <span class="nf">tex_deriv_primes_limit</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;When the `tex_deriv_use_primes` feature is active, gives point</span>
-<span class="sd">    after which primes are instead rendered with parentheses.  By</span>
-<span class="sd">    default, this is 3.  For example, the fourth derivative of `y`</span>
-<span class="sd">    would be `y^{(4)}` rather than `y&#39;&#39;&#39;&#39;`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span>
-    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-    <span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="n">n</span>
-
-<span class="c1"># precedences:</span>
-<span class="c1"># 20 add</span>
-<span class="c1"># 30 mul</span>
-<span class="c1"># 40 frac</span>
-<span class="c1"># 50 pow</span>
-<span class="c1"># 60 subscripts</span>
-
-<span class="k">def</span> <span class="nf">parens</span><span class="p">(</span><span class="n">par_prec</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">par_prec</span> <span class="o">&gt;</span> <span class="n">prec</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left(&quot;</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right)&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">text</span>
-
-<span class="k">def</span> <span class="nf">tex_prec</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the LaTeX form of an expression. The prec argument is the</span>
-<span class="sd">    precedence of the expression that contains this one, and it&#39;s up to</span>
-<span class="sd">    this function to add parentheses as necessary.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="c1"># should make it format the number according to some specification</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">denominator</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">numerator</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+            <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tuple in spec should have length 2&quot;</span><span class="p">)</span>
+            <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\tfrac</span><span class="se">{{</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">numerator</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">denominator</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left[&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right]&quot;</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                        <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-                <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
-                    <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span> <span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">coeff</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span>
-                <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot; + &quot;</span>
-                <span class="k">if</span> <span class="n">coeff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="c1"># then this is unary minus</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot; - &quot;</span>
-                    <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">coeff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">op</span> <span class="o">=</span> <span class="s2">&quot; - &quot;</span>
-                    <span class="n">coeff</span> <span class="o">=</span> <span class="o">-</span><span class="n">coeff</span>
-                <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">coeff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">text</span> <span class="o">+=</span> <span class="n">op</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
-            <span class="n">numer</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">denom</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">is_neg</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-                    <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="o">=</span> <span class="n">a</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span> <span class="ow">and</span> <span class="n">exp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">denom</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="o">-</span><span class="n">exp</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="n">is_neg</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">numer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="n">snumer</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">numer</span><span class="p">:</span>
-                <span class="n">prec2</span> <span class="o">=</span> <span class="mi">30</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">prec</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">snumer</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">snumer</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="n">sdenom</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">denom</span><span class="p">:</span>
-                <span class="n">prec2</span> <span class="o">=</span> <span class="mi">30</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
-                <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">sdenom</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">sdenom</span> <span class="o">+=</span> <span class="n">tex_prec</span><span class="p">(</span><span class="n">prec2</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">exp</span><span class="p">))</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-\frac</span><span class="se">{{</span><span class="s2">1</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\frac</span><span class="se">{{</span><span class="s2">1</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">numer</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">snumer</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">is_neg</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;-\frac</span><span class="se">{{</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\frac</span><span class="se">{{</span><span class="si">{</span><span class="n">snumer</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">sdenom</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;MatTimes&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;^{&quot;</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Part&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span>
-                          <span class="n">tex_prec</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_{&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;const&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="ow">and</span> <span class="n">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-                <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left(&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right)&quot;</span>
-            <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span>
-                    <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-                    <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\end</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Deriv&quot;</span><span class="p">:</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span>
-            <span class="k">if</span> <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">TEX_DERIV_INDEP_VAR</span><span class="p">:</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span><span class="p">:</span>
-                    <span class="n">exp</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">prime&quot;</span> <span class="o">*</span> <span class="n">n</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">exp</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
-                <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;^{&quot;</span> <span class="o">+</span> <span class="n">exp</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">partial&quot;</span>
-            <span class="n">bottom</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">s</span> <span class="o">+=</span> <span class="n">n</span>
-                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">bottom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">bottom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">^</span><span class="se">{{</span><span class="si">{</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="s2">&quot;^{&quot;</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
-            <span class="n">top</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">p</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">bot</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bottom</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">parens</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="sa">rf</span><span class="s2">&quot;\frac</span><span class="se">{{</span><span class="si">{</span><span class="n">top</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">bot</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\operatorname{&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">+</span> <span class="s2">&quot;}(&quot;</span> <span class="o">+</span>
-                    <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-                    <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unexpected item in spec&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can only take derivatives with respect to variables&quot;</span><span class="p">)</span>
+
+        <span class="n">spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">normalize_deriv_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Combine variables.  (We don&#39;t remove any variables for which we&#39;re</span>
+<span class="sd">    taking the 0th derivative.)  Raises an exception if the spec is obviously invalid.&quot;&quot;&quot;</span>
+    <span class="n">spec2</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span>
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The derivative spec (</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">) is fractional.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The derivative spec (</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">) is negative.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spec2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">v2</span><span class="p">:</span>
+                <span class="n">spec2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="n">n2</span><span class="p">]</span>
+                <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown expression type </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="si">}</span><span class="s2"> to tex&quot;</span><span class="p">)</span>
+            <span class="n">spec2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">spec2</span>
+
+<span class="k">def</span> <span class="nf">split_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns `(spec2, v)`, where `spec` is equivalent to `[*spec2, (v, 1)]`,</span>
+<span class="sd">    or `(spec, None)` if it can&#39;t be done.</span>
+<span class="sd">    Chooses the last element of the spec with an `int`.  Leaves a 0 entry in `spec2`.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">spec</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">spec</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">spec_for_var</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;For a spec and a variable, returns `(spec2, n, present)` where n is</span>
+<span class="sd">    the number of times it says to take the derivative for that</span>
+<span class="sd">    variable (0 by default) and `present` is a boolean representing</span>
+<span class="sd">    whether or not the variable is in the spec.  Sets the variable in</span>
+<span class="sd">    `spec2` to 0, if it was present.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">var</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">spec</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">+</span> <span class="n">spec</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">n</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">zeroed_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a zeroed-out version of the spec to keep track of the independent variables.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">]</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_deriv_basic</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+    <span class="n">spec</span><span class="p">,</span> <span class="n">old_spec</span> <span class="o">=</span> <span class="n">normalize_deriv_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span> <span class="n">spec</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="o">!=</span> <span class="n">old_spec</span><span class="p">:</span>
+        <span class="c1"># restart evaluation with new expression</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># (**)</span>
+        <span class="k">return</span> <span class="n">e</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;const&quot;</span>
+          <span class="ow">or</span> <span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Part&quot;</span> <span class="ow">and</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;const&quot;</span><span class="p">)):</span>
+        <span class="n">spec2</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">split_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># inconclusive (symbolic values)</span>
+            <span class="k">raise</span> <span class="n">Inapplicable</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">spec2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">present</span> <span class="o">=</span> <span class="n">spec_for_var</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">present</span><span class="p">:</span>
+                <span class="c1"># Since (**) is false, then this is an independent</span>
+                <span class="c1"># variable&#39;s derivative with respect to another</span>
+                <span class="c1"># variable.</span>
+                <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">spec2</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Deriv&quot;</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">constants</span><span class="p">:</span>
+        <span class="c1"># join the derivatives</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;Plus&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
+        <span class="n">spec2</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">split_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Inapplicable</span>
+        <span class="n">deriv</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)):</span>
+            <span class="n">deriv</span> <span class="o">+=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span>
+                          <span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span>
+                          <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">zeroed_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">constants</span><span class="p">),</span>
+                          <span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">deriv</span><span class="p">,</span> <span class="n">spec2</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
+        <span class="n">spec2</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">split_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Inapplicable</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">zeroed_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">constants</span><span class="p">)</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">zeroed_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">+</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">constants</span><span class="p">)</span>
+        <span class="n">deriv</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">a</span><span class="o">**</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">da</span> <span class="o">+</span> <span class="n">a</span><span class="o">**</span><span class="n">b</span> <span class="o">*</span> <span class="n">ln</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">db</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">deriv</span><span class="p">,</span> <span class="n">spec2</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;cos&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sin</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;sin&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">cos</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Part&quot;</span><span class="p">:</span>
+        <span class="c1"># assume the index is discrete, so plays no role in the derivative</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Part&quot;</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">),</span> <span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown value to tex </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">tex</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return the TeX form of an expression.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="c1"># A hack: monkey patch so that the string form of a Fraction is its TeX form</span>
-    <span class="n">Fraction</span><span class="o">.</span><span class="fm">__str__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">tex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
 </pre></div>
 
         </details>
 
             </section>
-                <section id="tex">
-                            <div class="attr function"><a class="headerlink" href="#tex">#&nbsp;&nbsp</a>
+                <section id="D">
+                            <div class="attr function"><a class="headerlink" href="#D">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">tex</span><span class="signature">(e)</span>:
+            <span class="name">D</span><span class="signature">(e, *spec, constants=[])</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return the TeX form of an expression.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;The total derivative of the expression `e` according to the</span>
+<span class="sd">    specification `spec`.  This is akin to Mathematica&#39;s `Dt`.  All</span>
+<span class="sd">    variables (`var`) are assumed to be functions of the variables in the spec</span>
+<span class="sd">    unless they are present in the `constants` list.  Every constant (`const`) is</span>
+<span class="sd">    a constant.  Variables in the spec are assumed not to be functions of the</span>
+<span class="sd">    other spec variables.</span>
+
+<span class="sd">    * `Dt(e, v)` is `d/dv e`</span>
+<span class="sd">    * `Dt(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
+<span class="sd">    * `Dt(e, [v, n])` is `d^n/dv^n e`</span>
+
+<span class="sd">    A `[v, 0]` spec entry indicates that `v` is an independent variable.  For example,</span>
+<span class="sd">    `Dt(x*y, [x, 0], y)` gives `x`, where `Dt(x*y, y)` gives `Dt(x, y)*y + x`.</span>
+
+<span class="sd">    It is fine having symbolic expressions in the specification.</span>
+
+<span class="sd">    All functions are presumed to be smooth enough to permit changes in</span>
+<span class="sd">    the order of differentiation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">)</span>
+
+    <span class="n">spec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+            <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tuple in spec should have length 2&quot;</span><span class="p">)</span>
+            <span class="n">v</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unexpected item in spec&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can only take derivatives with respect to variables&quot;</span><span class="p">)</span>
+
+        <span class="n">spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Deriv&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Return the TeX form of an expression.</p>
+            <div class="docstring"><p>The total derivative of the expression <code>e</code> according to the
+specification <code>spec</code>.  This is akin to Mathematica's <code>Dt</code>.  All
+variables (<code>var</code>) are assumed to be functions of the variables in the spec
+unless they are present in the <code>constants</code> list.  Every constant (<code>const</code>) is
+a constant.  Variables in the spec are assumed not to be functions of the
+other spec variables.</p>
+
+<ul>
+<li><code>Dt(e, v)</code> is <code>d/dv e</code></li>
+<li><code>Dt(e, v1, v2, ...)</code> is <code>d/dv1 d/dv2 ... e</code></li>
+<li><code>Dt(e, [v, n])</code> is <code>d^n/dv^n e</code></li>
+</ul>
+
+<p>A <code>[v, 0]</code> spec entry indicates that <code>v</code> is an independent variable.  For example,
+<code>Dt(x*y, [x, 0], y)</code> gives <code>x</code>, where <code>Dt(x*y, y)</code> gives <code>Dt(x, y)*y + x</code>.</p>
+
+<p>It is fine having symbolic expressions in the specification.</p>
+
+<p>All functions are presumed to be smooth enough to permit changes in
+the order of differentiation.</p>
 </div>
 
 
                 </section>
-                <section id="tex_vector_as_tuple">
-                            <div class="attr function"><a class="headerlink" href="#tex_vector_as_tuple">#&nbsp;&nbsp</a>
+                <section id="t">
+                                <div class="attr variable"><a class="headerlink" href="#t">#&nbsp;&nbsp</a>
 
-        
-            <span class="def">def</span>
-            <span class="name">tex_vector_as_tuple</span><span class="signature">(state)</span>:
+        <span class="name">t</span><span class="default_value"> = expr(&#39;var&#39;, &#39;t&#39;)</span>
     </div>
 
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_vector_as_tuple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</span>
-
-<span class="sd">    For example,</span>
-<span class="sd">    ```python</span>
-<span class="sd">    tex_vector_as_tuple(True)</span>
-<span class="sd">    print(vector(1, 2))</span>
-<span class="sd">    ```</span>
-<span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
-    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</p>
-
-<p>For example,</p>
-
-<div class="codehilite"><pre><span></span><code><span class="n">tex_vector_as_tuple</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-</code></pre></div>
-
-<p>prints out "<code>(1,2)</code>" rather than "<code>\begin{bmatrix}1\\2\end{bmatrix}</code>".</p>
+            <div class="docstring"><p>The default independent variable for the purpose of outputting TeX for derivatives.</p>
 </div>
 
 

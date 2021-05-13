@@ -31,9 +31,6 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#var">var</a>
-            </li>
-            <li>
                     <a class="function" href="#replace">replace</a>
             </li>
             <li>
@@ -67,24 +64,9 @@
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
     <span class="s2">&quot;expand&quot;</span>
 <span class="p">]</span>
-
-<span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
-
-<span class="sd">    A variable can contain LaTeX code, like for example</span>
-<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
-<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">    ```python</span>
-<span class="sd">    a = var(&quot;a&quot;)</span>
-<span class="sd">    ```</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Every occurrence of `p` in the expression `e` is replaced by `v`. Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
@@ -132,48 +114,6 @@
         </details>
 
             </section>
-                <section id="var">
-                            <div class="attr function"><a class="headerlink" href="#var">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">var</span><span class="signature">(name)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
-
-<span class="sd">    A variable can contain LaTeX code, like for example</span>
-<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
-<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">    ```python</span>
-<span class="sd">    a = var(&quot;a&quot;)</span>
-<span class="sd">    ```</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p><code>var("foo")</code> creates a variable of name "foo".</p>
-
-<p>A variable can contain LaTeX code, like for example
-<code>var(r"\lambda")</code>.  The <code>r</code> indicates "raw string", without which
-you need a doubled backslash like <code>var("\lambda")</code>.</p>
-
-<p>Example:</p>
-
-<div class="codehilite"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
-</code></pre></div>
-</div>
-
-
-                </section>
                 <section id="replace">
                             <div class="attr function"><a class="headerlink" href="#replace">#&nbsp;&nbsp</a>
 

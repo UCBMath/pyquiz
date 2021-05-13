@@ -63,6 +63,12 @@
             <li>
                     <a class="function" href="#irange">irange</a>
             </li>
+            <li>
+                    <a class="function" href="#var">var</a>
+            </li>
+            <li>
+                    <a class="function" href="#const">const</a>
+            </li>
     </ul>
 
 
@@ -99,11 +105,13 @@ type for symbolic expressions.</p>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;Expr&quot;</span><span class="p">,</span> <span class="s2">&quot;frac&quot;</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Inapplicable&quot;</span><span class="p">,</span> <span class="s2">&quot;downvalue&quot;</span><span class="p">,</span> <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;irange&quot;</span>
+    <span class="s2">&quot;irange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;const&quot;</span>
 <span class="p">]</span>
 
 <span class="k">class</span> <span class="nc">Expr</span><span class="p">:</span>
@@ -154,6 +162,10 @@ type for symbolic expressions.</p>
     <span class="c1">#    return evaluate(expr(&quot;Times&quot;, self, expr(&quot;Pow&quot;, b, -1)))</span>
     <span class="c1">#def __rtruediv__(self, a):</span>
     <span class="c1">#    return evaluate(expr(&quot;Times&quot;, a, expr(&quot;Pow&quot;, self, -1)))</span>
+    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Use ** instead of ^ for exponentiation.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__rxor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Use ** instead of ^ for exponentiation.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Part&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">))</span>
@@ -192,13 +204,13 @@ type for symbolic expressions.</p>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">set1</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">set1</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">set2</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">set2</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting either 1 or 2 indices&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">set1</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">set1</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Iterate over the arguments of the expression.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
@@ -236,7 +248,7 @@ type for symbolic expressions.</p>
         <span class="k">return</span> <span class="s2">&quot;number&quot;</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;string&quot;</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;list&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span>
@@ -376,6 +388,13 @@ type for symbolic expressions.</p>
                 <span class="k">return</span> <span class="n">_f</span>
     <span class="k">return</span> <span class="n">add_downvalue</span>
 
+<span class="k">def</span> <span class="nf">norm_num</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(internal) Takes a number and tries to represent it with a simpler type if possible.</span>
+<span class="sd">    For example, `Fraction` to `int` if the denominator is `1`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="n">Fraction</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">denominator</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">numerator</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">e</span>
 
 <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mathematica-like expression evaluation routine.  Puts an expression</span>
@@ -404,35 +423,47 @@ type for symbolic expressions.</p>
 <span class="sd">      * The evaluated expression is returned.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
-        <span class="c1"># evaluate to list</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to evaluate.&quot;</span><span class="p">)</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
-        <span class="c1"># assumes all arguments have been flattened by the recursive `evaluate`</span>
-        <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
-    <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">downvalues</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">]):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">Inapplicable</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">e</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">norm_num</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">e</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to evaluate.&quot;</span><span class="p">)</span>
+
+        <span class="n">h</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
+            <span class="c1"># assumes all arguments have been flattened by the recursive `evaluate`</span>
+            <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
+                    <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">e</span>
+
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">downvalues</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">]):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Inapplicable</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;evaluate: internal error while evaluating rule </span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">e</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">exc</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">e2</span>
+                <span class="k">break</span> <span class="c1"># continue the while loop</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">e</span>
 
 <span class="k">def</span> <span class="nf">irange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Inclusive range.</span>
@@ -455,6 +486,42 @@ type for symbolic expressions.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
+
+<span class="sd">    A variable can contain LaTeX code, like for example</span>
+<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = var(&quot;a&quot;)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See also `const`.  In contrast, a `var` can depend on other variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">const</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`const(&quot;foo&quot;)` creates a constant of name &quot;foo&quot;.</span>
+
+<span class="sd">    A constant can contain LaTeX code, like for example</span>
+<span class="sd">    `const(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `const(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = const(&quot;a&quot;)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See also `var`.  In constrast, a `const` is assumed to be a fixed constant scalar value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;const&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -519,6 +586,10 @@ type for symbolic expressions.</p>
     <span class="c1">#    return evaluate(expr(&quot;Times&quot;, self, expr(&quot;Pow&quot;, b, -1)))</span>
     <span class="c1">#def __rtruediv__(self, a):</span>
     <span class="c1">#    return evaluate(expr(&quot;Times&quot;, a, expr(&quot;Pow&quot;, self, -1)))</span>
+    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Use ** instead of ^ for exponentiation.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__rxor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Use ** instead of ^ for exponentiation.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Part&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">key</span><span class="p">))</span>
@@ -557,13 +628,13 @@ type for symbolic expressions.</p>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">set1</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">set1</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">set2</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">set2</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting either 1 or 2 indices&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">set1</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">set1</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Iterate over the arguments of the expression.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
@@ -697,7 +768,7 @@ quotient in a way that ensures the the quotient of two integers is a fraction.</
         <span class="k">return</span> <span class="s2">&quot;number&quot;</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;string&quot;</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;list&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span>
@@ -918,35 +989,47 @@ argument and returns <code>evaluate(expr("f", x))</code>.</p>
 <span class="sd">      * The evaluated expression is returned.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
-        <span class="c1"># evaluate to list</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to evaluate.&quot;</span><span class="p">)</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
-        <span class="c1"># assumes all arguments have been flattened by the recursive `evaluate`</span>
-        <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
-    <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">e</span>
-    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">downvalues</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">]):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">Inapplicable</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">e</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">norm_num</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">e</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to evaluate.&quot;</span><span class="p">)</span>
+
+        <span class="n">h</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">[</span><span class="n">h</span><span class="p">]:</span>
+            <span class="c1"># assumes all arguments have been flattened by the recursive `evaluate`</span>
+            <span class="n">args2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">h</span><span class="p">:</span>
+                    <span class="n">args2</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">args2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args2</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">Expr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">e</span>
+
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">downvalues</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">]):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">e2</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Inapplicable</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;evaluate: internal error while evaluating rule </span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">e</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">exc</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="n">e2</span> <span class="o">!=</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">e2</span>
+                <span class="k">break</span> <span class="c1"># continue the while loop</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">e</span>
 </pre></div>
 
         </details>
@@ -1033,6 +1116,100 @@ and print it out by</p>
   <span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 </code></pre></div>
+</div>
+
+
+                </section>
+                <section id="var">
+                            <div class="attr function"><a class="headerlink" href="#var">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">var</span><span class="signature">(name)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`var(&quot;foo&quot;)` creates a variable of name &quot;foo&quot;.</span>
+
+<span class="sd">    A variable can contain LaTeX code, like for example</span>
+<span class="sd">    `var(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `var(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = var(&quot;a&quot;)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See also `const`.  In contrast, a `var` can depend on other variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p><code>var("foo")</code> creates a variable of name "foo".</p>
+
+<p>A variable can contain LaTeX code, like for example
+<code>var(r"\lambda")</code>.  The <code>r</code> indicates "raw string", without which
+you need a doubled backslash like <code>var("\lambda")</code>.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>See also <code><a href="#const">const</a></code>.  In contrast, a <code><a href="#var">var</a></code> can depend on other variables.</p>
+</div>
+
+
+                </section>
+                <section id="const">
+                            <div class="attr function"><a class="headerlink" href="#const">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">const</span><span class="signature">(name)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">const</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`const(&quot;foo&quot;)` creates a constant of name &quot;foo&quot;.</span>
+
+<span class="sd">    A constant can contain LaTeX code, like for example</span>
+<span class="sd">    `const(r&quot;\lambda&quot;)`.  The `r` indicates &quot;raw string&quot;, without which</span>
+<span class="sd">    you need a doubled backslash like `const(&quot;\\lambda&quot;)`.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = const(&quot;a&quot;)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See also `var`.  In constrast, a `const` is assumed to be a fixed constant scalar value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;const&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p><code>const("foo")</code> creates a constant of name "foo".</p>
+
+<p>A constant can contain LaTeX code, like for example
+<code>const(r"\lambda")</code>.  The <code>r</code> indicates "raw string", without which
+you need a doubled backslash like <code>const("\lambda")</code>.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">const</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>See also <code><a href="#var">var</a></code>.  In constrast, a <code><a href="#const">const</a></code> is assumed to be a fixed constant scalar value.</p>
 </div>
 
 
