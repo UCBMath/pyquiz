@@ -319,35 +319,46 @@ def evaluate(e):
       * The evaluated expression is returned.
 
     """
-    if isinstance(e, Number) or isinstance(e, str):
-        return e
-    elif type(e) == list or type(e) == tuple:
-        # evaluate to list
-        return [evaluate(x) for x in e]
-    elif type(e) != Expr:
-        raise ValueError(f"Unknown type of value ({type(e)!r}) to evaluate.")
-    h = evaluate(e.head)
-    args = [evaluate(a) for a in e.args]
-    if "Flat" in attributes[h]:
-        # assumes all arguments have been flattened by the recursive `evaluate`
-        args2 = []
-        for a in args:
-            if head(a) == h:
-                args2.extend(a.args)
-            else:
-                args2.append(a)
-        args = args2
-    e = Expr(h, args)
-    if not isinstance(e.head, str):
-        return e
-    for rule in reversed(downvalues[e.head]):
-        try:
-            e2 = rule(e)
-        except Inapplicable:
-            continue
-        if e2 != e:
-            return evaluate(e2)
-    return e
+    while True:
+        if isinstance(e, Number) or isinstance(e, str):
+            return e
+        elif type(e) == list or type(e) == tuple:
+            # evaluate to list
+            return [evaluate(x) for x in e]
+        elif type(e) != Expr:
+            raise ValueError(f"Unknown type of value ({type(e)!r}) to evaluate.")
+
+        h = evaluate(e.head)
+        args = [evaluate(a) for a in e.args]
+
+        if "Flat" in attributes[h]:
+            # assumes all arguments have been flattened by the recursive `evaluate`
+            args2 = []
+            for a in args:
+                if head(a) == h:
+                    args2.extend(a.args)
+                else:
+                    args2.append(a)
+            args = args2
+
+        e = Expr(h, args)
+
+        if not isinstance(e.head, str):
+            return e
+
+        for rule in reversed(downvalues[e.head]):
+            try:
+                e2 = rule(e)
+            except Inapplicable:
+                continue
+            except Exception as exc:
+                print(f"evaluate: internal error while evaluating rule {rule.__name__} for {e!r}")
+                raise exc from None
+            if e2 != e:
+                e = e2
+                break # continue the while loop
+        else:
+            return e
 
 def irange(a, b=None):
     """Inclusive range.
