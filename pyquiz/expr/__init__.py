@@ -45,3 +45,4 @@ from .arith import *
 from .manipulate import *
 from .tex_form import *
 from .matrix import *
+from .deriv import *

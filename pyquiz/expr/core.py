@@ -13,7 +13,8 @@ from numbers import Number
 __all__ = [
     "Expr", "frac", "expr", "head",
     "Inapplicable", "downvalue", "evaluate",
-    "irange"
+    "irange",
+    "var", "const"
 ]
 
 class Expr:
@@ -365,3 +366,35 @@ def irange(a, b=None):
     else:
         lo, hi = a, b
     return list(range(lo, hi+1))
+
+def var(name):
+    """`var("foo")` creates a variable of name "foo".
+
+    A variable can contain LaTeX code, like for example
+    `var(r"\lambda")`.  The `r` indicates "raw string", without which
+    you need a doubled backslash like `var("\\lambda")`.
+
+    Example:
+    ```python
+    a = var("a")
+    ```
+
+    See also `const`.  In contrast, a `var` can depend on other variables.
+    """
+    return expr("var", name)
+
+def const(name):
+    """`const("foo")` creates a constant of name "foo".
+
+    A constant can contain LaTeX code, like for example
+    `const(r"\lambda")`.  The `r` indicates "raw string", without which
+    you need a doubled backslash like `const("\\lambda")`.
+
+    Example:
+    ```python
+    a = const("a")
+    ```
+
+    See also `var`.  In constrast, a `const` is assumed to be a fixed constant scalar value.
+    """
+    return expr("const", name)

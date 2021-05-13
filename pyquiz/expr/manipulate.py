@@ -6,24 +6,9 @@ from numbers import Number
 from .core import *
 
 __all__ = [
-    "var", "replace",
+    "replace",
     "expand"
 ]
-
-def var(name):
-    """`var("foo")` creates a variable of name "foo".
-
-    A variable can contain LaTeX code, like for example
-    `var(r"\lambda")`.  The `r` indicates "raw string", without which
-    you need a doubled backslash like `var("\\lambda")`.
-
-    Example:
-    ```python
-    a = var("a")
-    ```
-
-    """
-    return expr("var", name)
 
 def replace(e, p, v):
     """Every occurrence of `p` in the expression `e` is replaced by `v`. Similar to Replace in Mathematica."""

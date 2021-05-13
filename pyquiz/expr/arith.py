@@ -7,6 +7,7 @@ from fractions import Fraction
 from .core import *
 
 __all__ = [
+    "exp", "ln", "E"
 ]
 
 def split_summand(a):
@@ -69,6 +70,8 @@ def rule_times_collect(*args):
                     break
             else:
                 terms.append((exp, val))
+    if coeff == 0:
+        return 0
     args2 = []
     if coeff != 1:
         args2.append(coeff)
@@ -97,3 +100,40 @@ def rule_pow_constants(a, b):
         return a ** b
     else:
         raise Inapplicable
+
+@downvalue("Pow")
+def rule_pow_pow(a, b):
+    """`(a0 ** a1) ** b == a0 ** (a1 * b)`"""
+    if head(a) == "Pow":
+        return a.args[0] ** (a.args[1] * b)
+    else:
+        raise Inapplicable
+
+E = const("e")
+
+def exp(x):
+    """The exponential function with base *e*, referred to using `E`.  Just returns `E ** x`."""
+    return E ** x
+
+@downvalue("ln", def_expr=True)
+def ln(x):
+    """The natural logarithm.  The base of the logarithm is referred to by `E`."""
+    if x == 0:
+        raise ValueError("ln(0) is undefined")
+    elif x == 1:
+        return 0
+    elif x == E:
+        return 1
+    elif head(x) == "Pow" and x.args[0] == E: # simplification: ln(E ** t) == t
+        return x.args[1]
+    else:
+        raise Inapplicable
+
+@downvalue("Pow")
+def rule_exp_ln(a, b):
+    """Assumes x is in the correct domain, simplifying `E ** ln(x) == x`."""
+    if a == E and head(b) == "ln":
+        return b.args[0]
+    else:
+        raise Inapplicable
+

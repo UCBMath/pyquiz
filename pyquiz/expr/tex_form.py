@@ -136,22 +136,40 @@ def tex_prec(prec, e):
         elif e.head == "Part":
             return parens(prec, 60,
                           tex_prec(60, e.args[0]) + "_{" + ",".join(tex_prec(0, x) for x in e.args[1:]) + "}")
-        elif e.head == "var":
+        elif e.head == "var" or e.head == "const":
             return e.args[0]
         elif e.head == "matrix":
             if TEX_VECTOR_AS_TUPLE and is_vector(e):
-                return "(" + ",".join(tex_prec(0, row[0]) for row in e.args) + ")"
+                return "\\left(" + ",".join(tex_prec(0, row[0]) for row in e.args) + "\\right)"
             return (r"\begin{bmatrix}"
                     + r"\\".join("&".join(tex_prec(0, x) for x in row) for row in e.args)
                     + r"\end{bmatrix}")
+        elif e.head == "Deriv":
+            x, spec, constants = e.args
+            bottom = []
+            s = 0
+            for v, n in spec:
+                s += n
+                if n == 1:
+                    bottom.append(rf"\partial {tex_prec(30, v)}")
+                else:
+                    bottom.append(rf"\partial {tex_prec(30, v)}^{{{n}}}")
+            if s == 1:
+                p = ""
+            else:
+                p = "^" + str(s)
+            top = rf"\partial{p} {tex_prec(30, x)}"
+            return parens(prec, 40, rf"\frac{{{top}}}{{{' '.join(bottom)}}}")
         elif isinstance(e.head, str):
             return (r"\operatorname{" + e.head + "}(" +
                     ", ".join(tex_prec(0, x) for x in e.args)
                     + ")")
         else:
-            raise ValueError("unknown expression type to tex")
+            raise ValueError(f"unknown expression type {e.head} to tex")
+    elif type(e) == list or type(e) == tuple:
+        return "\\left[" + ",".join(tex_prec(0, x) for x in e) + "\\right]"
     else:
-        raise ValueError("unknown value to tex " + repr(e))
+        raise ValueError(f"unknown value to tex {e}")
 
 def tex(e):
     """Return the TeX form of an expression."""
