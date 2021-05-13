@@ -97,7 +97,7 @@ def exec_quiz(quiz_filename):
 
 def get_html_file(quiz_file):
     #return quiz_file + ".html"
-    return "preview.html"
+    return "preview.qz.py.html"
 
 def preview_command():
     print("----")
