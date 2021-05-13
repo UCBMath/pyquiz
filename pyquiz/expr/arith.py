@@ -7,7 +7,7 @@ from fractions import Fraction
 from .core import *
 
 __all__ = [
-    "exp", "ln", "E"
+    "exp", "ln", "E", "Pi", "I", "sin", "cos"
 ]
 
 def split_summand(a):
@@ -121,6 +121,30 @@ def rule_pow_pow(a, b):
         raise Inapplicable
 
 E = const("e")
+Pi = const(r"\pi")
+I = const("I")
+
+@downvalue("Pow")
+def rule_I_pow(a, b):
+    if a == I and type(b) == int:
+        b = b % 4
+        if b == 0:
+            return 1
+        elif b == 1:
+            return I
+        elif b == 2:
+            return -1
+        else:
+            return -I
+    else:
+        raise Inapplicable
+
+# TODO: add rationalization of complex divisors
+#@downvalue("Pow")
+#def rule_I_div(a, b):
+#    if not (type(b) == int and b < 0):
+#        raise Inapplicable
+#    if 
 
 def exp(x):
     """The exponential function with base *e*, referred to using `E`.  Just returns `E ** x`."""
@@ -148,3 +172,18 @@ def rule_exp_ln(a, b):
     else:
         raise Inapplicable
 
+@downvalue("sin", def_expr=True)
+def sin(x):
+    """The sine function."""
+    if x == 0:
+        return 0
+    else:
+        raise Inapplicable
+
+@downvalue("cos", def_expr=True)
+def cos(x):
+    """The cosine function."""
+    if x == 0:
+        return 1
+    else:
+        raise Inapplicable

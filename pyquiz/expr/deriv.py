@@ -111,7 +111,8 @@ def rule_deriv_basic(e, spec, constants):
         return expr("Deriv", e, spec, constants)
     elif sum(n for v, n in spec) == 0:  # (**)
         return e
-    elif head(e) == "number" or head(e) == "const":
+    elif (head(e) == "number" or head(e) == "const"
+          or (head(e) == "Part" and head(e.args[0]) == "const")):
         spec2, v = split_spec(spec)
         if v == None:
             # inconclusive (symbolic values)
@@ -158,5 +159,12 @@ def rule_deriv_basic(e, spec, constants):
         db = expr("Deriv", b, zeroed_spec(spec) + [(v, 1)], constants)
         deriv = b * a**(b - 1) * da + a**b * ln(a) * db
         return expr("Deriv", deriv, spec2, constants)
+    elif head(e) == "cos":
+        return sin(e.args[0]) * expr("Deriv", e.args[0], spec, constants)
+    elif head(e) == "sin":
+        return -cos(e.args[0]) * expr("Deriv", e.args[0], spec, constants)
+    elif head(e) == "Part":
+        # assume the index is discrete, so plays no role in the derivative
+        return expr("Part", expr("Deriv", e.args[0], spec, constants), *e.args[1:])
     else:
         raise Inapplicable

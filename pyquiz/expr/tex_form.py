@@ -26,6 +26,36 @@ def tex_vector_as_tuple(state):
     global TEX_VECTOR_AS_TUPLE
     TEX_VECTOR_AS_TUPLE = state
 
+TEX_DERIV_USE_PRIMES = True
+TEX_DERIV_INDEP_VAR = var("t")
+TEX_DERIV_PRIMES_LIMIT = 3
+
+def tex_deriv_use_primes(state):
+    r"""If `state` is `True` (the default), then derivatives with exactly
+    one independent variable are rendered using prime notation, if
+    that variable is the one set by `tex_deriv_indep_var`.
+    """
+    global TEX_DERIV_USE_PRIMES
+    TEX_DERIV_USE_PRIMES = state
+
+def tex_deriv_indep_var(var):
+    r"""Set the independent variable used by the feature in `tex_deriv_use_primes`.
+    By default, the variable is `var("t")`.
+    """
+    global TEX_DERIV_INDEP_VAR
+    assert head(var) == "var"
+    TEX_DERIV_INDEP_VAR = var
+
+def tex_deriv_primes_limit(n):
+    r"""When the `tex_deriv_use_primes` feature is active, gives point
+    after which primes are instead rendered with parentheses.  By
+    default, this is 3.  For example, the fourth derivative of `y`
+    would be `y^{(4)}` rather than `y''''`.
+    """
+    global TEX_DERIV_PRIMES_LIMIT
+    assert type(n) == int and n >= 0
+    TEX_DERIV_PRIMES_LIMIT = n
+
 # precedences:
 # 20 add
 # 30 mul
@@ -136,7 +166,7 @@ def tex_prec(prec, e):
         elif e.head == "MatTimes":
             return parens(prec, 30, "".join([tex_prec(30, a) for a in e.args]))
         elif e.head == "Pow":
-            return parens(prec, 50, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
+            return parens(prec, 49, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
         elif e.head == "Part":
             return parens(prec, 60,
                           tex_prec(60, e.args[0]) + "_{" + ",".join(tex_prec(0, x) for x in e.args[1:]) + "}")
@@ -150,6 +180,17 @@ def tex_prec(prec, e):
                     + r"\end{bmatrix}")
         elif e.head == "Deriv":
             x, spec, constants = e.args
+            if TEX_DERIV_USE_PRIMES and len(spec) == 1 and spec[0][0] == TEX_DERIV_INDEP_VAR:
+                n = spec[0][1]
+                if type(n) == int and 1 <= n <= TEX_DERIV_PRIMES_LIMIT:
+                    exp = "\\prime" * n
+                else:
+                    exp = "(" + tex_prec(0, n) + ")"
+                return parens(prec, 49, tex_prec(50, e.args[0]) + "^{" + exp + "}")
+            if len(spec) == 1:
+                d = "d"
+            else:
+                d = "\\partial"
             bottom = []
             s = 0
             for v, n in spec:
@@ -157,14 +198,14 @@ def tex_prec(prec, e):
                     continue
                 s += n
                 if n == 1:
-                    bottom.append(rf"\partial {tex_prec(30, v)}")
+                    bottom.append(rf"{d} {tex_prec(30, v)}")
                 else:
-                    bottom.append(rf"\partial {tex_prec(30, v)}^{{{tex_prec(0, n)}}}")
+                    bottom.append(rf"{d} {tex_prec(30, v)}^{{{tex_prec(0, n)}}}")
             if s == 1:
                 p = ""
             else:
                 p = "^{" + tex_prec(0, s) + "}"
-            top = rf"\partial{p} {tex_prec(30, x)}"
+            top = rf"{d}{p} {tex_prec(30, x)}"
             bot = "\\,".join(bottom)
             return parens(prec, 40, rf"\frac{{{top}}}{{{bot}}}")
         elif isinstance(e.head, str):
