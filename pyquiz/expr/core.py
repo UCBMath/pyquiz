@@ -65,6 +65,10 @@ class Expr:
     #    return evaluate(expr("Times", self, expr("Pow", b, -1)))
     #def __rtruediv__(self, a):
     #    return evaluate(expr("Times", a, expr("Pow", self, -1)))
+    def __xor__(self, b):
+        raise Exception("Use ** instead of ^ for exponentiation.")
+    def __rxor__(self, a):
+        raise Exception("Use ** instead of ^ for exponentiation.")
     def __getitem__(self, key):
         if type(key) == tuple:
             return evaluate(expr("Part", self, *key))
