@@ -167,6 +167,37 @@ def det(e):
     r = expand(e.args)
     return r
 
+@downvalue("Times")
+def rule_scalar_multiplication(s, *args):
+    """Scalar multiplication of matrices.  This rule should come *after*
+    the generic Times rule so that multiplying by 0 doesn't give the
+    scalar 0."""
+    if head(s) != "number":
+        raise Inapplicable
+    for i, a in enumerate(args):
+        if head(a) == "matrix":
+            a2 = Expr("matrix", [[s * x for x in row] for row in a.args])
+            return expr("Times", *args[:i], a2, *args[i+1:])
+    raise Inapplicable
+
+@downvalue("Plus")
+def rule_matrix_addition(*args):
+    """Addition of vectors and matrices of compatible size.  Raises a `ValueError` if incompatible."""
+    for i in range(len(args) - 1):
+        if head(args[i]) != "matrix":
+            continue
+        for j in range(i + 1, len(args)):
+            if head(args[j]) != "matrix":
+                continue
+            if nrows(args[i]) != nrows(args[j]):
+                raise ValueError("The added matrices have different numbers of rows.")
+            if ncols(args[i]) != ncols(args[j]):
+                raise ValueError("The added matrices have different numbers of columns.")
+            a2 = Expr("matrix", [[ci + cj for ci, cj in zip(rowi, rowj)]
+                                 for rowi, rowj in zip(args[i].args, args[j].args)])
+            return expr("Plus", *args[:i], a2, *args[i+1:j], *args[j+1:])
+    raise Inapplicable
+
 # TODO make this an "expansion" that doesn't apply during evaluation?
 @downvalue("MatTimes")
 def reduce_matmul(A, B):
