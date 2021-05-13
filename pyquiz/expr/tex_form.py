@@ -53,6 +53,8 @@ def tex_prec(prec, e):
             return str(e.numerator)
         else:
             return parens(prec, 40, rf"\tfrac{{{e.numerator}}}{{{e.denominator}}}")
+    elif head(e) == "list":
+        return "\\left[" + ",".join(tex_prec(0, x) for x in e) + "\\right]"
     elif isinstance(e, Expr):
         if e.head == "Plus":
             text = ""
@@ -151,6 +153,8 @@ def tex_prec(prec, e):
             bottom = []
             s = 0
             for v, n in spec:
+                if n == 0:
+                    continue
                 s += n
                 if n == 1:
                     bottom.append(rf"\partial {tex_prec(30, v)}")
@@ -169,8 +173,6 @@ def tex_prec(prec, e):
                     + ")")
         else:
             raise ValueError(f"unknown expression type {e.head} to tex")
-    elif type(e) in (list, tuple):
-        return "\\left[" + ",".join(tex_prec(0, x) for x in e) + "\\right]"
     else:
         raise ValueError(f"unknown value to tex {e}")
 

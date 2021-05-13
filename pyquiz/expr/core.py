@@ -9,6 +9,7 @@ Like Mathematica, subtraction and division don't exist.  Instead, `a - b` is
 
 from collections import defaultdict
 from numbers import Number
+from fractions import Fraction
 
 __all__ = [
     "Expr", "frac", "expr", "head",
@@ -107,13 +108,13 @@ class Expr:
 
         if type(key) == tuple:
             if len(key) == 1:
-                set1(key[0])
+                set1(norm_num(key[0]))
             elif len(key) == 2:
-                set2(key[0], key[1])
+                set2(norm_num(key[0]), norm_num(key[1]))
             else:
                 raise ValueError("Expecting either 1 or 2 indices")
         else:
-            set1(key)
+            set1(norm_num(key))
     def __iter__(self):
         """Iterate over the arguments of the expression."""
         return iter(self.args)
@@ -151,7 +152,7 @@ def head(e):
         return "number"
     elif isinstance(e, str):
         return "string"
-    elif type(e) == list or type(e) == tuple:
+    elif type(e) in (list, tuple):
         return "list"
     else:
         return e.head
@@ -291,6 +292,13 @@ def downvalue(head, with_expr=False, def_expr=False):
                 return _f
     return add_downvalue
 
+def norm_num(e):
+    """(internal) Takes a number and tries to represent it with a simpler type if possible.
+    For example, `Fraction` to `int` if the denominator is `1`."""
+    if type(e) == Fraction and e.denominator == 1:
+        return e.numerator
+    else:
+        return e
 
 def evaluate(e):
     """Mathematica-like expression evaluation routine.  Puts an expression
@@ -320,10 +328,11 @@ def evaluate(e):
 
     """
     while True:
-        if isinstance(e, Number) or isinstance(e, str):
+        if head(e) == "number":
+            return norm_num(e)
+        elif head(e) == "string":
             return e
-        elif type(e) == list or type(e) == tuple:
-            # evaluate to list
+        elif head(e) == "list":
             return [evaluate(x) for x in e]
         elif type(e) != Expr:
             raise ValueError(f"Unknown type of value ({type(e)!r}) to evaluate.")
