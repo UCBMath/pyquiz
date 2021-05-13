@@ -5,7 +5,6 @@ The function `tex` gives the LaTeX form of an expression.
 """
 
 from collections import defaultdict
-from numbers import Number
 from fractions import Fraction
 from .core import *
 
@@ -58,9 +57,12 @@ def tex_prec(prec, e):
         if e.head == "Plus":
             text = ""
             for i, a in enumerate(e):
-                if head(a) == "Times" and len(a.args) >= 1 and isinstance(a.args[0], Number):
-                    coeff, b = a.args[0], evaluate(expr("Times", *a.args[1:]))
-                elif isinstance(a, Number):
+                if head(a) == "Times" and len(a.args) >= 2 and head(a.args[0]) == "number":
+                    if len(a.args) == 2:
+                        coeff, b = a.args[0], a.args[1]
+                    else:
+                        coeff, b = a.args[0], expr("Times", *a.args[1:])
+                elif head(a) == "number":
                     coeff, b = a, 1
                 else:
                     coeff, b = 1, a
@@ -94,7 +96,7 @@ def tex_prec(prec, e):
                     b, exp = a
                 else:
                     b, exp = a, 1
-                if isinstance(exp, Number) and exp <= 0:
+                if head(exp) == "number" and exp <= 0:
                     denom.append((b, -exp))
                 elif exp == 1 and b == -1:
                     is_neg = True
@@ -137,7 +139,7 @@ def tex_prec(prec, e):
             return parens(prec, 60,
                           tex_prec(60, e.args[0]) + "_{" + ",".join(tex_prec(0, x) for x in e.args[1:]) + "}")
         elif e.head == "var" or e.head == "const":
-            return e.args[0]
+            return "{" + e.args[0] + "}"
         elif e.head == "matrix":
             if TEX_VECTOR_AS_TUPLE and is_vector(e):
                 return "\\left(" + ",".join(tex_prec(0, row[0]) for row in e.args) + "\\right)"
@@ -153,20 +155,21 @@ def tex_prec(prec, e):
                 if n == 1:
                     bottom.append(rf"\partial {tex_prec(30, v)}")
                 else:
-                    bottom.append(rf"\partial {tex_prec(30, v)}^{{{n}}}")
+                    bottom.append(rf"\partial {tex_prec(30, v)}^{{{tex_prec(0, n)}}}")
             if s == 1:
                 p = ""
             else:
-                p = "^" + str(s)
+                p = "^{" + tex_prec(0, s) + "}"
             top = rf"\partial{p} {tex_prec(30, x)}"
-            return parens(prec, 40, rf"\frac{{{top}}}{{{' '.join(bottom)}}}")
+            bot = "\\,".join(bottom)
+            return parens(prec, 40, rf"\frac{{{top}}}{{{bot}}}")
         elif isinstance(e.head, str):
             return (r"\operatorname{" + e.head + "}(" +
                     ", ".join(tex_prec(0, x) for x in e.args)
                     + ")")
         else:
             raise ValueError(f"unknown expression type {e.head} to tex")
-    elif type(e) == list or type(e) == tuple:
+    elif type(e) in (list, tuple):
         return "\\left[" + ",".join(tex_prec(0, x) for x in e) + "\\right]"
     else:
         raise ValueError(f"unknown value to tex {e}")

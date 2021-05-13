@@ -11,11 +11,14 @@ __all__ = [
 ]
 
 def split_summand(a):
-    """Helper function for rule_plus_collect.  Gives a (coeff, expr) pair
-    for a given expression.  Assumes the expression has been already
-    evaluated."""
-    if head(a) == "Times" and len(a.args) >= 1 and isinstance(a.args[0], Number):
-        return (a.args[0], evaluate(expr("Times", *a.args[1:])))
+    """Helper function for `rule_plus_collect`.  Gives a (coeff, expr)
+    pair for a given expression.  Assumes the expression has been
+    already evaluated."""
+    if head(a) == "Times" and len(a.args) >= 2 and isinstance(a.args[0], Number):
+        if len(a.args) == 2:
+            return (a.args[0], a.args[1])
+        else:
+            return (a.args[0], expr("Times", *a.args[1:]))
     elif isinstance(a, Number):
         return (a, 1)
     else:
@@ -46,7 +49,7 @@ def rule_plus_collect(*args):
         return expr("Plus", *args2)
 
 def split_multiplicand(a):
-    """Helper function for rule_times_collect.  Returns (power, expr)."""
+    """Helper function for `rule_times_collect`.  Returns (power, expr)."""
     if head(a) == "Pow":
         return (a.args[1], a.args[0])
     else:
@@ -84,7 +87,15 @@ def rule_times_collect(*args):
     elif len(args2) == 1:
         return args2[0]
     else:
-        return expr("Times", *args2)
+        # sort args2 so that most functions occur last
+        args3 = []
+        fns = []
+        for arg in args2:
+            if head(arg) in ("number", "var", "const", "Plus", "Times", "Pow"):
+                args3.append(arg)
+            else:
+                fns.append(arg)
+        return expr("Times", *args3, *fns)
 
 @downvalue("Pow")
 def rule_pow_constants(a, b):
