@@ -128,7 +128,17 @@ def check_in_question(question_type=True):
     elif IN_QUESTION != question_type:
         raise Exception(f"Not currently in a {question_type} question.")
 
-def begin_quiz(id=None, title=None, description=""):
+def begin_quiz(*, id=None, title=None, description="",
+               quiz_type=None, time_limit=None,
+               scoring_policy="keep_highest",
+               shuffle_answers=False,
+               hide_results=None,
+               show_correct_answers=True,
+               allowed_attempts=1,
+               show_correct_answers_last_attempt=False,
+               one_question_at_a_time=False,
+               cant_go_back=False,
+               one_time_results=False):
     """Begin a new quiz.  The end of a quiz is marked with `end_quiz()`.
 
     * `title` is the title of the quiz, which shows up in the list of quizzes.
@@ -148,16 +158,53 @@ def begin_quiz(id=None, title=None, description=""):
     In all cases, as a safeguard it is an error to try to replace a
     published quiz.  Unpublish the quiz first from Canvas.
 
+    See [the Instructure documentation](https://canvas.instructure.com/doc/api/quizzes.html) for the meaning of the options.
+    [This page](https://canvas.wisc.edu/doc/api/live#!/quizzes.json/create_quiz_post_2) might also be helpful.
+
     """
     global IN_QUIZ
     check_quiz_builder()
     if IN_QUIZ:
         raise Exception("Currently in a quiz.  Make sure to end_quiz() first.")
+
     if not title:
         raise ValueError("Missing a title for the quiz.")
+
+    quiz_type_opts = ("practice_quiz", "assignment", "graded_survey", "survey")
+    if quiz_type != None and quiz_type not in quiz_type_opts:
+        raise ValueError("quiz_type if set must be one of the following: " + ", ".join(quiz_type_opts))
+
+    if time_limit != None and type(time_limit) != int:
+        raise ValueError("time_limit if set must be an integer")
+
+    scoring_policy_opts = ("keep_highest", "keep_latest")
+    if scoring_policy not in scoring_policy_opts:
+        raise ValueError("scoring_policy must be one of the following: " + ", ".join(scoring_policy_opts))
+
+    hide_results_opts = ("always", "until_after_last_attempt")
+    if hide_results != None and hide_results not in hide_results_opts:
+        raise ValueError("hide_results must be None or one of the following: " + ", ".join(hide_results_opts))
+
+    if type(allowed_attempts) != int or allowed_attempts < -1:
+        raise ValueError("allowed_attempts must be an integer greater than or equal to -1")
+
+    options = {
+        "quiz_type": quiz_type,
+        "time_limit": time_limit,
+        "scoring_policy": scoring_policy,
+        "shuffle_answers": shuffle_answers,
+        "hide_results": hide_results,
+        "show_correct_answers": show_correct_answers,
+        "allowed_attempts": allowed_attempts,
+        "show_correct_answers_last_attempt": show_correct_answers_last_attempt,
+        "one_question_at_a_time": one_question_at_a_time,
+        "cant_go_back": cant_go_back,
+        "one_time_results": one_time_results
+    }
+
     LOADED_QUIZZES.append(title)
     IN_QUIZ = True
-    BUILDER.begin_quiz(id=id, title=title, description=description)
+    BUILDER.begin_quiz(id=id, title=title, description=description, options=options)
 
 def end_quiz():
     """Finish the quiz started with `begin_quiz()`."""

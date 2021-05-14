@@ -17,7 +17,7 @@ class CanvasQuizBuilder:
         self.GROUP_ID = None
         self.QUESTION_DATA = None
 
-    def begin_quiz(self, id=None, title=None, description=""):
+    def begin_quiz(self, id=None, title=None, description="", options={}):
         """If the `id` is given, then edit the existing quiz (raising an error
         of no such quiz exists), otherwise look up a quiz by that
         title and if one with that title doesn't exist already, create
@@ -34,18 +34,9 @@ class CanvasQuizBuilder:
         quiz_config = {
             'title': title,
             'description': f"{MATHJAX} {description}",
-            'quiz_type': 'assignment',
-            # time limit in minutes
-            'time_limit': 22,
-            # reorder multiple choice questions per student
-            'shuffle_answers': False, # note: reorders t/f too!
-            # null, "always", or "until_after_last_attempt"
-            'hide_results': "until_after_last_attempt",
-            # -1 for unlimited attempts
-            'allowed_attempts': -1,
-            'one_question_at_a_time': True,
-            'cant_go_back': True
         }
+        quiz_config.update(options)
+        print(f"quiz config: {options}")
 
         quiz = None
 
@@ -68,7 +59,6 @@ class CanvasQuizBuilder:
             if quiz.published:
                 raise Exception(f"The quiz with title {title!r} has already been published.  Unpublish it in Canvas first.")
             print(f"Editing quiz with id {quiz.id} and deleting all existing questions")
-            quiz.edit(**quiz_config)
             groups = set()
             for question in quiz.get_questions():
                 if question.quiz_group_id:
@@ -77,6 +67,8 @@ class CanvasQuizBuilder:
             # there is apparently no API call to get all the question groups for a quiz!
             for gid in groups:
                 quiz.get_quiz_group(gid).delete(gid) # TODO fix bug in canvasapi itself?
+            quiz_config['notify_of_update'] = False
+            quiz = quiz.edit(quiz=quiz_config)
             self.QUIZ = quiz
         else:
             # Create a new quiz

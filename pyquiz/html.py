@@ -8,7 +8,7 @@ class HTMLQuizBuilder:
     def write(self, s):
         self.QUIZ.write(s)
 
-    def begin_quiz(self, id=None, title=None, description=""):
+    def begin_quiz(self, id=None, title=None, description="", options={}):
         if title == None:
             raise Exception("Missing quiz title.")
         self.write(f"""
@@ -19,6 +19,8 @@ class HTMLQuizBuilder:
           src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
         </script>
         <style>
+          table.options {{ margin: 1em; }}
+          table.options th {{ text-align: right; padding: 2px 8px 2px 0; }}
           div.question_group {{ border: 1px solid #ccc; padding: 0 5px 0 5px; margin-bottom: 1em; }}
           div.question {{ border: 1px solid #ccf; padding-left: 0 5px 0 5px; margin-bottom: 0.5em; }}
           body {{ max-width: 700px; }}
@@ -32,6 +34,11 @@ class HTMLQuizBuilder:
             self.write(f"""
             <p>Will replace quiz with id {id}.</p>
             """)
+        if options:
+            self.write('<table class="options">')
+            for k, v in options.items():
+                self.write(f"""<tr><th>{k}</th><td>{v}</td></tr>\n""")
+            self.write("</table>")
 
     def end_quiz(self):
         if self.QUESTION_DATA != None:

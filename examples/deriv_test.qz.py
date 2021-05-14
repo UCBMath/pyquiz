@@ -6,7 +6,16 @@ seed(100)
 
 begin_quiz(
     title="Derivative test",
-    description=rf""" <p>Testing derivatives and such.</p> """
+    description=rf""" <p>Testing derivatives and such.</p> """,
+
+    quiz_type="practice_quiz",
+    shuffle_answers=False,
+    time_limit=None,
+    allowed_attempts=-1,
+    hide_results=None,
+    show_correct_answers=True,
+    one_question_at_a_time=True,
+    cant_go_back=False # "lock questions after answering"
 )
 
 begin_true_false_question()
