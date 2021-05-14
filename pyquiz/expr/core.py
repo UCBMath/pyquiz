@@ -12,10 +12,11 @@ from numbers import Number
 from fractions import Fraction
 
 __all__ = [
-    "Expr", "frac", "expr", "head",
+    "Expr", "frac", "pow", "expr", "head",
     "Inapplicable", "downvalue", "evaluate",
     "irange",
-    "var", "const"
+    "var", "const",
+    "py_pow"
 ]
 
 class Expr:
@@ -156,6 +157,14 @@ def head(e):
         return "list"
     else:
         return e.head
+
+py_pow = pow
+r"""This is the built-in Python pow function.  We replace it with `pow` to get exact results in certain cases."""
+
+def pow(a, b):
+    """This is `a ** b`, but gives exact results in some cases that `a ** b`
+    cannot due to limitations in Python."""
+    return evaluate(expr("Pow", a, b))
 
 def frac(a, b):
     """Divides `a` by `b` exactly.

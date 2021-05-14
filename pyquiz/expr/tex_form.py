@@ -59,6 +59,7 @@ def tex_deriv_primes_limit(n):
 # precedences:
 # 20 add
 # 30 mul
+# 35 slash
 # 40 frac
 # 50 pow
 # 60 subscripts
@@ -69,7 +70,7 @@ def parens(par_prec, prec, text):
     else:
         return text
 
-def tex_prec(prec, e):
+def tex_prec(prec, e, small):
     """Returns the LaTeX form of an expression. The prec argument is the
     precedence of the expression that contains this one, and it's up to
     this function to add parentheses as necessary."""
@@ -81,10 +82,12 @@ def tex_prec(prec, e):
     elif type(e) == Fraction:
         if e.denominator == 1:
             return str(e.numerator)
+        elif small:
+            return parens(prec, 35, rf"{e.numerator}/{e.denominator}")
         else:
             return parens(prec, 40, rf"\tfrac{{{e.numerator}}}{{{e.denominator}}}")
     elif head(e) == "list":
-        return "\\left[" + ",".join(tex_prec(0, x) for x in e) + "\\right]"
+        return "\\left[" + ",".join(tex_prec(0, x, small) for x in e) + "\\right]"
     elif isinstance(e, Expr):
         if e.head == "Plus":
             text = ""
@@ -111,11 +114,11 @@ def tex_prec(prec, e):
                     op = " - "
                     coeff = -coeff
                 if b == 1:
-                    text += op + tex_prec(20, coeff)
+                    text += op + tex_prec(20, coeff, small)
                 elif coeff == 1:
-                    text += op + tex_prec(20, b)
+                    text += op + tex_prec(20, b, small)
                 else:
-                    text += op + tex_prec(30, coeff) + tex_prec(30, b)
+                    text += op + tex_prec(30, coeff, small) + tex_prec(30, b, small)
             if text == "":
                 text = "0"
             return parens(prec, 20, text)
@@ -130,24 +133,30 @@ def tex_prec(prec, e):
                     b, exp = a, 1
                 if head(exp) == "number" and exp <= 0:
                     denom.append((b, -exp))
-                elif exp == 1 and b == -1:
+                elif exp == 1 and head(b) == "number" and b < 0:
                     is_neg = True
+                    if b != -1:
+                        numer.append((-b, exp))
                 else:
                     numer.append((b, exp))
             snumer = ""
-            for b, exp in numer:
+            for i, (b, exp) in enumerate(numer):
                 prec2 = 30 if len(numer) > 1 else (prec if len(denom) == 0 else 0)
+                if i > 0 and head(b) == "number":
+                    prec2 = 1000 # make sure it has parentheses
                 if exp == 1:
-                    snumer += tex_prec(prec2, b)
+                    snumer += tex_prec(prec2, b, small)
                 else:
-                    snumer += tex_prec(prec2, expr("Pow", b, exp))
+                    snumer += tex_prec(prec2, expr("Pow", b, exp), small)
             sdenom = ""
-            for b, exp in denom:
+            for i, (b, exp) in enumerate(denom):
                 prec2 = 30 if len(denom) > 1 else 0
+                if i > 0 and head(b) == "number":
+                    prec2 = 1000 # make sure it has parentheses
                 if exp == 1:
-                    sdenom += tex_prec(prec2, b)
+                    sdenom += tex_prec(prec2, b, small)
                 else:
-                    sdenom += tex_prec(prec2, expr("Pow", b, exp))
+                    sdenom += tex_prec(prec2, expr("Pow", b, exp), small)
             if len(numer) == 0 and len(denom) > 0:
                 if is_neg:
                     return parens(prec, 20, rf"-\frac{{1}}{{{sdenom}}}")
@@ -164,19 +173,19 @@ def tex_prec(prec, e):
                 else:
                     return parens(prec, 40, rf"\frac{{{snumer}}}{{{sdenom}}}")
         elif e.head == "MatTimes":
-            return parens(prec, 30, "".join([tex_prec(30, a) for a in e.args]))
+            return parens(prec, 30, "".join([tex_prec(30, a, small) for a in e.args]))
         elif e.head == "Pow":
-            return parens(prec, 49, tex_prec(50, e.args[0]) + "^{" + tex_prec(0, e.args[1]) + "}")
+            return parens(prec, 49, tex_prec(50, e.args[0], small) + "^{" + tex_prec(0, e.args[1], True) + "}")
         elif e.head == "Part":
             return parens(prec, 60,
-                          tex_prec(60, e.args[0]) + "_{" + ",".join(tex_prec(0, x) for x in e.args[1:]) + "}")
+                          tex_prec(60, e.args[0], small) + "_{" + ",".join(tex_prec(0, x, True) for x in e.args[1:]) + "}")
         elif e.head == "var" or e.head == "const":
             return "{" + e.args[0] + "}"
         elif e.head == "matrix":
             if TEX_VECTOR_AS_TUPLE and is_vector(e):
-                return "\\left(" + ",".join(tex_prec(0, row[0]) for row in e.args) + "\\right)"
+                return "\\left(" + ",".join(tex_prec(0, row[0], small) for row in e.args) + "\\right)"
             return (r"\begin{bmatrix}"
-                    + r"\\".join("&".join(tex_prec(0, x) for x in row) for row in e.args)
+                    + r"\\".join("&".join(tex_prec(0, x, True) for x in row) for row in e.args)
                     + r"\end{bmatrix}")
         elif e.head == "Deriv":
             x, spec, constants = e.args
@@ -185,8 +194,8 @@ def tex_prec(prec, e):
                 if type(n) == int and 1 <= n <= TEX_DERIV_PRIMES_LIMIT:
                     exp = "\\prime" * n
                 else:
-                    exp = "(" + tex_prec(0, n) + ")"
-                return parens(prec, 49, tex_prec(50, e.args[0]) + "^{" + exp + "}")
+                    exp = "(" + tex_prec(0, n, True) + ")"
+                return parens(prec, 49, tex_prec(50, e.args[0], small) + "^{" + exp + "}")
             if len(spec) == 1:
                 d = "d"
             else:
@@ -198,19 +207,19 @@ def tex_prec(prec, e):
                     continue
                 s += n
                 if n == 1:
-                    bottom.append(rf"{d} {tex_prec(30, v)}")
+                    bottom.append(rf"{d} {tex_prec(30, v, small)}")
                 else:
-                    bottom.append(rf"{d} {tex_prec(30, v)}^{{{tex_prec(0, n)}}}")
+                    bottom.append(rf"{d} {tex_prec(30, v, small)}^{{{tex_prec(0, n, True)}}}")
             if s == 1:
                 p = ""
             else:
-                p = "^{" + tex_prec(0, s) + "}"
-            top = rf"{d}{p} {tex_prec(30, x)}"
+                p = "^{" + tex_prec(0, s, True) + "}"
+            top = rf"{d}{p} {tex_prec(30, x, small)}"
             bot = "\\,".join(bottom)
             return parens(prec, 40, rf"\frac{{{top}}}{{{bot}}}")
         elif isinstance(e.head, str):
             return (r"\operatorname{" + e.head + "}(" +
-                    ", ".join(tex_prec(0, x) for x in e.args)
+                    ", ".join(tex_prec(0, x, small) for x in e.args)
                     + ")")
         else:
             raise ValueError(f"unknown expression type {e.head} to tex")
@@ -219,7 +228,7 @@ def tex_prec(prec, e):
 
 def tex(e):
     """Return the TeX form of an expression."""
-    return tex_prec(0, e)
+    return tex_prec(0, e, False)
 
 if True:
     # A hack: monkey patch so that the string form of a Fraction is its TeX form

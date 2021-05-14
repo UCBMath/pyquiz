@@ -7,19 +7,21 @@ from fractions import Fraction
 from .core import *
 
 __all__ = [
-    "exp", "ln", "E", "Pi", "I", "sin", "cos"
+    "sqrt", "exp", "ln", "E", "Pi", "I", "sin", "cos",
+    "pow", "py_pow",
+    "abs", "py_abs"
 ]
 
 def split_summand(a):
     """Helper function for `rule_plus_collect`.  Gives a (coeff, expr)
     pair for a given expression.  Assumes the expression has been
     already evaluated."""
-    if head(a) == "Times" and len(a.args) >= 2 and isinstance(a.args[0], Number):
+    if head(a) == "Times" and len(a.args) >= 2 and head(a.args[0]) == "number":
         if len(a.args) == 2:
             return (a.args[0], a.args[1])
         else:
             return (a.args[0], expr("Times", *a.args[1:]))
-    elif isinstance(a, Number):
+    elif head(a) == "number":
         return (a, 1)
     else:
         return (1, a)
@@ -69,7 +71,7 @@ def rule_times_collect(*args):
             num_matrices += 1
             if num_matrices > 1:
                 raise ValueError("Use the @ operator to multiply matrices rather than *.")
-        if exp == 1 and isinstance(val, Number):
+        if exp == 1 and head(val) == "number":
             coeff *= val
         else:
             for i, (e, v) in enumerate(terms):
@@ -84,7 +86,10 @@ def rule_times_collect(*args):
     if coeff != 1:
         args2.append(coeff)
     for e, v in terms:
-        v = v ** e
+        if e == 1: # special case for things like non-square matrices
+            pass
+        else:
+            v = pow(v, e)
         if v != 1:
             args2.append(v)
     if len(args2) == 0:
@@ -93,41 +98,135 @@ def rule_times_collect(*args):
         return args2[0]
     else:
         # sort args2 so that most functions occur last
-        args3 = []
+        nums = []
+        args = []
         fns = []
         for arg in args2:
-            if head(arg) in ("number", "var", "const", "Plus", "Times", "Pow"):
-                args3.append(arg)
+            if head(arg) == "number":
+                nums.append(arg)
+            elif head(arg) == "pow" and head(arg.args[0]) == "number":
+                nums.append(arg)
+            elif head(arg) in ("var", "const", "Plus", "Times", "Pow"):
+                args.append(arg)
             else:
                 fns.append(arg)
-        return expr("Times", *args3, *fns)
+        return expr("Times", *nums, *args, *fns)
+
+def iroot(a, n):
+    """Give the largest integer k such that k**n <= a."""
+    assert a >= 0
+    lo = 0
+    hi = a
+    while True:
+        if lo == hi:
+            return lo
+        k = (lo + hi)//2
+        kn = k**n
+        kn1 = (k + 1)**n
+        if kn <= a < kn1:
+            return k
+        elif kn1 <= a:
+            hi = k - 1
+        else:
+            lo = k + 1
+
+def factors(a):
+    """Gives the prime factors of a.  Returns a list of `[(p, n), ...]` where `a = p**n * ...`.
+    If `a` is negative, then one entry will be `(-1, 1)`."""
+
+    assert type(a) == int
+
+    factors = []
+    if a < 0:
+        a = -a
+        factors.append((-1, 1))
+
+    n2 = 0
+    while a & 1 == 0:
+        n2 += 1
+        a = a >> 1
+    if n2:
+        factors.append((2, n2))
+
+    p = 3
+    while p <= a:
+        n = 0
+        while a % p == 0:
+            n += 1
+            a = a // p
+        if n:
+            factors.append((p, n))
+        p += 2 # our numbers are small. should be ok.
+
+    return factors
 
 @downvalue("Pow")
 def rule_pow_constants(a, b):
-    """Compute powers when constants are present."""
+    """Compute powers when numeric constants are present."""
+
     if a == 0:
         return 1
-    elif b == 1:
+
+    if b == 1:
         return a
-    elif type(a) == int and isinstance(b, Number):
-        # This ensures it will be exact if possible.
+
+    if head(a) == "number" and a < 0:
+        return pow(-a, b) * pow(I, 2*b)
+
+    if type(a) in (int, Fraction) and type(b) == int:
         return Fraction(a) ** b
-    elif isinstance(a, Number) and isinstance(b, Number):
+
+    if type(a) in (int, Fraction) and type(b) == Fraction:
+        ap, aq = Fraction(a).as_integer_ratio()
+        bp, bq = b.as_integer_ratio()
+
+        if bp < 0:
+            bp = -bp
+            ap, aq = aq, ap
+
+        out = Fraction(1)
+        stay = Fraction(1)
+
+        for p, n in factors(ap):
+            out = out * p**(n * bp // bq)
+            stay = stay * p**(n * bp % bq)
+        for p, n in factors(aq):
+            out = out / p**(n * bp // bq)
+            stay = stay / p**(n * bp % bq)
+
+        if stay == 1:
+            return out
+        elif out == 1:
+            # no change
+            raise Inapplicable
+        else:
+            return out * pow(stay, Fraction(1, bq))
+
+    if type(a) == float or type(b) == float:
         return a ** b
-    else:
-        raise Inapplicable
+
+    raise Inapplicable
 
 @downvalue("Pow")
 def rule_pow_pow(a, b):
     """`(a0 ** a1) ** b == a0 ** (a1 * b)`"""
     if head(a) == "Pow":
-        return a.args[0] ** (a.args[1] * b)
+        return expr("Pow", a.args[0], a.args[1] * b)
     else:
         raise Inapplicable
 
+@downvalue("Pow")
+def rule_mul_pow(a, b):
+    """`(a0 * a1) ** b == a0**b * a1**b` if `b` is a number"""
+    if head(a) == "Times" and head(b) == "number":
+        return pow(a.args[0], b) * pow(a.args[1], b)
+    else:
+        raise Inapplicable
+
+
 E = const("e")
 Pi = const(r"\pi")
-I = const("I")
+I = const("i")
 
 @downvalue("Pow")
 def rule_I_pow(a, b):
@@ -150,6 +249,11 @@ def rule_I_pow(a, b):
 #    if not (type(b) == int and b < 0):
 #        raise Inapplicable
 #    if 
+
+def sqrt(x):
+    """The square root function.  Essentially returns `x ** frac(1, 2)`, but is a
+    little careful to ensure things remain exact."""
+    return evaluate(expr("Pow", x, Fraction(1, 2)))
 
 def exp(x):
     """The exponential function with base *e*, referred to using `E`.  Just returns `E ** x`."""
@@ -192,3 +296,15 @@ def cos(x):
         return 1
     else:
         raise Inapplicable
+
+py_abs = abs
+r"""This is the built-in Python abs function.  We replace it with our own to avoid confusion."""
+
+@downvalue("abs", def_expr=True)
+def abs(x):
+    """The absolute value of the argument."""
+    if head(x) == "number":
+        return py_abs(x)
+    else:
+        raise Inapplicable
+

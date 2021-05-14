@@ -4,6 +4,7 @@ Functions for matrices and vectors.
 
 from .core import *
 from .manipulate import *
+from .arith import *
 
 __all__ = [
     "vector", "matrix", "is_vector",
@@ -11,7 +12,8 @@ __all__ = [
     "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
     "row_reduce", "rank", "nullity",
-    "det"
+    "det",
+    "norm", "normalize"
 ]
 
 def vector(*elts):
@@ -169,16 +171,17 @@ def det(e):
     return r
 
 @downvalue("Times")
-def rule_scalar_multiplication(s, *args):
+def rule_scalar_multiplication(*args):
     """Scalar multiplication of matrices.  This rule should come *after*
     the generic Times rule so that multiplying by 0 doesn't give the
     scalar 0."""
-    if head(s) != "number":
+    if len(args) <= 1:
         raise Inapplicable
     for i, a in enumerate(args):
         if head(a) == "matrix":
-            a2 = Expr("matrix", [[s * x for x in row] for row in a.args])
-            return expr("Times", *args[:i], a2, *args[i+1:])
+            # assume all the other terms are scalars
+            rest = evaluate(expr("Times", *args[:i], *args[i+1:]))
+            return Expr("matrix", [[rest * x for x in row] for row in a.args])
     raise Inapplicable
 
 @downvalue("Plus")
@@ -364,3 +367,27 @@ def nullity(e):
     if head(e) != "matrix":
         raise Inapplicable
     return ncols(e) - rank(e)
+
+@downvalue("norm", def_expr=True)
+def norm(e):
+    """Gives the norm of the vector/matrix, the square root of sum of the
+    absolute squares of the entries.  For a matrix, this is the
+    Frobenius norm."""
+
+    if head(e) != "matrix":
+        raise Inapplicable
+
+    s = 0
+    for row in e.args:
+        for v in row:
+            s += pow(abs(v), 2)
+    return sqrt(s)
+
+@downvalue("normalize", def_expr=True)
+def normalize(e):
+    """Normalizes each column of the vector/matrix."""
+
+    if head(e) != "matrix":
+        raise Inapplicable
+
+    return matrix_with_cols(*(pow(norm(col), -1) * col for col in cols(e)))
