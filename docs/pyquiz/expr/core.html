@@ -43,6 +43,9 @@
                     <a class="function" href="#frac">frac</a>
             </li>
             <li>
+                    <a class="function" href="#pow">pow</a>
+            </li>
+            <li>
                     <a class="function" href="#expr">expr</a>
             </li>
             <li>
@@ -68,6 +71,9 @@
             </li>
             <li>
                     <a class="function" href="#const">const</a>
+            </li>
+            <li>
+                    <a class="function" href="#py_pow">py_pow</a>
             </li>
     </ul>
 
@@ -108,10 +114,11 @@ type for symbolic expressions.</p>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Expr&quot;</span><span class="p">,</span> <span class="s2">&quot;frac&quot;</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Expr&quot;</span><span class="p">,</span> <span class="s2">&quot;frac&quot;</span><span class="p">,</span> <span class="s2">&quot;pow&quot;</span><span class="p">,</span> <span class="s2">&quot;expr&quot;</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Inapplicable&quot;</span><span class="p">,</span> <span class="s2">&quot;downvalue&quot;</span><span class="p">,</span> <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
     <span class="s2">&quot;irange&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;const&quot;</span>
+    <span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="s2">&quot;const&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;py_pow&quot;</span>
 <span class="p">]</span>
 
 <span class="k">class</span> <span class="nc">Expr</span><span class="p">:</span>
@@ -252,6 +259,14 @@ type for symbolic expressions.</p>
         <span class="k">return</span> <span class="s2">&quot;list&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span>
+
+<span class="n">py_pow</span> <span class="o">=</span> <span class="nb">pow</span>
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;This is the built-in Python pow function.  We replace it with `pow` to get exact results in certain cases.&quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is `a ** b`, but gives exact results in some cases that `a ** b`</span>
+<span class="sd">    cannot due to limitations in Python.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">frac</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Divides `a` by `b` exactly.</span>
@@ -719,6 +734,30 @@ example <code>A @ B</code> (vs Mathematica's <code>A . B</code>).</p>
 
 <p>It's hard to fully overload division in Python, so this is a function that takes the
 quotient in a way that ensures the the quotient of two integers is a fraction.</p>
+</div>
+
+
+                </section>
+                <section id="pow">
+                            <div class="attr function"><a class="headerlink" href="#pow">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">pow</span><span class="signature">(a, b)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pow</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is `a ** b`, but gives exact results in some cases that `a ** b`</span>
+<span class="sd">    cannot due to limitations in Python.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>This is <code>a ** b</code>, but gives exact results in some cases that <code>a ** b</code>
+cannot due to limitations in Python.</p>
 </div>
 
 
@@ -1210,6 +1249,23 @@ you need a doubled backslash like <code>const("\lambda")</code>.</p>
 </code></pre></div>
 
 <p>See also <code><a href="#var">var</a></code>.  In constrast, a <code><a href="#const">const</a></code> is assumed to be a fixed constant scalar value.</p>
+</div>
+
+
+                </section>
+                <section id="py_pow">
+                            <div class="attr function"><a class="headerlink" href="#py_pow">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">py_pow</span><span class="signature">(base, exp, mod=None)</span>:
+    </div>
+
+        
+            <div class="docstring"><p>Equivalent to base<strong>exp with 2 arguments or base</strong>exp % mod with 3 arguments</p>
+
+<p>Some types, such as ints, are able to use a more efficient algorithm when
+invoked using the three argument form.</p>
 </div>
 
 
