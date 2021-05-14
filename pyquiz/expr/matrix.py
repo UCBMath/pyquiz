@@ -234,15 +234,33 @@ def adj(e):
 
 @downvalue("Pow")
 def reduce_matrix_inverse(A, n):
-    if head(A) != "matrix" or n != -1:
+    if head(A) != "matrix" or type(n) != int:
         raise Inapplicable
 
     if nrows(A) != ncols(A):
-        raise ValueError("Taking the inverse of a non-square matrix")
+        if n < 0:
+            raise ValueError("Taking the inverse of a non-square matrix")
+        else:
+            raise ValueError("Taking the power of a non-square matrix")
 
-    d = det(A)
-    a = adj(A)
-    return matrix(*[[frac(v, d) for v in row] for row in a.args])
+    npos = abs(n)
+
+    B = A
+    P = identity_matrix(nrows(A))
+
+    i = 1
+    while i <= npos:
+        if i & npos:
+            P = P @ B
+        i = i << 1
+        B = B @ B
+
+    if n >= 0:
+        return P
+    else:
+        d = det(P)
+        a = adj(P)
+        return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
 def row_reduce(e, rref=True, steps_out=None):
     """Puts the matrix into row echelon form.

@@ -62,8 +62,13 @@ def rule_times_collect(*args):
     # terms is a list of (value, exponent) pairs
     terms = []
     coeff = 1
+    num_matrices = 0
     for a in args:
         exp, val = split_multiplicand(a)
+        if head(val) == "matrix":
+            num_matrices += 1
+            if num_matrices > 1:
+                raise ValueError("Use the @ operator to multiply matrices rather than *.")
         if exp == 1 and isinstance(val, Number):
             coeff *= val
         else:
