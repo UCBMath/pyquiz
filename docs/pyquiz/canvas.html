@@ -165,7 +165,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -182,18 +182,9 @@
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MATHJAX</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;quiz_type&#39;</span><span class="p">:</span> <span class="s1">&#39;assignment&#39;</span><span class="p">,</span>
-            <span class="c1"># time limit in minutes</span>
-            <span class="s1">&#39;time_limit&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
-            <span class="c1"># reorder multiple choice questions per student</span>
-            <span class="s1">&#39;shuffle_answers&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># note: reorders t/f too!</span>
-            <span class="c1"># null, &quot;always&quot;, or &quot;until_after_last_attempt&quot;</span>
-            <span class="s1">&#39;hide_results&#39;</span><span class="p">:</span> <span class="s2">&quot;until_after_last_attempt&quot;</span><span class="p">,</span>
-            <span class="c1"># -1 for unlimited attempts</span>
-            <span class="s1">&#39;allowed_attempts&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;one_question_at_a_time&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
+        <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;quiz config: </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -216,7 +207,6 @@
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
@@ -225,6 +215,8 @@
             <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
             <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
                 <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="n">quiz_config</span><span class="p">[</span><span class="s1">&#39;notify_of_update&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">quiz</span> <span class="o">=</span> <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="n">quiz</span><span class="o">=</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create a new quiz</span>
@@ -483,6 +475,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Question data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
@@ -509,7 +502,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -526,18 +519,9 @@
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MATHJAX</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;quiz_type&#39;</span><span class="p">:</span> <span class="s1">&#39;assignment&#39;</span><span class="p">,</span>
-            <span class="c1"># time limit in minutes</span>
-            <span class="s1">&#39;time_limit&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
-            <span class="c1"># reorder multiple choice questions per student</span>
-            <span class="s1">&#39;shuffle_answers&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># note: reorders t/f too!</span>
-            <span class="c1"># null, &quot;always&quot;, or &quot;until_after_last_attempt&quot;</span>
-            <span class="s1">&#39;hide_results&#39;</span><span class="p">:</span> <span class="s2">&quot;until_after_last_attempt&quot;</span><span class="p">,</span>
-            <span class="c1"># -1 for unlimited attempts</span>
-            <span class="s1">&#39;allowed_attempts&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;one_question_at_a_time&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
+        <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;quiz config: </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -560,7 +544,6 @@
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
@@ -569,6 +552,8 @@
             <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
             <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
                 <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="n">quiz_config</span><span class="p">[</span><span class="s1">&#39;notify_of_update&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">quiz</span> <span class="o">=</span> <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="n">quiz</span><span class="o">=</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create a new quiz</span>
@@ -827,6 +812,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Question data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
@@ -862,12 +848,12 @@
 
         
             <span class="def">def</span>
-            <span class="name">begin_quiz</span><span class="signature">(self, id=None, title=None, description=&#39;&#39;)</span>:
+            <span class="name">begin_quiz</span><span class="signature">(self, id=None, title=None, description=&#39;&#39;, options={})</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -884,18 +870,9 @@
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MATHJAX</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;quiz_type&#39;</span><span class="p">:</span> <span class="s1">&#39;assignment&#39;</span><span class="p">,</span>
-            <span class="c1"># time limit in minutes</span>
-            <span class="s1">&#39;time_limit&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
-            <span class="c1"># reorder multiple choice questions per student</span>
-            <span class="s1">&#39;shuffle_answers&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># note: reorders t/f too!</span>
-            <span class="c1"># null, &quot;always&quot;, or &quot;until_after_last_attempt&quot;</span>
-            <span class="s1">&#39;hide_results&#39;</span><span class="p">:</span> <span class="s2">&quot;until_after_last_attempt&quot;</span><span class="p">,</span>
-            <span class="c1"># -1 for unlimited attempts</span>
-            <span class="s1">&#39;allowed_attempts&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-            <span class="s1">&#39;one_question_at_a_time&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;cant_go_back&#39;</span><span class="p">:</span> <span class="kc">True</span>
         <span class="p">}</span>
+        <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;quiz config: </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -918,7 +895,6 @@
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
-            <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="o">**</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">question</span><span class="o">.</span><span class="n">quiz_group_id</span><span class="p">:</span>
@@ -927,6 +903,8 @@
             <span class="c1"># there is apparently no API call to get all the question groups for a quiz!</span>
             <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
                 <span class="n">quiz</span><span class="o">.</span><span class="n">get_quiz_group</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="c1"># TODO fix bug in canvasapi itself?</span>
+            <span class="n">quiz_config</span><span class="p">[</span><span class="s1">&#39;notify_of_update&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">quiz</span> <span class="o">=</span> <span class="n">quiz</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="n">quiz</span><span class="o">=</span><span class="n">quiz_config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span> <span class="o">=</span> <span class="n">quiz</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create a new quiz</span>
@@ -1642,6 +1620,7 @@ empty question groups in Canvas if they exist.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">[</span><span class="s1">&#39;quiz_group_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP_ID</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Question data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUIZ</span><span class="o">.</span><span class="n">create_question</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">QUESTION_DATA</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>

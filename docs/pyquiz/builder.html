@@ -326,7 +326,17 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="k">elif</span> <span class="n">IN_QUESTION</span> <span class="o">!=</span> <span class="n">question_type</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not currently in a </span><span class="si">{</span><span class="n">question_type</span><span class="si">}</span><span class="s2"> question.&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="n">quiz_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">scoring_policy</span><span class="o">=</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span>
+               <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">hide_results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">show_correct_answers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">allowed_attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+               <span class="n">show_correct_answers_last_attempt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">one_question_at_a_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">cant_go_back</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">one_time_results</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new quiz.  The end of a quiz is marked with `end_quiz()`.</span>
 
 <span class="sd">    * `title` is the title of the quiz, which shows up in the list of quizzes.</span>
@@ -346,16 +356,53 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    In all cases, as a safeguard it is an error to try to replace a</span>
 <span class="sd">    published quiz.  Unpublish the quiz first from Canvas.</span>
 
+<span class="sd">    See [the Instructure documentation](https://canvas.instructure.com/doc/api/quizzes.html) for the meaning of the options.</span>
+<span class="sd">    [This page](https://canvas.wisc.edu/doc/api/live#!/quizzes.json/create_quiz_post_2) might also be helpful.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUIZ</span>
     <span class="n">check_quiz_builder</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">IN_QUIZ</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a quiz.  Make sure to end_quiz() first.&quot;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing a title for the quiz.&quot;</span><span class="p">)</span>
+
+    <span class="n">quiz_type_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;practice_quiz&quot;</span><span class="p">,</span> <span class="s2">&quot;assignment&quot;</span><span class="p">,</span> <span class="s2">&quot;graded_survey&quot;</span><span class="p">,</span> <span class="s2">&quot;survey&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">quiz_type</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quiz_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">quiz_type_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;quiz_type if set must be one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">quiz_type_opts</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">time_limit</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_limit</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;time_limit if set must be an integer&quot;</span><span class="p">)</span>
+
+    <span class="n">scoring_policy_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span> <span class="s2">&quot;keep_latest&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scoring_policy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scoring_policy_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;scoring_policy must be one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scoring_policy_opts</span><span class="p">))</span>
+
+    <span class="n">hide_results_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">,</span> <span class="s2">&quot;until_after_last_attempt&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hide_results</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hide_results</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hide_results_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;hide_results must be None or one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hide_results_opts</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">allowed_attempts</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">allowed_attempts</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;allowed_attempts must be an integer greater than or equal to -1&quot;</span><span class="p">)</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;quiz_type&quot;</span><span class="p">:</span> <span class="n">quiz_type</span><span class="p">,</span>
+        <span class="s2">&quot;time_limit&quot;</span><span class="p">:</span> <span class="n">time_limit</span><span class="p">,</span>
+        <span class="s2">&quot;scoring_policy&quot;</span><span class="p">:</span> <span class="n">scoring_policy</span><span class="p">,</span>
+        <span class="s2">&quot;shuffle_answers&quot;</span><span class="p">:</span> <span class="n">shuffle_answers</span><span class="p">,</span>
+        <span class="s2">&quot;hide_results&quot;</span><span class="p">:</span> <span class="n">hide_results</span><span class="p">,</span>
+        <span class="s2">&quot;show_correct_answers&quot;</span><span class="p">:</span> <span class="n">show_correct_answers</span><span class="p">,</span>
+        <span class="s2">&quot;allowed_attempts&quot;</span><span class="p">:</span> <span class="n">allowed_attempts</span><span class="p">,</span>
+        <span class="s2">&quot;show_correct_answers_last_attempt&quot;</span><span class="p">:</span> <span class="n">show_correct_answers_last_attempt</span><span class="p">,</span>
+        <span class="s2">&quot;one_question_at_a_time&quot;</span><span class="p">:</span> <span class="n">one_question_at_a_time</span><span class="p">,</span>
+        <span class="s2">&quot;cant_go_back&quot;</span><span class="p">:</span> <span class="n">cant_go_back</span><span class="p">,</span>
+        <span class="s2">&quot;one_time_results&quot;</span><span class="p">:</span> <span class="n">one_time_results</span>
+    <span class="p">}</span>
+
     <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
     <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.&quot;&quot;&quot;</span>
@@ -645,12 +692,38 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
         
             <span class="def">def</span>
-            <span class="name">begin_quiz</span><span class="signature">(id=None, title=None, description=&#39;&#39;)</span>:
+            <span class="name">begin_quiz</span><span class="signature">(
+    *,
+    id=None,
+    title=None,
+    description=&#39;&#39;,
+    quiz_type=None,
+    time_limit=None,
+    scoring_policy=&#39;keep_highest&#39;,
+    shuffle_answers=False,
+    hide_results=None,
+    show_correct_answers=True,
+    allowed_attempts=1,
+    show_correct_answers_last_attempt=False,
+    one_question_at_a_time=False,
+    cant_go_back=False,
+    one_time_results=False
+)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="n">quiz_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">scoring_policy</span><span class="o">=</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span>
+               <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">hide_results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">show_correct_answers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">allowed_attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+               <span class="n">show_correct_answers_last_attempt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">one_question_at_a_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">cant_go_back</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">one_time_results</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new quiz.  The end of a quiz is marked with `end_quiz()`.</span>
 
 <span class="sd">    * `title` is the title of the quiz, which shows up in the list of quizzes.</span>
@@ -670,16 +743,53 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    In all cases, as a safeguard it is an error to try to replace a</span>
 <span class="sd">    published quiz.  Unpublish the quiz first from Canvas.</span>
 
+<span class="sd">    See [the Instructure documentation](https://canvas.instructure.com/doc/api/quizzes.html) for the meaning of the options.</span>
+<span class="sd">    [This page](https://canvas.wisc.edu/doc/api/live#!/quizzes.json/create_quiz_post_2) might also be helpful.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">IN_QUIZ</span>
     <span class="n">check_quiz_builder</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">IN_QUIZ</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a quiz.  Make sure to end_quiz() first.&quot;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing a title for the quiz.&quot;</span><span class="p">)</span>
+
+    <span class="n">quiz_type_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;practice_quiz&quot;</span><span class="p">,</span> <span class="s2">&quot;assignment&quot;</span><span class="p">,</span> <span class="s2">&quot;graded_survey&quot;</span><span class="p">,</span> <span class="s2">&quot;survey&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">quiz_type</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quiz_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">quiz_type_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;quiz_type if set must be one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">quiz_type_opts</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">time_limit</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_limit</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;time_limit if set must be an integer&quot;</span><span class="p">)</span>
+
+    <span class="n">scoring_policy_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span> <span class="s2">&quot;keep_latest&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scoring_policy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scoring_policy_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;scoring_policy must be one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scoring_policy_opts</span><span class="p">))</span>
+
+    <span class="n">hide_results_opts</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">,</span> <span class="s2">&quot;until_after_last_attempt&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hide_results</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hide_results</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hide_results_opts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;hide_results must be None or one of the following: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hide_results_opts</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">allowed_attempts</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">allowed_attempts</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;allowed_attempts must be an integer greater than or equal to -1&quot;</span><span class="p">)</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;quiz_type&quot;</span><span class="p">:</span> <span class="n">quiz_type</span><span class="p">,</span>
+        <span class="s2">&quot;time_limit&quot;</span><span class="p">:</span> <span class="n">time_limit</span><span class="p">,</span>
+        <span class="s2">&quot;scoring_policy&quot;</span><span class="p">:</span> <span class="n">scoring_policy</span><span class="p">,</span>
+        <span class="s2">&quot;shuffle_answers&quot;</span><span class="p">:</span> <span class="n">shuffle_answers</span><span class="p">,</span>
+        <span class="s2">&quot;hide_results&quot;</span><span class="p">:</span> <span class="n">hide_results</span><span class="p">,</span>
+        <span class="s2">&quot;show_correct_answers&quot;</span><span class="p">:</span> <span class="n">show_correct_answers</span><span class="p">,</span>
+        <span class="s2">&quot;allowed_attempts&quot;</span><span class="p">:</span> <span class="n">allowed_attempts</span><span class="p">,</span>
+        <span class="s2">&quot;show_correct_answers_last_attempt&quot;</span><span class="p">:</span> <span class="n">show_correct_answers_last_attempt</span><span class="p">,</span>
+        <span class="s2">&quot;one_question_at_a_time&quot;</span><span class="p">:</span> <span class="n">one_question_at_a_time</span><span class="p">,</span>
+        <span class="s2">&quot;cant_go_back&quot;</span><span class="p">:</span> <span class="n">cant_go_back</span><span class="p">,</span>
+        <span class="s2">&quot;one_time_results&quot;</span><span class="p">:</span> <span class="n">one_time_results</span>
+    <span class="p">}</span>
+
     <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
     <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -704,6 +814,9 @@ one exists, will be replaced.</p>
 
 <p>In all cases, as a safeguard it is an error to try to replace a
 published quiz.  Unpublish the quiz first from Canvas.</p>
+
+<p>See <a href="https://canvas.instructure.com/doc/api/quizzes.html">the Instructure documentation</a> for the meaning of the options.
+<a href="https://canvas.wisc.edu/doc/api/live#!/quizzes.json/create_quiz_post_2">This page</a> might also be helpful.</p>
 </div>
 
 
