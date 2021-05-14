@@ -75,5 +75,26 @@ true_false_answer(True)
 
 end_question()
 
+begin_group()
+for i in range(10):
+    begin_multiple_choice_question()
+
+    y = var("y")
+    lam = var("\\lambda")
+    a, b, c = sample(irange(-10,-1) + irange(1,10), 3)
+
+    text(rf"""Which is the auxiliary polynomial for the following differential equation?
+    \[
+    { a*D(y,t,t) + b*D(y,t) + c*y } = \cos t
+    \]
+    """)
+
+    multiple_choice_answer(True, rf"""\({a*lam**2 + b*lam + c}\)""")
+    multiple_choice_answer(False, rf"""\({c*lam**2 + b*lam + a}\)""")
+    multiple_choice_answer(False, rf"""\({lam**2 + frac(b,a)*lam + frac(c,a)}\)""")
+    multiple_choice_answer(False, rf"""\({(a*lam - 1) * (b*lam + c)}\)""")
+
+    end_question()
+end_group()
 
 end_quiz()
