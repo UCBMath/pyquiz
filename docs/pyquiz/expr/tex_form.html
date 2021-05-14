@@ -36,6 +36,15 @@
             <li>
                     <a class="function" href="#tex_vector_as_tuple">tex_vector_as_tuple</a>
             </li>
+            <li>
+                    <a class="function" href="#tex_deriv_use_primes">tex_deriv_use_primes</a>
+            </li>
+            <li>
+                    <a class="function" href="#tex_deriv_indep_var">tex_deriv_indep_var</a>
+            </li>
+            <li>
+                    <a class="function" href="#tex_deriv_primes_limit">tex_deriv_primes_limit</a>
+            </li>
     </ul>
 
 
@@ -67,7 +76,11 @@
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;tex&quot;</span><span class="p">,</span> <span class="s2">&quot;tex_vector_as_tuple&quot;</span>
+    <span class="s2">&quot;tex&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tex_vector_as_tuple&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tex_deriv_use_primes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tex_deriv_indep_var&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tex_deriv_primes_limit&quot;</span>
 <span class="p">]</span>
 
 <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="kc">False</span>
@@ -353,6 +366,92 @@
 </code></pre></div>
 
 <p>prints out "<code>(1,2)</code>" rather than "<code>\begin{bmatrix}1\\2\end{bmatrix}</code>".</p>
+</div>
+
+
+                </section>
+                <section id="tex_deriv_use_primes">
+                            <div class="attr function"><a class="headerlink" href="#tex_deriv_use_primes">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">tex_deriv_use_primes</span><span class="signature">(state)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_deriv_use_primes</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;If `state` is `True` (the default), then derivatives with exactly</span>
+<span class="sd">    one independent variable are rendered using prime notation, if</span>
+<span class="sd">    that variable is the one set by `tex_deriv_indep_var`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">TEX_DERIV_USE_PRIMES</span>
+    <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="n">state</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>If <code>state</code> is <code>True</code> (the default), then derivatives with exactly
+one independent variable are rendered using prime notation, if
+that variable is the one set by <code><a href="#tex_deriv_indep_var">tex_deriv_indep_var</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="tex_deriv_indep_var">
+                            <div class="attr function"><a class="headerlink" href="#tex_deriv_indep_var">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">tex_deriv_indep_var</span><span class="signature">(var)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_deriv_indep_var</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Set the independent variable used by the feature in `tex_deriv_use_primes`.</span>
+<span class="sd">    By default, the variable is `var(&quot;t&quot;)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">TEX_DERIV_INDEP_VAR</span>
+    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span>
+    <span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the independent variable used by the feature in <code><a href="#tex_deriv_use_primes">tex_deriv_use_primes</a></code>.
+By default, the variable is <code>var("t")</code>.</p>
+</div>
+
+
+                </section>
+                <section id="tex_deriv_primes_limit">
+                            <div class="attr function"><a class="headerlink" href="#tex_deriv_primes_limit">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">tex_deriv_primes_limit</span><span class="signature">(n)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_deriv_primes_limit</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;When the `tex_deriv_use_primes` feature is active, gives point</span>
+<span class="sd">    after which primes are instead rendered with parentheses.  By</span>
+<span class="sd">    default, this is 3.  For example, the fourth derivative of `y`</span>
+<span class="sd">    would be `y^{(4)}` rather than `y&#39;&#39;&#39;&#39;`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="n">n</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>When the <code><a href="#tex_deriv_use_primes">tex_deriv_use_primes</a></code> feature is active, gives point
+after which primes are instead rendered with parentheses.  By
+default, this is 3.  For example, the fourth derivative of <code>y</code>
+would be <code>y^{(4)}</code> rather than <code>y''''</code>.</p>
 </div>
 
 
