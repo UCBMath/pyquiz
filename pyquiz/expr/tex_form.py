@@ -83,7 +83,7 @@ def tex_prec(prec, e, small):
         if e.denominator == 1:
             return str(e.numerator)
         elif small:
-            return parens(prec, 35, rf"{e.numerator}/{e.denominator}")
+            return parens(prec, 25, rf"{e.numerator}/{e.denominator}")
         else:
             return parens(prec, 40, rf"\tfrac{{{e.numerator}}}{{{e.denominator}}}")
     elif head(e) == "list":
