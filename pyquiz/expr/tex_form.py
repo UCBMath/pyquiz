@@ -9,7 +9,11 @@ from fractions import Fraction
 from .core import *
 
 __all__ = [
-    "tex", "tex_vector_as_tuple"
+    "tex",
+    "tex_vector_as_tuple",
+    "tex_deriv_use_primes",
+    "tex_deriv_indep_var",
+    "tex_deriv_primes_limit"
 ]
 
 TEX_VECTOR_AS_TUPLE = False
