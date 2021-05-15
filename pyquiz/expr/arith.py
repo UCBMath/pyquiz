@@ -9,7 +9,8 @@ from .core import *
 __all__ = [
     "sqrt", "exp", "ln", "E", "Pi", "I", "sin", "cos",
     "pow", "py_pow",
-    "abs", "py_abs"
+    "abs", "py_abs",
+    "N"
 ]
 
 def split_summand(a):
@@ -308,3 +309,23 @@ def abs(x):
     else:
         raise Inapplicable
 
+def N(x):
+    """Convert all numbers in the expression to floating-point numbers.
+
+    Example:
+    ```python
+    print(sqrt(2)) # gives "2^{1/2}"
+    print(N(sqrt(2))) # gives "1.4142135623730951"
+    ```
+
+    If there are partially evaluated symbolic expressions, this can potentially cause issues.
+    For example, some of the arguments in a "Deriv" expression must be integers.
+    """
+    if head(x) == "number":
+        return float(x)
+    elif head(x) == "list":
+        return [N(a) for a in x]
+    elif isinstance(x, Expr):
+        return evaluate(Expr(x.head, [N(a) for a in x.args]))
+    else:
+        return x
