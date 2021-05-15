@@ -1,17 +1,87 @@
-import tkinter
+import tkinter, tkinter.ttk
 import tkinter.filedialog
 import tkinter.messagebox
 import os, sys, subprocess, traceback, json
 import pyquiz, pyquiz.html
 
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
+
 NO_QUIZ_SELECT_MESSAGE = "No quiz file selected"
 NO_QUIZ_SELECT_ERROR = "No quiz file selected."
-NO_CANVAS_CONFIG_ERROR = "Missing canvas_config.json file.  See the documentation for how to create one."
+NO_CANVAS_CONFIG = "Missing canvas_config.json file."
 BAD_CANVAS_CONFIG_ERROR = "Malformed canvas_config.json file."
 MISSING_END_QUIZ = "Missing end_quiz() in quiz file."
 NO_PREVIEW_FILE = "Generate an HTML preview first."
 
 UPLOADER_STATE_FILE = ".uploader_state.json"
+
+quiz_file = None
+uploader_state = None
+canvas_config = None
+canvas_config_error = None
+the_canvas_config = None
+
+def load_uploader_state():
+    global uploader_state, quiz_file
+    try:
+        with open(UPLOADER_STATE_FILE, "r") as fin:
+            uploader_state = json.load(fin)
+    except:
+        pass
+
+    if not isinstance(uploader_state, dict):
+        uploader_state = {}
+
+    if "quiz_file" in uploader_state:
+        quiz_file = uploader_state['quiz_file']
+
+load_uploader_state()
+
+def load_canvas_config():
+    try:
+        config_file = open("canvas_config.json", "r")
+    except FileNotFoundError:
+        canvas_config_error = NO_CANVAS_CONFIG
+        return
+
+    try:
+        config = json.load(config_file)
+    except:
+        canvas_config_error = BAD_CANVAS_CONFIG_ERROR
+        traceback.print_exc()
+        return
+
+    config_file.close()
+
+    # look for old-style format (single entry rather than list)
+    if type(config) == dict:
+        config = [config]
+
+    if type(config) != list or len(config) == 0:
+        canvas_config_error = BAD_CANVAS_CONFIG_ERROR
+        return
+
+    for entry in config:
+        if type(entry) != dict or "API_URL" not in entry:
+            canvas_config_error = BAD_CANVAS_CONFIG_ERROR
+            return
+        if "name" not in entry:
+            entry['name'] = entry['API_URL']
+
+    global canvas_config, the_canvas_config
+    canvas_config = config
+    the_canvas_config = canvas_config[0]
+
+    if 'canvas_config' in uploader_state:
+        for entry in canvas_config:
+            if entry['name'] == uploader_state['canvas_config']:
+                the_canvas_config = entry
+                break
+
+load_canvas_config()
+
+# Build UI
 
 root = tkinter.Tk()
 root.geometry("+50+50")
@@ -38,12 +108,12 @@ class ErrorWindow(tkinter.Toplevel):
         text_frame.columnconfigure(0, weight=1)
 
         tkinter.Message(button_frame, text=message, width=500).grid(row=0, column=0, columnspan=2, pady=(7, 7), padx=(7, 7), sticky='w')
-        tkinter.Button(button_frame, text='Ok', command=self.destroy).grid(row=1, column=1, sticky='e')
+        tkinter.ttk.Button(button_frame, text='Ok', command=self.destroy).grid(row=1, column=1, sticky='e')
 
         self.textbox = tkinter.Text(text_frame, height=12)
         self.textbox.insert('1.0', detail)
         self.textbox.config(state='disabled')
-        self.scrollb = tkinter.Scrollbar(text_frame, command=self.textbox.yview)
+        self.scrollb = tkinter.ttk.Scrollbar(text_frame, command=self.textbox.yview)
         self.textbox.config(yscrollcommand=self.scrollb.set)
         self.textbox.grid(row=0, column=0, sticky='nsew')
         self.scrollb.grid(row=0, column=1, sticky='nsew')
@@ -57,10 +127,6 @@ tkinter.Tk.report_callback_exception = report_callback_error
 
 window = tkinter.Frame(master=root, pady=5)
 window.pack(fill=tkinter.BOTH, expand=True)
-
-quiz_file = None
-
-uploader_state = None
 
 def save_uploader_state():
     try:
@@ -166,7 +232,6 @@ def view_command():
         # Linux?
         subprocess.call(["xdg-open", html_file])
 
-
 def upload_command():
     import pyquiz.canvas
     print("----")
@@ -174,23 +239,12 @@ def upload_command():
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
 
-    try:
-        config_file = open("canvas_config.json", "r")
-    except FileNotFoundError:
-        tkinter.messagebox.showerror("Error", NO_CANVAS_CONFIG_ERROR)
-        return
-
-    try:
-        config = json.load(config_file)
-    except:
-        tkinter.messagebox.showerror("Error", BAD_CANVAS_CONFIG_ERROR)
-        traceback.print_exc()
-        return
+    print("Uploading to " + the_canvas_config['name'])
 
     builder = pyquiz.canvas.CanvasQuizBuilder(
-        api_url=config['API_URL'],
-        api_key=config['API_KEY'],
-        course_id=config['COURSE_ID']
+        api_url=the_canvas_config['API_URL'],
+        api_key=the_canvas_config['API_KEY'],
+        course_id=the_canvas_config['COURSE_ID']
     )
     pyquiz.set_quiz_builder(builder)
 
@@ -211,52 +265,70 @@ def upload_command():
 fileframe = tkinter.Frame(master=window, padx=10, pady=5)
 fileframe.pack(fill=tkinter.X)
 fileframe.columnconfigure(1, minsize=50, weight=1)
-choose_button = tkinter.Button(master=fileframe, text="Choose quiz", command=choose_command)
+choose_button = tkinter.ttk.Button(master=fileframe, text="Choose quiz", command=choose_command)
 choose_button.grid(row=0, column=0, sticky="W")
-choose_label = tkinter.Label(master=fileframe, text=NO_QUIZ_SELECT_MESSAGE, padx=3)
+choose_label = tkinter.ttk.Label(master=fileframe, text=NO_QUIZ_SELECT_MESSAGE)
 choose_label.grid(row=0, column=1, sticky="W")
+
+update_choose_label()
 
 ###
 ### Preview quiz
 ###
 
-preview_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
+preview_frame = tkinter.ttk.LabelFrame(master=window, borderwidth=2, relief=tkinter.RIDGE, padding=5,
+                                       text="Generate HTML preview")
 preview_frame.pack(fill=tkinter.X, padx=10, pady=5)
-
-preview_label = tkinter.Label(master=preview_frame, text="Generate HTML preview")
-preview_label.pack(anchor="w")
 
 preview_buttons = tkinter.Frame(master=preview_frame)
 preview_buttons.pack(anchor="w")
 
-preview_generate = tkinter.Button(master=preview_buttons, text="Generate", command=preview_command)
+preview_generate = tkinter.ttk.Button(master=preview_buttons, text="Generate", command=preview_command)
 preview_generate.grid(row=0, column=0)
 
-preview_view = tkinter.Button(master=preview_buttons, text="View", command=view_command)
+preview_view = tkinter.ttk.Button(master=preview_buttons, text="View", command=view_command)
 preview_view.grid(row=0, column=1)
 
 ###
 ### Upload quiz to Canvas
 ###
 
-upload_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
+upload_frame = tkinter.ttk.LabelFrame(master=window, borderwidth=2, relief=tkinter.RIDGE, padding=5,
+                                      text="Upload to Canvas")
 upload_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
-upload_label = tkinter.Label(master=upload_frame, text="Upload to Canvas")
-upload_label.pack(anchor="w")
+if canvas_config_error != None:
+    config_error_msg = tkinter.ttk.Label(master=upload_frame, text=canvas_config_error)
+else:
+    upload_buttons = tkinter.Frame(master=upload_frame)
+    upload_buttons.pack(anchor="w")
 
-upload_button = tkinter.Button(master=upload_frame, text="Upload", command=upload_command)
-upload_button.pack(anchor="w")
+    def canvas_dests_select(event):
+        global the_canvas_config
+        for entry in canvas_config:
+            if entry['name'] == canvas_dests.get():
+                the_canvas_config = entry
+                uploader_state['canvas_config'] = the_canvas_config['name']
+                save_uploader_state()
+                return
+
+    canvas_dests = tkinter.ttk.Combobox(master=upload_buttons, state="readonly",
+                                        value=[entry['name'] for entry in canvas_config])
+    canvas_dests.bind("<<ComboboxSelected>>", canvas_dests_select)
+    canvas_dests.grid(row=0, column=0)
+    canvas_dests.set(the_canvas_config['name'])
+    canvas_dests_select(None)
+
+    upload_button = tkinter.ttk.Button(master=upload_buttons, text="Upload", command=upload_command)
+    upload_button.grid(row=0, column=1)
 
 ###
 ### Stdout redirector
 ###
 
-stdout_frame = tkinter.Frame(master=window, borderwidth=2, relief=tkinter.RIDGE, padx=5, pady=5)
+stdout_frame = tkinter.ttk.LabelFrame(master=window, borderwidth=2, relief=tkinter.RIDGE, padding=5,
+                                      text="Messages (stdout)")
 stdout_frame.pack(fill=tkinter.X, padx=10, pady=5)
-
-stdout_label=tkinter.Label(master=stdout_frame, text="Messages (stdout)")
-stdout_label.pack(anchor="w")
 
 stdout_text_frame = tkinter.Frame(master=stdout_frame)
 stdout_text_frame.pack(fill=tkinter.X)
@@ -266,7 +338,7 @@ stdout_text_frame.columnconfigure(0, weight=1)
 stdout_text = tkinter.Text(master=stdout_text_frame, height=12)
 stdout_text.grid(row=0, column=0, sticky="nsew")
 
-stdout_text_scroll = tkinter.Scrollbar(master=stdout_text_frame, command=stdout_text.yview)
+stdout_text_scroll = tkinter.ttk.Scrollbar(master=stdout_text_frame, command=stdout_text.yview)
 stdout_text_scroll.grid(row=0, column=1, sticky="nsew")
 stdout_text.config(yscrollcommand=stdout_text_scroll.set)
 
@@ -283,18 +355,5 @@ class StdoutRedirector:
 
 sys.stdout = StdoutRedirector(stdout_text, sys.stdout)
 sys.stderr = StdoutRedirector(stdout_text, sys.stderr)
-
-try:
-    with open(UPLOADER_STATE_FILE, "r") as fin:
-        uploader_state = json.load(fin)
-except:
-    pass
-
-if not isinstance(uploader_state, dict):
-    uploader_state = {}
-
-if "quiz_file" in uploader_state:
-    quiz_file = uploader_state['quiz_file']
-    update_choose_label()
 
 window.mainloop()
