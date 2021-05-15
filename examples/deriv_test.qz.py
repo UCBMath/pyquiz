@@ -78,7 +78,7 @@ end_question()
 begin_group()
 for i in range(10):
     begin_multiple_choice_question()
-
+    tex_deriv_use_primes(bool(randint(0, 1)))
     y = var("y")
     lam = var("\\lambda")
     a, b, c = sample(irange(-10,-1) + irange(1,10), 3)
