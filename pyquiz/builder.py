@@ -159,7 +159,7 @@ def begin_quiz(*, id=None, title=None, description="",
     published quiz.  Unpublish the quiz first from Canvas.
 
     See [the Instructure documentation](https://canvas.instructure.com/doc/api/quizzes.html) for the meaning of the options.
-    [This page](https://canvas.wisc.edu/doc/api/live#!/quizzes.json/create_quiz_post_2) might also be helpful.
+    [This page](https://canvas.instructure.com/doc/api/live#!/quizzes.json/edit_quiz_put_3) might also be helpful.
 
     """
     global IN_QUIZ

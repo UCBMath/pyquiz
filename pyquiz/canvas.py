@@ -288,8 +288,8 @@ class CanvasQuizBuilder:
 
     def multiple_choice_answer(self, correct, text):
         self.QUESTION_DATA['answers'].append({
-            'weight': 100 if correct else 0,
-            'text': text
+            'answer_weight': 100 if correct else 0,
+            'answer_html': text
         })
 
     def begin_true_false_question(self, name='', points=1):
@@ -326,6 +326,15 @@ class CanvasQuizBuilder:
             self.GROUP_ID = group.id
             self.GROUP_CONFIG = None
         self.QUESTION_DATA['quiz_group_id'] = self.GROUP_ID
+
+        # TODO: remove this when Canvas is fixed.
+        # It is a workaround for an error in Canvas (as of deployment week of 2021/05/14)
+        # that causes an internal error when the answers list is a list!
+        if 'answers' in self.QUESTION_DATA:
+            new_answers = {}
+            for i, ans in enumerate(self.QUESTION_DATA['answers']):
+                new_answers[i] = ans
+            self.QUESTION_DATA['answers'] = new_answers
 
         self.QUIZ.create_question(question=self.QUESTION_DATA)
         self.QUESTION_DATA = None
