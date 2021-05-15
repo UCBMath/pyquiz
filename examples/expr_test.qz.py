@@ -10,7 +10,7 @@ print(a**2 + 3*a + 1 - 2*a)
 print((a + 1)**2)
 print(expand((a + 1)**2))
 
-print(replace((a + 1)**2, a, 5))
+print(replace((a + 1)**2, (a, 5)))
 
 print(rf"\( (a+1)^2 = {expand((a + 1)**2)} \)")
 
@@ -21,4 +21,4 @@ A = matrix([1, 2, 3],
            [7, 8, a])
 print(A)
 print(A @ A)
-print(replace(A @ A, a, 9))
+print(replace(A @ A, (a, 9)))

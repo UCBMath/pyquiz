@@ -10,17 +10,29 @@ __all__ = [
     "expand"
 ]
 
-def replace(e, p, v):
-    """Every occurrence of `p` in the expression `e` is replaced by `v`. Similar to Replace in Mathematica."""
-    if e == p:
-        return v
+def replace(e, *repls):
+    """Each argument after the first is a pair `(p, v)`, and every occurrence of `p` in `e` is replaced by `v`.
+    Similar to Replace in Mathematica.
+
+    Example:
+    ```python
+    a = var("a")
+    b = var("b")
+    f = a**2 + a*b + a
+    print(replace(f, (a, 2), (b, 3)))
+    ```
+    """
+    for pair in repls:
+        if type(pair) != tuple or len(pair) != 2:
+            raise ValueError("Each replacement must be a tuple of two elements.")
+        if e == pair[0]:
+            return pair[1]
     if isinstance(e, Expr):
-        return evaluate(Expr(replace(e.head, p, v), [replace(a, p, v) for a in e.args]))
+        return evaluate(Expr(replace(e.head, *repls), [replace(a, *repls) for a in e.args]))
     elif head(e) == "list":
-        return [replace(a, p, v) for a in e]
+        return [replace(a, *repls) for a in e]
     else:
         return e
-
 
 def expand(e):
     """Mathematica-like `ExpandAll`.  Distributes multiplications over additions everywhere in the expression."""
