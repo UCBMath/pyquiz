@@ -39,9 +39,10 @@ groups begin with `begin_group()` and end with `end_group()`.  Questions begin w
 
 The text of a question is given by one or more `text()` and `para()` calls.
 
-For questions that have answers, `shuffle_answers()` can be used to
-randomize their order.  When paired with question groups, this can
-simulate the corresponding quiz option on a per-question basis.
+For questions that have answers, `end_question(shuffle_answers=True)`
+can be used to randomize their order.  When paired with question
+groups, this can simulate the corresponding quiz option on a
+per-question basis.
 
 Feedback can be provided to a student using the following functions:
 
@@ -81,8 +82,6 @@ __all__ = [
 
     "comment_general", "comment_correct", "comment_incorrect",
     "answer_comment",
-
-    "shuffle_answers",
 
     "end_question",
 
@@ -359,10 +358,12 @@ def add_question(question):
     QUESTION = question
 
 def add_answer(answer):
-    """(private internal) This should not actually be needed, but just in case..."""
+    """(private internal) Checks that there are no duplicate answers."""
     global QUESTION
     if QUESTION.answers == None:
         raise Exception("Question does not accept answers (internal error!)")
+    if answer in QUESTION.answers:
+        raise Exception("Question already has this answer (duplicate answer).")
     QUESTION.answers.append(answer)
 
 def begin_text_only_question(name=''):
@@ -603,19 +604,19 @@ def true_false_answer(correct_value, true_comment=None, false_comment=None):
     if false_comment:
         answer_comment(false_comment)
 
-def shuffle_answers():
-    """Shuffle the answers to the current question.  If you create
-    multiple copies of a question in a question group, this lets you
-    mimick the "shuffle_answers" option for quizzes, but for a single
-    question."""
-    assert_in_question(True)
-    if not QUESTION.answers:
-        raise Exception("No answers to shuffle.")
-    shuffle(QUESTION.answers)
+def end_question(*, shuffle_answers=False):
+    """End the current question.
 
-def end_question():
-    """End the current question."""
+    * `shuffle_answers=True` indicates that the answers to the
+      question should be randomly permuted.  If you create multiple
+      copies of a question in a question group, this lets you mimick
+      the "shuffle_answers" option for quizzes, but for a single
+      question.
+    """
     global QUESTION
-    if not QUESTION:
-        raise Exception("Not currently in a question")
+    assert_in_question(True)
+    if shuffle_answers:
+        if not QUESTION.answers:
+            raise Exception("No answers to shuffle.")
+        shuffle(QUESTION.answers)
     QUESTION = None
