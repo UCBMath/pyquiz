@@ -68,17 +68,29 @@
     <span class="s2">&quot;expand&quot;</span>
 <span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Every occurrence of `p` in the expression `e` is replaced by `v`. Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">v</span>
+<span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Each argument after the first is a pair `(p, v)`, and every occurrence of `p` in `e` is replaced by `v`.</span>
+<span class="sd">    Similar to Replace in Mathematica.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = var(&quot;a&quot;)</span>
+<span class="sd">    b = var(&quot;b&quot;)</span>
+<span class="sd">    f = a**2 + a*b + a</span>
+<span class="sd">    print(replace(f, (a, 2), (b, 3)))</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">repls</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Each replacement must be a tuple of two elements.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">),</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
     <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">e</span>
-
 
 <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mathematica-like `ExpandAll`.  Distributes multiplications over additions everywhere in the expression.&quot;&quot;&quot;</span>
@@ -119,26 +131,48 @@
 
         
             <span class="def">def</span>
-            <span class="name">replace</span><span class="signature">(e, p, v)</span>:
+            <span class="name">replace</span><span class="signature">(e, *repls)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Every occurrence of `p` in the expression `e` is replaced by `v`. Similar to Replace in Mathematica.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">v</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Each argument after the first is a pair `(p, v)`, and every occurrence of `p` in `e` is replaced by `v`.</span>
+<span class="sd">    Similar to Replace in Mathematica.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    a = var(&quot;a&quot;)</span>
+<span class="sd">    b = var(&quot;b&quot;)</span>
+<span class="sd">    f = a**2 + a*b + a</span>
+<span class="sd">    print(replace(f, (a, 2), (b, 3)))</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">repls</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Each replacement must be a tuple of two elements.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">),</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">]))</span>
     <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">replace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">e</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Every occurrence of <code>p</code> in the expression <code>e</code> is replaced by <code>v</code>. Similar to Replace in Mathematica.</p>
+            <div class="docstring"><p>Each argument after the first is a pair <code>(p, v)</code>, and every occurrence of <code>p</code> in <code>e</code> is replaced by <code>v</code>.
+Similar to Replace in Mathematica.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span> <span class="o">+</span> <span class="n">a</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+</code></pre></div>
 </div>
 
 

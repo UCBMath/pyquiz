@@ -118,10 +118,13 @@
                     <a class="function" href="#answer_comment">answer_comment</a>
             </li>
             <li>
+                    <a class="function" href="#shuffle_answers">shuffle_answers</a>
+            </li>
+            <li>
                     <a class="function" href="#end_question">end_question</a>
             </li>
             <li>
-                    <a class="function" href="#set_quiz_builder">set_quiz_builder</a>
+                    <a class="function" href="#reset_quiz_builder">reset_quiz_builder</a>
             </li>
             <li>
                     <a class="function" href="#get_loaded_quizzes">get_loaded_quizzes</a>
@@ -178,6 +181,10 @@ matched to one of a given set of items.</p></li>
 
 <p>The text of a question is given by one or more <code><a href="#text">text()</a></code> and <code><a href="#para">para()</a></code> calls.</p>
 
+<p>For questions that have answers, <code><a href="#shuffle_answers">shuffle_answers()</a></code> can be used to
+randomize their order.  When paired with question groups, this can
+simulate the corresponding quiz option on a per-question basis.</p>
+
 <p>Feedback can be provided to a student using the following functions:</p>
 
 <ul>
@@ -187,11 +194,10 @@ matched to one of a given set of items.</p></li>
 <li><p><code><a href="#answer_comment">answer_comment()</a></code> for feedback about specific answers given by a student.</p></li>
 </ul>
 
-<p><em>(Internal: not for quiz authors.)</em> By setting the quiz builder with
-<code><a href="#set_quiz_builder">set_quiz_builder</a></code> before executing a quiz file (done by the uploader
-UI for example), the resulting quiz can have different effects.  For
-example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output file, and
-<code><a href="canvas.html">pyquiz.canvas</a></code> uploads the quiz to Canvas.</p>
+<p><em>(Internal: not for quiz authors.)</em> <code><a href="#reset_quiz_builder">reset_quiz_builder()</a></code> clears all
+the global state, and after evaluating quiz files the resulting
+quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_quizzes()</a></code>.  Two places quiz files are used are
+<code><a href="html.html">pyquiz.html</a></code> for creating HTML previews and <code><a href="canvas.html">pyquiz.canvas</a></code> to upload them to Canvas.</p>
 </div>
 
                         <details>
@@ -237,6 +243,10 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">The text of a question is given by one or more `text()` and `para()` calls.</span>
 
+<span class="sd">For questions that have answers, `shuffle_answers()` can be used to</span>
+<span class="sd">randomize their order.  When paired with question groups, this can</span>
+<span class="sd">simulate the corresponding quiz option on a per-question basis.</span>
+
 <span class="sd">Feedback can be provided to a student using the following functions:</span>
 
 <span class="sd">* `comment_general()` for general comments about a question.</span>
@@ -247,15 +257,15 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">* `answer_comment()` for feedback about specific answers given by a student.</span>
 
-<span class="sd">*(Internal: not for quiz authors.)* By setting the quiz builder with</span>
-<span class="sd">`set_quiz_builder` before executing a quiz file (done by the uploader</span>
-<span class="sd">UI for example), the resulting quiz can have different effects.  For</span>
-<span class="sd">example, `pyquiz.html` creates an HTML output file, and</span>
-<span class="sd">`pyquiz.canvas` uploads the quiz to Canvas.</span>
+<span class="sd">*(Internal: not for quiz authors.)* `reset_quiz_builder()` clears all</span>
+<span class="sd">the global state, and after evaluating quiz files the resulting</span>
+<span class="sd">quizzes can be accessed using `get_loaded_quizzes()`.  Two places quiz files are used are</span>
+<span class="sd">`pyquiz.html` for creating HTML previews and `pyquiz.canvas` to upload them to Canvas.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">.rand</span> <span class="kn">import</span> <span class="n">shuffle</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;begin_quiz&quot;</span><span class="p">,</span> <span class="s2">&quot;end_quiz&quot;</span><span class="p">,</span>
@@ -276,55 +286,88 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
     <span class="s2">&quot;comment_general&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_correct&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_incorrect&quot;</span><span class="p">,</span>
     <span class="s2">&quot;answer_comment&quot;</span><span class="p">,</span>
 
+    <span class="s2">&quot;shuffle_answers&quot;</span><span class="p">,</span>
+
     <span class="s2">&quot;end_question&quot;</span><span class="p">,</span>
 
-    <span class="s2">&quot;set_quiz_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;get_loaded_quizzes&quot;</span><span class="p">,</span> <span class="s2">&quot;is_in_quiz&quot;</span>
+    <span class="s2">&quot;reset_quiz_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;get_loaded_quizzes&quot;</span><span class="p">,</span> <span class="s2">&quot;is_in_quiz&quot;</span>
 <span class="p">]</span>
 
-<span class="n">BUILDER</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">class</span> <span class="nc">Quiz</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">questions</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># a list of QuestionGroup and Question</span>
+
+<span class="k">class</span> <span class="nc">QuestionGroup</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pick_count</span> <span class="o">=</span> <span class="n">pick_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">questions</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># a list of Question</span>
+    <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<span class="k">class</span> <span class="nc">Question</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">question_type</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">question_type</span> <span class="o">=</span> <span class="n">question_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">class</span> <span class="nc">Answer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct</span> <span class="o">=</span> <span class="n">correct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="n">LOADED_QUIZZES</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">def</span> <span class="nf">set_quiz_builder</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Sets the current quiz builder.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">BUILDER</span><span class="p">,</span> <span class="n">LOADED_QUIZZES</span><span class="p">,</span> <span class="n">IN_QUIZ</span><span class="p">,</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">,</span> <span class="n">IN_QUESTION</span>
-    <span class="n">BUILDER</span> <span class="o">=</span> <span class="n">b</span>
+<span class="k">def</span> <span class="nf">reset_quiz_builder</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)&quot; Reset the state of the quiz</span>
+<span class="sd">    builder.  Used before loading a new quiz file.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">LOADED_QUIZZES</span><span class="p">,</span> <span class="n">QUIZ</span><span class="p">,</span> <span class="n">QUESTION_GROUP</span><span class="p">,</span> <span class="n">QUESTION</span>
     <span class="n">LOADED_QUIZZES</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">def</span> <span class="nf">get_loaded_quizzes</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Return a list of quiz titles that have been loaded so far.  This is</span>
-<span class="sd">    used by the uploader UI to show the titles of quizzes that a file contained.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Return a list of quizzes that have been loaded so far.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">LOADED_QUIZZES</span>
 
 <span class="k">def</span> <span class="nf">is_in_quiz</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Returns whether we are currently in a quiz (begun by</span>
 <span class="sd">    `begin_quiz()`) without yet ending the quiz (by `end_quiz()`).&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">IN_QUIZ</span>
+    <span class="k">return</span> <span class="n">QUIZ</span> <span class="o">!=</span> <span class="kc">None</span>
 
-<span class="k">def</span> <span class="nf">check_quiz_builder</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;(Internal) Checks that there is currently a quiz builder set.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">BUILDER</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No quiz builder is set.  Make sure to set_quiz_builder first.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">assert_in_quiz</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;(private internal)&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUIZ</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a quiz.  Make sure to begin_quiz() first.&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">check_in_quiz</span><span class="p">():</span>
-    <span class="n">check_quiz_builder</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUIZ</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a quiz.&quot;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">check_in_question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">question_type</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question.&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">IN_QUESTION</span> <span class="o">!=</span> <span class="n">question_type</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not currently in a </span><span class="si">{</span><span class="n">question_type</span><span class="si">}</span><span class="s2"> question.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">assert_in_question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(private internal) Check that we are currently in a question with</span>
+<span class="sd">    the given `question_type`.  The special value `question_type=True`</span>
+<span class="sd">    indicates &quot;any type.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">question_type</span> <span class="o">!=</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span> <span class="o">!=</span> <span class="n">question_type</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expecting a </span><span class="si">{</span><span class="n">question_type</span><span class="si">}</span><span class="s2"> question, not </span><span class="si">{</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                <span class="n">quiz_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -360,9 +403,8 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    [This page](https://canvas.instructure.com/doc/api/live#!/quizzes.json/edit_quiz_put_3) might also be helpful.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUIZ</span>
-    <span class="n">check_quiz_builder</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUIZ</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUIZ</span>
+    <span class="k">if</span> <span class="n">QUIZ</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a quiz.  Make sure to end_quiz() first.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
@@ -400,20 +442,19 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
         <span class="s2">&quot;one_time_results&quot;</span><span class="p">:</span> <span class="n">one_time_results</span>
     <span class="p">}</span>
 
-    <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="n">Quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUIZ</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.  Adds the quiz to the</span>
+<span class="sd">    list of loaded quizzes and allows a new quiz to begin.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">QUIZ</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_quiz</span><span class="p">()</span>
+    <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUIZ</span><span class="p">)</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new question group, which is ended with `end_group()`.</span>
@@ -426,59 +467,67 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    For example, if `pick_count=3` and `points=2`, then this group accounts for 6 points of the quiz.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION_GROUP</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION_GROUP</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="n">QuestionGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUESTION_GROUP</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">end_group</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Ends the question group begun by a `begin_group()&#39;.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION_GROUP</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION_GROUP</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question group.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_group</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question groups must have at least one question.&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.  This</span>
+<span class="sd">    function can be used multiple times, concatenating the text.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
 
 <span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
 <span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
 <span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a general comment&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="n">s</span>
 
 <span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
 <span class="sd">    question. This comment is shown to the student after they take the</span>
 <span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for correct answers&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="n">s</span>
 
 <span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for incorrect answers to the current</span>
 <span class="sd">    question.  This comment is shown to the student after they take</span>
 <span class="sd">    the quiz if they got the question incorrect.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for incorrect answers&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="n">s</span>
 
 <span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer to the current</span>
-<span class="sd">    question.  This comment is shown to the student at the end of the</span>
-<span class="sd">    quiz if they selected this answer for most question types.  In a</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer for the current</span>
+<span class="sd">    question.  For most question types, this comment is shown to the</span>
+<span class="sd">    student at the end of the quiz if they selected this answer.  In a</span>
 <span class="sd">    matching question, an answer comment is shown if a student missed</span>
 <span class="sd">    the match.</span>
 
@@ -494,61 +543,93 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    ```</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span> <span class="o">==</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;For true/false questions, use the keyword arguments for true_false_answer instead&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question has no answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Answer already has a comment&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">s</span>
+
+<span class="k">def</span> <span class="nf">add_question</span><span class="p">(</span><span class="n">question</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(private internal) Add the question to the current thing that accepts</span>
+<span class="sd">    questions: the question group or the quiz itself.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">QUESTION</span>
+    <span class="k">if</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
+        <span class="n">QUESTION_GROUP</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+    <span class="n">QUESTION</span> <span class="o">=</span> <span class="n">question</span>
+
+<span class="k">def</span> <span class="nf">add_answer</span><span class="p">(</span><span class="n">answer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(private internal) This should not actually be needed, but just in case...&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">QUESTION</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question does not accept answers (internal error!)&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a text-only question.  This is an answer-free question, useful</span>
 <span class="sd">    for prompting reading, setting up the context for some following</span>
 <span class="sd">    questions, or otherwise providing directions.  End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;text only&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;text_only_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a free-form essay question. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;essay&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;essay_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a file upload question. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;file upload&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;file_upload_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a short-answer question.  Accepted answers are specified with</span>
 <span class="sd">    calls to `short_answer()`. End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;short answer&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a short answer question.  Can be called multiple</span>
 <span class="sd">    times for multiple acceptible answers.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;short answer&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;short_answer_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.  Each blank is given by</span>
 <span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;). End with</span>
 <span class="sd">    `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;fill in multiple blanks&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question.  The `blank_id` is</span>
 <span class="sd">    the text in square brackets in the body of the question.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;fill in multiple blanks&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;blank_id&quot;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">}))</span>
 
 <span class="k">def</span> <span class="nf">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question, just like</span>
@@ -557,47 +638,55 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;).  End</span>
 <span class="sd">    with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple dropdowns&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An answer to a multiple dropdowns question.  The `blank_id` refers</span>
 <span class="sd">    to the text in square brackets in the body of the question, and</span>
 <span class="sd">    `correct` is `True` or `False` whether it is one of the expected</span>
 <span class="sd">    responses.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple dropdowns&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The second argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;blank_id&quot;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">}))</span>
 
 <span class="k">def</span> <span class="nf">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a matching question.  A list of &quot;left&quot; items are matched</span>
 <span class="sd">    against a set of &quot;right&quot; items, and the &quot;right&quot; items might have mixed</span>
 <span class="sd">    amongst them a set of &quot;distractors.&quot; End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;matching question&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;matching_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;incorrect_matches&quot;</span><span class="p">:</span> <span class="p">[]}))</span>
 
 <span class="k">def</span> <span class="nf">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An answer to a matching question.  The &quot;left&quot; item is shown in a</span>
 <span class="sd">    list in the left, and the &quot;right&quot; item is added to a set of things</span>
 <span class="sd">    matched.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;matching_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_left&quot;</span><span class="p">:</span> <span class="n">left</span><span class="p">,</span>
+                               <span class="s2">&quot;match_right&quot;</span><span class="p">:</span> <span class="n">right</span><span class="p">}))</span>
 
 <span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A distractor to a matching question.  Shows up in the set of &quot;right&quot; items.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;matching_question&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;incorrect_matches&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a numeric question.  Like `begin_short_answer_question()` but</span>
 <span class="sd">    the answer is interpreted numerically. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;numeric question&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">numeric_answer</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a numeric question.</span>
@@ -614,8 +703,27 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting number&quot;</span><span class="p">)</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The margin must be a number.&quot;</span><span class="p">)</span>
+        <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;exact_answer&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;answer_exact&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span>
+                                   <span class="s2">&quot;answer_error_margin&quot;</span><span class="p">:</span> <span class="n">margin</span><span class="p">}))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The precision must be a number.&quot;</span><span class="p">)</span>
+        <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;precision_answer&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;answer_approximate&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span>
+                                   <span class="s2">&quot;answer_precision&quot;</span><span class="p">:</span> <span class="n">precision</span><span class="p">}))</span>
 
 <span class="k">def</span> <span class="nf">numeric_answer_range</span><span class="p">(</span><span class="n">val_lo</span><span class="p">,</span> <span class="n">val_hi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a numeric question, where the answer lies in the</span>
@@ -628,9 +736,14 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting lower bound to be number&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_hi</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting upper bound to be number&quot;</span><span class="p">)</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">))</span>
-
+    <span class="k">if</span> <span class="n">val_lo</span> <span class="o">&gt;</span> <span class="n">val_hi</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Lower bound must be less than or equal to upper bound&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;range_answer&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;answer_range_start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span>
+                               <span class="s2">&quot;answer_range_end&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">)}))</span>
 
 <span class="k">def</span> <span class="nf">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a multiple choice question.  Ended with `end_question()`.</span>
@@ -641,10 +754,11 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 
 <span class="sd">    End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple choice&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="n">checkboxes</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;checkboxes&quot;</span><span class="p">:</span> <span class="n">checkboxes</span><span class="p">}))</span>
 
 <span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a multiple choice question.</span>
@@ -654,34 +768,61 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    * `text` is how this response is shown to the student.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple choice&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;true/false&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.</span>
 
-<span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">):</span>
+<span class="sd">    This is essentially a multiple choice question with two answers: &quot;True&quot; and &quot;False&quot;.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">,</span> <span class="n">true_comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">false_comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a true/false question.</span>
 <span class="sd">    * `correct_value` is `True` or `False` depending on whether the answer is &quot;true&quot; or &quot;false.&quot;</span>
+
+<span class="sd">    This function adds two answers, so it&#39;s not possible to use `answer_comment()`.  Instead:</span>
+<span class="sd">    * If `true_comment` is set, then it will be the answer comment for &quot;true&quot;.</span>
+<span class="sd">    * If `false_comment` is set, then it will be the answer comment for &quot;false&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;true/false&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;true_false_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct_value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;True/false question already has an answer&quot;</span><span class="p">)</span>
+
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct_value</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">true_comment</span><span class="p">:</span>
+        <span class="n">answer_comment</span><span class="p">(</span><span class="n">true_comment</span><span class="p">)</span>
+
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;False&quot;</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="ow">not</span> <span class="n">correct_value</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">false_comment</span><span class="p">:</span>
+        <span class="n">answer_comment</span><span class="p">(</span><span class="n">false_comment</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">shuffle_answers</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Shuffle the answers to the current question.  If you create</span>
+<span class="sd">    multiple copies of a question in a question group, this lets you</span>
+<span class="sd">    mimick the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
+<span class="sd">    question.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">end_question</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;End the current question.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_question</span><span class="p">()</span>
+    <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -747,9 +888,8 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
 <span class="sd">    [This page](https://canvas.instructure.com/doc/api/live#!/quizzes.json/edit_quiz_put_3) might also be helpful.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUIZ</span>
-    <span class="n">check_quiz_builder</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUIZ</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUIZ</span>
+    <span class="k">if</span> <span class="n">QUIZ</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a quiz.  Make sure to end_quiz() first.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
@@ -787,9 +927,7 @@ example, <code><a href="html.html">pyquiz.html</a></code> creates an HTML output
         <span class="s2">&quot;one_time_results&quot;</span><span class="p">:</span> <span class="n">one_time_results</span>
     <span class="p">}</span>
 
-    <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="n">Quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -832,20 +970,22 @@ published quiz.  Unpublish the quiz first from Canvas.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">end_quiz</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUIZ</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.  Adds the quiz to the</span>
+<span class="sd">    list of loaded quizzes and allows a new quiz to begin.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">QUIZ</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_quiz</span><span class="p">()</span>
+    <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUIZ</span><span class="p">)</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Finish the quiz started with <code><a href="#begin_quiz">begin_quiz()</a></code>.</p>
+            <div class="docstring"><p>Finish the quiz started with <code><a href="#begin_quiz">begin_quiz()</a></code>.  Adds the quiz to the
+list of loaded quizzes and allows a new quiz to begin.</p>
 </div>
 
 
@@ -871,14 +1011,14 @@ published quiz.  Unpublish the quiz first from Canvas.</p>
 <span class="sd">    For example, if `pick_count=3` and `points=2`, then this group accounts for 6 points of the quiz.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION_GROUP</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION_GROUP</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Already in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="n">QuestionGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUESTION_GROUP</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -909,11 +1049,12 @@ to this question group.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">end_group</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Ends the question group begun by a `begin_group()&#39;.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION_GROUP</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION_GROUP</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question group.&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_group</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question groups must have at least one question.&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -934,14 +1075,16 @@ to this question group.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.  This</span>
+<span class="sd">    function can be used multiple times, concatenating the text.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Attach the given text to the body of the current question.</p>
+            <div class="docstring"><p>Attach the given text to the body of the current question.  This
+function can be used multiple times, concatenating the text.</p>
 </div>
 
 
@@ -959,8 +1102,8 @@ to this question group.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
 <span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -985,10 +1128,12 @@ question.  This simply wraps the text in an HTML paragraph tag.</p>
     <span class="sd">&quot;&quot;&quot;Begin a text-only question.  This is an answer-free question, useful</span>
 <span class="sd">    for prompting reading, setting up the context for some following</span>
 <span class="sd">    questions, or otherwise providing directions.  End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;text only&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;text_only_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1014,10 +1159,10 @@ questions, or otherwise providing directions.  End with <code><a href="#end_ques
     <span class="sd">&quot;&quot;&quot;Begin a short-answer question.  Accepted answers are specified with</span>
 <span class="sd">    calls to `short_answer()`. End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;short answer&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_short_answer_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;short_answer_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1041,8 +1186,9 @@ calls to <code><a href="#short_answer">short_answer()</a></code>. End with <code
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a short answer question.  Can be called multiple</span>
 <span class="sd">    times for multiple acceptible answers.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;short answer&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">short_answer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;short_answer_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1066,10 +1212,10 @@ times for multiple acceptible answers.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a numeric question.  Like `begin_short_answer_question()` but</span>
 <span class="sd">    the answer is interpreted numerically. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;numeric question&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_numeric_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1105,8 +1251,27 @@ the answer is interpreted numerically. End with <code><a href="#end_question">en
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting number&quot;</span><span class="p">)</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not both margin and precision can be set&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">precision</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">margin</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The margin must be a number.&quot;</span><span class="p">)</span>
+        <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;exact_answer&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;answer_exact&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span>
+                                   <span class="s2">&quot;answer_error_margin&quot;</span><span class="p">:</span> <span class="n">margin</span><span class="p">}))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The precision must be a number.&quot;</span><span class="p">)</span>
+        <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;precision_answer&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;answer_approximate&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">),</span>
+                                   <span class="s2">&quot;answer_precision&quot;</span><span class="p">:</span> <span class="n">precision</span><span class="p">}))</span>
 </pre></div>
 
         </details>
@@ -1148,8 +1313,14 @@ meaning an exact answer.  At most one can be set.</p>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting lower bound to be number&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_hi</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting upper bound to be number&quot;</span><span class="p">)</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;numeric question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">numeric_answer_range</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">val_lo</span> <span class="o">&gt;</span> <span class="n">val_hi</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Lower bound must be less than or equal to upper bound&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;numerical_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;numerical_answer_type&quot;</span><span class="p">:</span> <span class="s2">&quot;range_answer&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;answer_range_start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_lo</span><span class="p">),</span>
+                               <span class="s2">&quot;answer_range_end&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_hi</span><span class="p">)}))</span>
 </pre></div>
 
         </details>
@@ -1181,10 +1352,11 @@ closed interval <code>[val_lo, val_hi]</code>.</p>
 
 <span class="sd">    End with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple choice&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_choice_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">checkboxes</span><span class="o">=</span><span class="n">checkboxes</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;checkboxes&quot;</span><span class="p">:</span> <span class="n">checkboxes</span><span class="p">}))</span>
 </pre></div>
 
         </details>
@@ -1220,10 +1392,11 @@ answers.</li>
 <span class="sd">    * `text` is how this response is shown to the student.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple choice&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1250,16 +1423,20 @@ is a correct answer.  There may be multiple correct answers.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;true/false&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_true_false_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Begin a true/false question.  Ended with `end_question()`.</span>
+
+<span class="sd">    This is essentially a multiple choice question with two answers: &quot;True&quot; and &quot;False&quot;.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;true_false_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Begin a true/false question.  Ended with <code><a href="#end_question">end_question()</a></code>.</p>
+
+<p>This is essentially a multiple choice question with two answers: "True" and "False".</p>
 </div>
 
 
@@ -1269,19 +1446,34 @@ is a correct answer.  There may be multiple correct answers.</li>
 
         
             <span class="def">def</span>
-            <span class="name">true_false_answer</span><span class="signature">(correct_value)</span>:
+            <span class="name">true_false_answer</span><span class="signature">(correct_value, true_comment=None, false_comment=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">,</span> <span class="n">true_comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">false_comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a true/false question.</span>
 <span class="sd">    * `correct_value` is `True` or `False` depending on whether the answer is &quot;true&quot; or &quot;false.&quot;</span>
+
+<span class="sd">    This function adds two answers, so it&#39;s not possible to use `answer_comment()`.  Instead:</span>
+<span class="sd">    * If `true_comment` is set, then it will be the answer comment for &quot;true&quot;.</span>
+<span class="sd">    * If `false_comment` is set, then it will be the answer comment for &quot;false&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;true/false&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;true_false_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct_value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">true_false_answer</span><span class="p">(</span><span class="n">correct_value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;True/false question already has an answer&quot;</span><span class="p">)</span>
+
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct_value</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">true_comment</span><span class="p">:</span>
+        <span class="n">answer_comment</span><span class="p">(</span><span class="n">true_comment</span><span class="p">)</span>
+
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;False&quot;</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="ow">not</span> <span class="n">correct_value</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">false_comment</span><span class="p">:</span>
+        <span class="n">answer_comment</span><span class="p">(</span><span class="n">false_comment</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1290,6 +1482,13 @@ is a correct answer.  There may be multiple correct answers.</li>
 
 <ul>
 <li><code>correct_value</code> is <code>True</code> or <code>False</code> depending on whether the answer is "true" or "false."</li>
+</ul>
+
+<p>This function adds two answers, so it's not possible to use <code><a href="#answer_comment">answer_comment()</a></code>.  Instead:</p>
+
+<ul>
+<li>If <code>true_comment</code> is set, then it will be the answer comment for "true".</li>
+<li>If <code>false_comment</code> is set, then it will be the answer comment for "false".</li>
 </ul>
 </div>
 
@@ -1309,10 +1508,10 @@ is a correct answer.  There may be multiple correct answers.</li>
     <span class="sd">&quot;&quot;&quot;Begin a fill-in-multiple-blanks question.  Each blank is given by</span>
 <span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;). End with</span>
 <span class="sd">    `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;fill in multiple blanks&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_fill_in_multiple_blanks_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1337,8 +1536,10 @@ text in square brackets (for example, "Roses are [color]"). End with
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An answer to a fill-in-multiple-blanks question.  The `blank_id` is</span>
 <span class="sd">    the text in square brackets in the body of the question.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;fill in multiple blanks&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">fill_in_multiple_blanks_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;blank_id&quot;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">}))</span>
 </pre></div>
 
         </details>
@@ -1366,10 +1567,10 @@ the text in square brackets in the body of the question.</p>
 <span class="sd">    text in square brackets (for example, &quot;Roses are [color]&quot;).  End</span>
 <span class="sd">    with `end_question()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;multiple dropdowns&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_multiple_dropdowns_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1398,8 +1599,12 @@ with <code><a href="#end_question">end_question()</a></code>.</p>
 <span class="sd">    to the text in square brackets in the body of the question, and</span>
 <span class="sd">    `correct` is `True` or `False` whether it is one of the expected</span>
 <span class="sd">    responses.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;multiple dropdowns&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">multiple_dropdowns_answer</span><span class="p">(</span><span class="n">blank_id</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The second argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;blank_id&quot;</span><span class="p">:</span> <span class="n">blank_id</span><span class="p">}))</span>
 </pre></div>
 
         </details>
@@ -1426,10 +1631,11 @@ responses.</p>
     <span class="sd">&quot;&quot;&quot;Begin a matching question.  A list of &quot;left&quot; items are matched</span>
 <span class="sd">    against a set of &quot;right&quot; items, and the &quot;right&quot; items might have mixed</span>
 <span class="sd">    amongst them a set of &quot;distractors.&quot; End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;matching question&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_matching_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;matching_question&quot;</span><span class="p">,</span>
+                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                          <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+                          <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;incorrect_matches&quot;</span><span class="p">:</span> <span class="p">[]}))</span>
 </pre></div>
 
         </details>
@@ -1455,8 +1661,11 @@ amongst them a set of "distractors." End with <code><a href="#end_question">end_
     <span class="sd">&quot;&quot;&quot;An answer to a matching question.  The &quot;left&quot; item is shown in a</span>
 <span class="sd">    list in the left, and the &quot;right&quot; item is added to a set of things</span>
 <span class="sd">    matched.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_answer</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;matching_question&quot;</span><span class="p">)</span>
+    <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">correct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_left&quot;</span><span class="p">:</span> <span class="n">left</span><span class="p">,</span>
+                               <span class="s2">&quot;match_right&quot;</span><span class="p">:</span> <span class="n">right</span><span class="p">}))</span>
 </pre></div>
 
         </details>
@@ -1480,8 +1689,8 @@ matched.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A distractor to a matching question.  Shows up in the set of &quot;right&quot; items.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="s2">&quot;matching question&quot;</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">matching_distractor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;matching_question&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;incorrect_matches&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1503,10 +1712,12 @@ matched.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a free-form essay question. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;essay&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_essay_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;essay_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1528,10 +1739,12 @@ matched.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a file upload question. End with `end_question()`.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="n">check_in_quiz</span><span class="p">()</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;file upload&quot;</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">begin_file_upload_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">assert_in_quiz</span><span class="p">()</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_type</span><span class="o">=</span><span class="s2">&quot;file_upload_question&quot;</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_question</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1554,8 +1767,10 @@ matched.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
 <span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a general comment&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
         </details>
@@ -1580,8 +1795,10 @@ comment is always shown to the student after they take the quiz.</p>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
 <span class="sd">    question. This comment is shown to the student after they take the</span>
 <span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for correct answers&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
         </details>
@@ -1608,8 +1825,10 @@ quiz if they got the question correct.</p>
 <span class="sd">    question.  This comment is shown to the student after they take</span>
 <span class="sd">    the quiz if they got the question incorrect.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for incorrect answers&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
         </details>
@@ -1632,9 +1851,9 @@ the quiz if they got the question incorrect.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer to the current</span>
-<span class="sd">    question.  This comment is shown to the student at the end of the</span>
-<span class="sd">    quiz if they selected this answer for most question types.  In a</span>
+    <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer for the current</span>
+<span class="sd">    question.  For most question types, this comment is shown to the</span>
+<span class="sd">    student at the end of the quiz if they selected this answer.  In a</span>
 <span class="sd">    matching question, an answer comment is shown if a student missed</span>
 <span class="sd">    the match.</span>
 
@@ -1650,15 +1869,21 @@ the quiz if they got the question incorrect.</p>
 <span class="sd">    ```</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span> <span class="o">==</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;For true/false questions, use the keyword arguments for true_false_answer instead&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question has no answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Answer already has a comment&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Attach the given comment to the previous answer to the current
-question.  This comment is shown to the student at the end of the
-quiz if they selected this answer for most question types.  In a
+            <div class="docstring"><p>Attach the given comment to the previous answer for the current
+question.  For most question types, this comment is shown to the
+student at the end of the quiz if they selected this answer.  In a
 matching question, an answer comment is shown if a student missed
 the match.</p>
 
@@ -1676,6 +1901,37 @@ the match.</p>
 
 
                 </section>
+                <section id="shuffle_answers">
+                            <div class="attr function"><a class="headerlink" href="#shuffle_answers">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">shuffle_answers</span><span class="signature">()</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shuffle_answers</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Shuffle the answers to the current question.  If you create</span>
+<span class="sd">    multiple copies of a question in a question group, this lets you</span>
+<span class="sd">    mimick the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
+<span class="sd">    question.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Shuffle the answers to the current question.  If you create
+multiple copies of a question in a question group, this lets you
+mimick the "shuffle_answers" option for quizzes, but for a single
+question.</p>
+</div>
+
+
+                </section>
                 <section id="end_question">
                             <div class="attr function"><a class="headerlink" href="#end_question">#&nbsp;&nbsp</a>
 
@@ -1688,11 +1944,10 @@ the match.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">end_question</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;End the current question.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">IN_QUESTION</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">IN_QUESTION</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">QUESTION</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question&quot;</span><span class="p">)</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">BUILDER</span><span class="o">.</span><span class="n">end_question</span><span class="p">()</span>
+    <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -1702,29 +1957,30 @@ the match.</p>
 
 
                 </section>
-                <section id="set_quiz_builder">
-                            <div class="attr function"><a class="headerlink" href="#set_quiz_builder">#&nbsp;&nbsp</a>
+                <section id="reset_quiz_builder">
+                            <div class="attr function"><a class="headerlink" href="#reset_quiz_builder">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">set_quiz_builder</span><span class="signature">(b)</span>:
+            <span class="name">reset_quiz_builder</span><span class="signature">()</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_quiz_builder</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Sets the current quiz builder.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">BUILDER</span><span class="p">,</span> <span class="n">LOADED_QUIZZES</span><span class="p">,</span> <span class="n">IN_QUIZ</span><span class="p">,</span> <span class="n">IN_QUESTION_GROUP</span><span class="p">,</span> <span class="n">IN_QUESTION</span>
-    <span class="n">BUILDER</span> <span class="o">=</span> <span class="n">b</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">reset_quiz_builder</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)&quot; Reset the state of the quiz</span>
+<span class="sd">    builder.  Used before loading a new quiz file.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">LOADED_QUIZZES</span><span class="p">,</span> <span class="n">QUIZ</span><span class="p">,</span> <span class="n">QUESTION_GROUP</span><span class="p">,</span> <span class="n">QUESTION</span>
     <span class="n">LOADED_QUIZZES</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">IN_QUIZ</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">IN_QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">IN_QUESTION</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p><em>(Internal: not for quiz authors.)</em> Sets the current quiz builder.</p>
+            <div class="docstring"><p>*(Internal: not for quiz authors.)" Reset the state of the quiz
+builder.  Used before loading a new quiz file.</p>
 </div>
 
 
@@ -1740,15 +1996,13 @@ the match.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_loaded_quizzes</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Return a list of quiz titles that have been loaded so far.  This is</span>
-<span class="sd">    used by the uploader UI to show the titles of quizzes that a file contained.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Return a list of quizzes that have been loaded so far.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">LOADED_QUIZZES</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p><em>(Internal: not for quiz authors.)</em> Return a list of quiz titles that have been loaded so far.  This is
-used by the uploader UI to show the titles of quizzes that a file contained.</p>
+            <div class="docstring"><p><em>(Internal: not for quiz authors.)</em> Return a list of quizzes that have been loaded so far.</p>
 </div>
 
 
@@ -1766,7 +2020,7 @@ used by the uploader UI to show the titles of quizzes that a file contained.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">is_in_quiz</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;*(Internal: not for quiz authors.)* Returns whether we are currently in a quiz (begun by</span>
 <span class="sd">    `begin_quiz()`) without yet ending the quiz (by `end_quiz()`).&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">IN_QUIZ</span>
+    <span class="k">return</span> <span class="n">QUIZ</span> <span class="o">!=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
