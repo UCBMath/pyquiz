@@ -33,9 +33,6 @@
             <li>
                     <a class="function" href="#D">D</a>
             </li>
-            <li>
-                    <a class="variable" href="#t">t</a>
-            </li>
     </ul>
 
 
@@ -53,7 +50,7 @@
 
                         <div class="docstring"><p>Symbolic differentiation and differential equations.</p>
 
-<p>Exports the variable <code><a href="#t">t</a></code> for convenience.</p>
+<p>Exports the variable <code>t</code> for convenience.</p>
 </div>
 
                         <details>
@@ -68,13 +65,8 @@
 <span class="kn">from</span> <span class="nn">.arith</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span>
+    <span class="s2">&quot;D&quot;</span>
 <span class="p">]</span>
-
-<span class="n">t</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
-<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The default independent variable for the purpose of outputting TeX for derivatives.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">spec</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&quot;&quot;&quot;The total derivative of the expression `e` according to the</span>
@@ -84,12 +76,12 @@
 <span class="sd">    a constant.  Variables in the spec are assumed not to be functions of the</span>
 <span class="sd">    other spec variables.</span>
 
-<span class="sd">    * `Dt(e, v)` is `d/dv e`</span>
-<span class="sd">    * `Dt(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
-<span class="sd">    * `Dt(e, [v, n])` is `d^n/dv^n e`</span>
+<span class="sd">    * `D(e, v)` is `d/dv e`</span>
+<span class="sd">    * `D(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
+<span class="sd">    * `D(e, [v, n])` is `d^n/dv^n e`</span>
 
 <span class="sd">    A `[v, 0]` spec entry indicates that `v` is an independent variable.  For example,</span>
-<span class="sd">    `Dt(x*y, [x, 0], y)` gives `x`, where `Dt(x*y, y)` gives `Dt(x, y)*y + x`.</span>
+<span class="sd">    `D(x*y, [x, 0], y)` gives `x`, where `D(x*y, y)` gives `D(x, y)*y + x`.</span>
 
 <span class="sd">    It is fine having symbolic expressions in the specification.</span>
 
@@ -251,12 +243,12 @@
 <span class="sd">    a constant.  Variables in the spec are assumed not to be functions of the</span>
 <span class="sd">    other spec variables.</span>
 
-<span class="sd">    * `Dt(e, v)` is `d/dv e`</span>
-<span class="sd">    * `Dt(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
-<span class="sd">    * `Dt(e, [v, n])` is `d^n/dv^n e`</span>
+<span class="sd">    * `D(e, v)` is `d/dv e`</span>
+<span class="sd">    * `D(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`</span>
+<span class="sd">    * `D(e, [v, n])` is `d^n/dv^n e`</span>
 
 <span class="sd">    A `[v, 0]` spec entry indicates that `v` is an independent variable.  For example,</span>
-<span class="sd">    `Dt(x*y, [x, 0], y)` gives `x`, where `Dt(x*y, y)` gives `Dt(x, y)*y + x`.</span>
+<span class="sd">    `D(x*y, [x, 0], y)` gives `x`, where `D(x*y, y)` gives `D(x, y)*y + x`.</span>
 
 <span class="sd">    It is fine having symbolic expressions in the specification.</span>
 
@@ -295,29 +287,18 @@ a constant.  Variables in the spec are assumed not to be functions of the
 other spec variables.</p>
 
 <ul>
-<li><code>Dt(e, v)</code> is <code>d/dv e</code></li>
-<li><code>Dt(e, v1, v2, ...)</code> is <code>d/dv1 d/dv2 ... e</code></li>
-<li><code>Dt(e, [v, n])</code> is <code>d^n/dv^n e</code></li>
+<li><code>D(e, v)</code> is <code>d/dv e</code></li>
+<li><code>D(e, v1, v2, ...)</code> is <code>d/dv1 d/dv2 ... e</code></li>
+<li><code>D(e, [v, n])</code> is <code>d^n/dv^n e</code></li>
 </ul>
 
 <p>A <code>[v, 0]</code> spec entry indicates that <code>v</code> is an independent variable.  For example,
-<code>Dt(x*y, [x, 0], y)</code> gives <code>x</code>, where <code>Dt(x*y, y)</code> gives <code>Dt(x, y)*y + x</code>.</p>
+<code>D(x*y, [x, 0], y)</code> gives <code>x</code>, where <code>D(x*y, y)</code> gives <code>D(x, y)*y + x</code>.</p>
 
 <p>It is fine having symbolic expressions in the specification.</p>
 
 <p>All functions are presumed to be smooth enough to permit changes in
 the order of differentiation.</p>
-</div>
-
-
-                </section>
-                <section id="t">
-                                <div class="attr variable"><a class="headerlink" href="#t">#&nbsp;&nbsp</a>
-
-        <span class="name">t</span><span class="default_value"> = expr(&#39;var&#39;, &#39;t&#39;)</span>
-    </div>
-
-            <div class="docstring"><p>The default independent variable for the purpose of outputting TeX for derivatives.</p>
 </div>
 
 

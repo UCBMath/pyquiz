@@ -34,6 +34,9 @@
                     <a class="function" href="#seed">seed</a>
             </li>
             <li>
+                    <a class="function" href="#duplicate_random">duplicate_random</a>
+            </li>
+            <li>
                     <a class="function" href="#random">random</a>
             </li>
             <li>
@@ -102,53 +105,70 @@
             <div class="codehilite"><pre><span></span><span class="c1"># Random numbers and objects</span>
 
 <span class="kn">from</span> <span class="nn">pyquiz.expr</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pyquiz.dynamic</span>
 <span class="kn">import</span> <span class="nn">fractions</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
-<span class="c1"># Create a random generator with a specified seed.</span>
-<span class="c1"># This lets quiz generation be reproducible.</span>
-<span class="n">_random_gen</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="s2">&quot;duplicate_random&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span> <span class="s2">&quot;triangular&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;randint&quot;</span><span class="p">,</span> <span class="s2">&quot;randrange&quot;</span><span class="p">,</span> <span class="s2">&quot;randint_nonzero&quot;</span><span class="p">,</span> <span class="s2">&quot;randrange_nonzero&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;choice&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;shuffle&quot;</span><span class="p">,</span> <span class="s2">&quot;gauss&quot;</span><span class="p">,</span> <span class="s2">&quot;normalvariate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rand_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_invertible_2x2&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_unimodular_2x2&quot;</span>
+<span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">_check_random_initialized</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">_random_gen</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">random_gen</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Get the random generator from the dynamic scope.&quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_gen&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">g</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;You need to seed the random number generator.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span>
 
 <span class="c1">##</span>
-<span class="c1">## Export methods from the _random_gen</span>
+<span class="c1">## Export methods from the random_gen()</span>
 <span class="c1">##</span>
 
 <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Set the seed for the random generator.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">_random_gen</span>
+    <span class="sd">&quot;&quot;&quot;Create a random generator with the given seed.</span>
+
+<span class="sd">    The random generator is a dynamic variable.  This means if this is</span>
+<span class="sd">    used inside, for example, a question group, once the question</span>
+<span class="sd">    group is ended the random generator is destroyed, and if there was</span>
+<span class="sd">    a random generator defined before the question group started it is</span>
+<span class="sd">    restored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">random</span>
-    <span class="k">if</span> <span class="n">_random_gen</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_random_gen</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_random_gen</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;random_gen&quot;</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">duplicate_random</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Take the current random generator and duplicate it in the current</span>
+<span class="sd">    dynamic scope.  This can be used to have multiple questions get</span>
+<span class="sd">    the same random numbers.  (It&#39;s not clear exactly why you would</span>
+<span class="sd">    want to do this, but it&#39;s here just in case it might be useful.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">random</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">()</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">setstate</span><span class="p">(</span><span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">getstate</span><span class="p">())</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;random_gen&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">random</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Give uniform at random float in [0.0, 1.0)&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random float in [a, b]&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">triangular</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">triangular</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">triangular</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random integer in [a, b] (including both bounds).&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random integer in [a, b) (excluding upper bound).&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">randint_nonzero</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a uniform at random integer in [a,b]-{0}.&quot;&quot;&quot;</span>
@@ -170,38 +190,37 @@
 
 <span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Chooses a uniform at random element from a given sequence&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;sample(seq, k) returns k randomly chosen elements from seq without replacement&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in place&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;normal distribution with mean mu and standard deviation sigma&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="c1"># Note: _random_gen.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
+    <span class="c1"># Note: random.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
     <span class="c1"># is a single-threaded program, but better be safe.</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
 
 <span class="n">normalvariate</span> <span class="o">=</span> <span class="n">gauss</span>
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A synonym for `gauss`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1"># choices = _random_gen.choices</span>
-<span class="c1"># lognormvariate = _random_gen.lognormvariate</span>
-<span class="c1"># expovariate = _random_gen.expovariate</span>
-<span class="c1"># vonmisesvariate = _random_gen.vonmisesvariate</span>
-<span class="c1"># gammavariate = _random_gen.gammavariate</span>
-<span class="c1"># betavariate = _random_gen.betavariate</span>
-<span class="c1"># paretovariate = _random_gen.paretovariate</span>
-<span class="c1"># weibullvariate = _random_gen.weibullvariate</span>
-<span class="c1"># getrandbits = _random_gen.getrandbits</span>
-<span class="c1"># randbytes = _random_gen.randbytes</span>
+<span class="c1"># choices = random_gen().choices</span>
+<span class="c1"># lognormvariate = random_gen().lognormvariate</span>
+<span class="c1"># expovariate = random_gen().expovariate</span>
+<span class="c1"># vonmisesvariate = random_gen().vonmisesvariate</span>
+<span class="c1"># gammavariate = random_gen().gammavariate</span>
+<span class="c1"># betavariate = random_gen().betavariate</span>
+<span class="c1"># paretovariate = random_gen().paretovariate</span>
+<span class="c1"># weibullvariate = random_gen().weibullvariate</span>
+<span class="c1"># getrandbits = random_gen().getrandbits</span>
+<span class="c1"># randbytes = random_gen().randbytes</span>
 
 <span class="k">def</span> <span class="nf">rand_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate a random nxm matrix with integer entries in the range [a, b].&quot;&quot;&quot;</span>
@@ -262,18 +281,59 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Set the seed for the random generator.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">_random_gen</span>
+    <span class="sd">&quot;&quot;&quot;Create a random generator with the given seed.</span>
+
+<span class="sd">    The random generator is a dynamic variable.  This means if this is</span>
+<span class="sd">    used inside, for example, a question group, once the question</span>
+<span class="sd">    group is ended the random generator is destroyed, and if there was</span>
+<span class="sd">    a random generator defined before the question group started it is</span>
+<span class="sd">    restored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">random</span>
-    <span class="k">if</span> <span class="n">_random_gen</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_random_gen</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">_random_gen</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;random_gen&quot;</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Set the seed for the random generator.</p>
+            <div class="docstring"><p>Create a random generator with the given seed.</p>
+
+<p>The random generator is a dynamic variable.  This means if this is
+used inside, for example, a question group, once the question
+group is ended the random generator is destroyed, and if there was
+a random generator defined before the question group started it is
+restored.</p>
+</div>
+
+
+                </section>
+                <section id="duplicate_random">
+                            <div class="attr function"><a class="headerlink" href="#duplicate_random">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">duplicate_random</span><span class="signature">()</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">duplicate_random</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Take the current random generator and duplicate it in the current</span>
+<span class="sd">    dynamic scope.  This can be used to have multiple questions get</span>
+<span class="sd">    the same random numbers.  (It&#39;s not clear exactly why you would</span>
+<span class="sd">    want to do this, but it&#39;s here just in case it might be useful.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">random</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">()</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">setstate</span><span class="p">(</span><span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">getstate</span><span class="p">())</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;random_gen&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Take the current random generator and duplicate it in the current
+dynamic scope.  This can be used to have multiple questions get
+the same random numbers.  (It's not clear exactly why you would
+want to do this, but it's here just in case it might be useful.)</p>
 </div>
 
 
@@ -290,8 +350,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">random</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Give uniform at random float in [0.0, 1.0)&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -313,8 +372,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random float in [a, b]&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -335,8 +393,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">triangular</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">triangular</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">triangular</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -356,8 +413,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random integer in [a, b] (including both bounds).&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -379,8 +435,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives uniform at random integer in [a, b) (excluding upper bound).&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -456,8 +511,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Chooses a uniform at random element from a given sequence&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -479,8 +533,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;sample(seq, k) returns k randomly chosen elements from seq without replacement&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -502,8 +555,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in place&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -525,10 +577,9 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;normal distribution with mean mu and standard deviation sigma&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="c1"># Note: _random_gen.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
+    <span class="c1"># Note: random.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
     <span class="c1"># is a single-threaded program, but better be safe.</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -550,10 +601,9 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;normal distribution with mean mu and standard deviation sigma&quot;&quot;&quot;</span>
-    <span class="n">_check_random_initialized</span><span class="p">()</span>
-    <span class="c1"># Note: _random_gen.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
+    <span class="c1"># Note: random.gauss is not thread-safe.  This shouldn&#39;t matter, since this</span>
     <span class="c1"># is a single-threaded program, but better be safe.</span>
-    <span class="k">return</span> <span class="n">_random_gen</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">normalvariate</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
 </pre></div>
 
         </details>

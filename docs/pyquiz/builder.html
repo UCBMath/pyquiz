@@ -118,9 +118,6 @@
                     <a class="function" href="#answer_comment">answer_comment</a>
             </li>
             <li>
-                    <a class="function" href="#shuffle_answers">shuffle_answers</a>
-            </li>
-            <li>
                     <a class="function" href="#end_question">end_question</a>
             </li>
             <li>
@@ -181,9 +178,10 @@ matched to one of a given set of items.</p></li>
 
 <p>The text of a question is given by one or more <code><a href="#text">text()</a></code> and <code><a href="#para">para()</a></code> calls.</p>
 
-<p>For questions that have answers, <code><a href="#shuffle_answers">shuffle_answers()</a></code> can be used to
-randomize their order.  When paired with question groups, this can
-simulate the corresponding quiz option on a per-question basis.</p>
+<p>For questions that have answers, <code>end_question(shuffle_answers=True)</code>
+can be used to randomize their order.  When paired with question
+groups, this can simulate the corresponding quiz option on a
+per-question basis.</p>
 
 <p>Feedback can be provided to a student using the following functions:</p>
 
@@ -243,9 +241,10 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
 <span class="sd">The text of a question is given by one or more `text()` and `para()` calls.</span>
 
-<span class="sd">For questions that have answers, `shuffle_answers()` can be used to</span>
-<span class="sd">randomize their order.  When paired with question groups, this can</span>
-<span class="sd">simulate the corresponding quiz option on a per-question basis.</span>
+<span class="sd">For questions that have answers, `end_question(shuffle_answers=True)`</span>
+<span class="sd">can be used to randomize their order.  When paired with question</span>
+<span class="sd">groups, this can simulate the corresponding quiz option on a</span>
+<span class="sd">per-question basis.</span>
 
 <span class="sd">Feedback can be provided to a student using the following functions:</span>
 
@@ -266,6 +265,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 <span class="kn">from</span> <span class="nn">.rand</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">import</span> <span class="nn">pyquiz.dynamic</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;begin_quiz&quot;</span><span class="p">,</span> <span class="s2">&quot;end_quiz&quot;</span><span class="p">,</span>
@@ -285,8 +285,6 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
     <span class="s2">&quot;comment_general&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_correct&quot;</span><span class="p">,</span> <span class="s2">&quot;comment_incorrect&quot;</span><span class="p">,</span>
     <span class="s2">&quot;answer_comment&quot;</span><span class="p">,</span>
-
-    <span class="s2">&quot;shuffle_answers&quot;</span><span class="p">,</span>
 
     <span class="s2">&quot;end_question&quot;</span><span class="p">,</span>
 
@@ -443,6 +441,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="p">}</span>
 
     <span class="n">QUIZ</span> <span class="o">=</span> <span class="n">Quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">enter</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">end_quiz</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Finish the quiz started with `begin_quiz()`.  Adds the quiz to the</span>
@@ -455,6 +454,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
     <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUIZ</span><span class="p">)</span>
     <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">begin_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Begin a new question group, which is ended with `end_group()`.</span>
@@ -475,6 +475,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
     <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="n">QuestionGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
     <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUESTION_GROUP</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">enter</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">end_group</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Ends the question group begun by a `begin_group()&#39;.&quot;&quot;&quot;</span>
@@ -484,6 +485,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question groups must have at least one question.&quot;</span><span class="p">)</span>
     <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.  This</span>
@@ -561,12 +563,15 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">else</span><span class="p">:</span>
         <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
     <span class="n">QUESTION</span> <span class="o">=</span> <span class="n">question</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">enter</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">add_answer</span><span class="p">(</span><span class="n">answer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;(private internal) This should not actually be needed, but just in case...&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;(private internal) Checks that there are no duplicate answers.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">QUESTION</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question does not accept answers (internal error!)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">answer</span> <span class="ow">in</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has this answer (duplicate answer).&quot;</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">begin_text_only_question</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
@@ -807,22 +812,23 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">if</span> <span class="n">false_comment</span><span class="p">:</span>
         <span class="n">answer_comment</span><span class="p">(</span><span class="n">false_comment</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">shuffle_answers</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Shuffle the answers to the current question.  If you create</span>
-<span class="sd">    multiple copies of a question in a question group, this lets you</span>
-<span class="sd">    mimick the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
-<span class="sd">    question.&quot;&quot;&quot;</span>
-    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
-    <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;End the current question.</span>
 
-<span class="k">def</span> <span class="nf">end_question</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;End the current question.&quot;&quot;&quot;</span>
+<span class="sd">    * `shuffle_answers=True` indicates that the answers to the</span>
+<span class="sd">      question should be randomly permuted.  If you create multiple</span>
+<span class="sd">      copies of a question in a question group, this lets you mimick</span>
+<span class="sd">      the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
+<span class="sd">      question.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">QUESTION</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle_answers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
     <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -928,6 +934,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="p">}</span>
 
     <span class="n">QUIZ</span> <span class="o">=</span> <span class="n">Quiz</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">enter</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -980,6 +987,7 @@ published quiz.  Unpublish the quiz first from Canvas.</p>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question group. Make sure to end_group() first.&quot;</span><span class="p">)</span>
     <span class="n">LOADED_QUIZZES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUIZ</span><span class="p">)</span>
     <span class="n">QUIZ</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1019,6 +1027,7 @@ list of loaded quizzes and allows a new quiz to begin.</p>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Currently in a question. Make sure to end_question() first.&quot;</span><span class="p">)</span>
     <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="n">QuestionGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">pick_count</span><span class="o">=</span><span class="n">pick_count</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
     <span class="n">QUIZ</span><span class="o">.</span><span class="n">questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QUESTION_GROUP</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">enter</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1055,6 +1064,7 @@ to this question group.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION_GROUP</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question groups must have at least one question.&quot;</span><span class="p">)</span>
     <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1901,58 +1911,46 @@ the match.</p>
 
 
                 </section>
-                <section id="shuffle_answers">
-                            <div class="attr function"><a class="headerlink" href="#shuffle_answers">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">shuffle_answers</span><span class="signature">()</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shuffle_answers</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Shuffle the answers to the current question.  If you create</span>
-<span class="sd">    multiple copies of a question in a question group, this lets you</span>
-<span class="sd">    mimick the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
-<span class="sd">    question.&quot;&quot;&quot;</span>
-    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
-    <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Shuffle the answers to the current question.  If you create
-multiple copies of a question in a question group, this lets you
-mimick the "shuffle_answers" option for quizzes, but for a single
-question.</p>
-</div>
-
-
-                </section>
                 <section id="end_question">
                             <div class="attr function"><a class="headerlink" href="#end_question">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">end_question</span><span class="signature">()</span>:
+            <span class="name">end_question</span><span class="signature">(*, shuffle_answers=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">end_question</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;End the current question.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">end_question</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;End the current question.</span>
+
+<span class="sd">    * `shuffle_answers=True` indicates that the answers to the</span>
+<span class="sd">      question should be randomly permuted.  If you create multiple</span>
+<span class="sd">      copies of a question in a question group, this lets you mimick</span>
+<span class="sd">      the &quot;shuffle_answers&quot; option for quizzes, but for a single</span>
+<span class="sd">      question.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">QUESTION</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not currently in a question&quot;</span><span class="p">)</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle_answers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
     <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>End the current question.</p>
+
+<ul>
+<li><code>shuffle_answers=True</code> indicates that the answers to the
+question should be randomly permuted.  If you create multiple
+copies of a question in a question group, this lets you mimick
+the "shuffle_answers" option for quizzes, but for a single
+question.</li>
+</ul>
 </div>
 
 

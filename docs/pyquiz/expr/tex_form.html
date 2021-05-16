@@ -61,6 +61,8 @@
 <a href="./../../pyquiz.html">pyquiz</a><wbr>.<a href="./../expr.html">expr</a><wbr>.tex_form    </h1>
 
                         <div class="docstring"><p>The function <code><a href="#tex">tex</a></code> gives the LaTeX form of an expression.</p>
+
+<p>Note: this module changes <code>__str__</code> of <code>Fraction</code> to use <code><a href="#tex">tex</a></code> instead.</p>
 </div>
 
                         <details>
@@ -68,12 +70,13 @@
             <div class="codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The function `tex` gives the LaTeX form of an expression.</span>
 
-
+<span class="sd">Note: this module changes `__str__` of `Fraction` to use `tex` instead.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pyquiz.dynamic</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;tex&quot;</span><span class="p">,</span>
@@ -83,7 +86,7 @@
     <span class="s2">&quot;tex_deriv_primes_limit&quot;</span>
 <span class="p">]</span>
 
-<span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">DEFAULT_TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">def</span> <span class="nf">tex_vector_as_tuple</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.</span>
 
@@ -93,39 +96,53 @@
 <span class="sd">    print(vector(1, 2))</span>
 <span class="sd">    ```</span>
 <span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
-    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
 
-<span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
-<span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="sd">    This is a dynamic variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_VECTOR_AS_TUPLE&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">TEX_VECTOR_AS_TUPLE</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TEX_VECTOR_AS_TUPLE&quot;</span><span class="p">,</span> <span class="n">DEFAULT_TEX_VECTOR_AS_TUPLE</span><span class="p">)</span>
+
+<span class="n">DEFAULT_TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">DEFAULT_TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
+<span class="n">DEFAULT_TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
 
 <span class="k">def</span> <span class="nf">tex_deriv_use_primes</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;If `state` is `True` (the default), then derivatives with exactly</span>
 <span class="sd">    one independent variable are rendered using prime notation, if</span>
 <span class="sd">    that variable is the one set by `tex_deriv_indep_var`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_USE_PRIMES</span>
-    <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_USE_PRIMES&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">TEX_DERIV_USE_PRIMES</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_USE_PRIMES&quot;</span><span class="p">,</span> <span class="n">DEFAULT_TEX_DERIV_USE_PRIMES</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">tex_deriv_indep_var</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Set the independent variable used by the feature in `tex_deriv_use_primes`.</span>
 <span class="sd">    By default, the variable is `var(&quot;t&quot;)`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_INDEP_VAR</span>
-    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span>
-    <span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting var&quot;</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_INDEP_VAR&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">TEX_DERIV_INDEP_VAR</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_INDEP_VAR&quot;</span><span class="p">,</span> <span class="n">DEFAULT_TEX_DERIV_INDEP_VAR</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">tex_deriv_primes_limit</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;When the `tex_deriv_use_primes` feature is active, gives point</span>
 <span class="sd">    after which primes are instead rendered with parentheses.  By</span>
 <span class="sd">    default, this is 3.  For example, the fourth derivative of `y`</span>
 <span class="sd">    would be `y^{(4)}` rather than `y&#39;&#39;&#39;&#39;`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span>
-    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-    <span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="n">n</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting non-negative integer&quot;</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_PRIMES_LIMIT&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">TEX_DERIV_PRIMES_LIMIT</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_PRIMES_LIMIT&quot;</span><span class="p">,</span> <span class="n">DEFAULT_TEX_DERIV_PRIMES_LIMIT</span><span class="p">)</span>
 
 <span class="c1"># precedences:</span>
 <span class="c1"># 20 add</span>
@@ -253,16 +270,16 @@
         <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;const&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
         <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="ow">and</span> <span class="n">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">TEX_VECTOR_AS_TUPLE</span><span class="p">()</span> <span class="ow">and</span> <span class="n">is_vector</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                 <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left(&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">small</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right)&quot;</span>
             <span class="k">return</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span>
                     <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
                     <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\end</span><span class="si">{bmatrix}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;Deriv&quot;</span><span class="p">:</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">constants</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span>
-            <span class="k">if</span> <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">TEX_DERIV_INDEP_VAR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">TEX_DERIV_USE_PRIMES</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">TEX_DERIV_INDEP_VAR</span><span class="p">():</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span><span class="p">():</span>
                     <span class="n">exp</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">prime&quot;</span> <span class="o">*</span> <span class="n">n</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">exp</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">tex_prec</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
@@ -350,9 +367,10 @@
 <span class="sd">    print(vector(1, 2))</span>
 <span class="sd">    ```</span>
 <span class="sd">    prints out &quot;`(1,2)`&quot; rather than &quot;`\begin{bmatrix}1\\2\end{bmatrix}`&quot;.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_VECTOR_AS_TUPLE</span>
-    <span class="n">TEX_VECTOR_AS_TUPLE</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_VECTOR_AS_TUPLE&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -366,6 +384,8 @@
 </code></pre></div>
 
 <p>prints out "<code>(1,2)</code>" rather than "<code>\begin{bmatrix}1\\2\end{bmatrix}</code>".</p>
+
+<p>This is a dynamic variable.</p>
 </div>
 
 
@@ -384,9 +404,10 @@
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;If `state` is `True` (the default), then derivatives with exactly</span>
 <span class="sd">    one independent variable are rendered using prime notation, if</span>
 <span class="sd">    that variable is the one set by `tex_deriv_indep_var`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_USE_PRIMES</span>
-    <span class="n">TEX_DERIV_USE_PRIMES</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_USE_PRIMES&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -394,6 +415,8 @@
             <div class="docstring"><p>If <code>state</code> is <code>True</code> (the default), then derivatives with exactly
 one independent variable are rendered using prime notation, if
 that variable is the one set by <code><a href="#tex_deriv_indep_var">tex_deriv_indep_var</a></code>.</p>
+
+<p>This is a dynamic variable.</p>
 </div>
 
 
@@ -411,16 +434,20 @@ that variable is the one set by <code><a href="#tex_deriv_indep_var">tex_deriv_i
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_deriv_indep_var</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Set the independent variable used by the feature in `tex_deriv_use_primes`.</span>
 <span class="sd">    By default, the variable is `var(&quot;t&quot;)`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_INDEP_VAR</span>
-    <span class="k">assert</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span>
-    <span class="n">TEX_DERIV_INDEP_VAR</span> <span class="o">=</span> <span class="n">var</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting var&quot;</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_INDEP_VAR&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Set the independent variable used by the feature in <code><a href="#tex_deriv_use_primes">tex_deriv_use_primes</a></code>.
 By default, the variable is <code>var("t")</code>.</p>
+
+<p>This is a dynamic variable.</p>
 </div>
 
 
@@ -440,10 +467,12 @@ By default, the variable is <code>var("t")</code>.</p>
 <span class="sd">    after which primes are instead rendered with parentheses.  By</span>
 <span class="sd">    default, this is 3.  For example, the fourth derivative of `y`</span>
 <span class="sd">    would be `y^{(4)}` rather than `y&#39;&#39;&#39;&#39;`.</span>
+
+<span class="sd">    This is a dynamic variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">TEX_DERIV_PRIMES_LIMIT</span>
-    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-    <span class="n">TEX_DERIV_PRIMES_LIMIT</span> <span class="o">=</span> <span class="n">n</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting non-negative integer&quot;</span><span class="p">)</span>
+    <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;TEX_DERIV_PRIMES_LIMIT&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -452,6 +481,8 @@ By default, the variable is <code>var("t")</code>.</p>
 after which primes are instead rendered with parentheses.  By
 default, this is 3.  For example, the fourth derivative of <code>y</code>
 would be <code>y^{(4)}</code> rather than <code>y''''</code>.</p>
+
+<p>This is a dynamic variable.</p>
 </div>
 
 
