@@ -8,13 +8,8 @@ from .core import *
 from .arith import *
 
 __all__ = [
-    "D", "t"
+    "D"
 ]
-
-t = var("t")
-r"""
-The default independent variable for the purpose of outputting TeX for derivatives.
-"""
 
 def D(e, *spec, constants=[]):
     """The total derivative of the expression `e` according to the
@@ -24,12 +19,12 @@ def D(e, *spec, constants=[]):
     a constant.  Variables in the spec are assumed not to be functions of the
     other spec variables.
 
-    * `Dt(e, v)` is `d/dv e`
-    * `Dt(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`
-    * `Dt(e, [v, n])` is `d^n/dv^n e`
+    * `D(e, v)` is `d/dv e`
+    * `D(e, v1, v2, ...)` is `d/dv1 d/dv2 ... e`
+    * `D(e, [v, n])` is `d^n/dv^n e`
 
     A `[v, 0]` spec entry indicates that `v` is an independent variable.  For example,
-    `Dt(x*y, [x, 0], y)` gives `x`, where `Dt(x*y, y)` gives `Dt(x, y)*y + x`.
+    `D(x*y, [x, 0], y)` gives `x`, where `D(x*y, y)` gives `D(x, y)*y + x`.
 
     It is fine having symbolic expressions in the specification.
 

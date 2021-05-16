@@ -4,6 +4,7 @@ import tkinter.messagebox
 import os, sys, subprocess, traceback, json
 import urllib.parse
 import pyquiz, pyquiz.html
+import pyquiz.dynamic
 
 #import logging
 #logging.basicConfig(level=logging.DEBUG)
@@ -182,6 +183,7 @@ class additional_path:
 
 def exec_quiz(quiz_filename):
     print("Executing quiz file " + quiz_filename)
+    pyquiz.dynamic.reset()
     with open(quiz_filename) as fin:
         with additional_path(os.path.dirname(quiz_filename)):
             c = compile(fin.read(), quiz_filename, 'exec')

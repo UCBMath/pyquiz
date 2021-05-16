@@ -4,6 +4,8 @@ from pyquiz import *
 
 seed(100)
 
+t = var("t")
+
 begin_quiz(
     title="Derivative test",
     description=rf""" <p>Testing derivatives and such.</p> """,
@@ -93,6 +95,7 @@ for i in range(10):
     multiple_choice_answer(False, rf"""\({c*lam**2 + b*lam + a}\)""")
     multiple_choice_answer(False, rf"""\({lam**2 + frac(b,a)*lam + frac(c,a)}\)""")
     multiple_choice_answer(False, rf"""\({(a*lam - 1) * (b*lam + c)}\)""")
+
     end_question(shuffle_answers=True)
 end_group()
 

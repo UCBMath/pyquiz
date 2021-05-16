@@ -63,6 +63,7 @@ quizzes can be accessed using `get_loaded_quizzes()`.  Two places quiz files are
 
 from numbers import Number
 from .rand import shuffle
+import pyquiz.dynamic
 
 __all__ = [
     "begin_quiz", "end_quiz",
@@ -238,6 +239,7 @@ def begin_quiz(*, id=None, title=None, description="",
     }
 
     QUIZ = Quiz(id=id, title=title, description=description, options=options)
+    pyquiz.dynamic.enter()
 
 def end_quiz():
     """Finish the quiz started with `begin_quiz()`.  Adds the quiz to the
@@ -250,6 +252,7 @@ def end_quiz():
         raise Exception("Currently in a question group. Make sure to end_group() first.")
     LOADED_QUIZZES.append(QUIZ)
     QUIZ = None
+    pyquiz.dynamic.leave()
 
 def begin_group(name="", pick_count=1, points=1):
     """Begin a new question group, which is ended with `end_group()`.
@@ -270,6 +273,7 @@ def begin_group(name="", pick_count=1, points=1):
         raise Exception("Currently in a question. Make sure to end_question() first.")
     QUESTION_GROUP = QuestionGroup(name=name, pick_count=pick_count, points=points)
     QUIZ.questions.append(QUESTION_GROUP)
+    pyquiz.dynamic.enter()
 
 def end_group():
     """Ends the question group begun by a `begin_group()'."""
@@ -279,6 +283,7 @@ def end_group():
     if not QUESTION_GROUP.questions:
         raise Exception("Question groups must have at least one question.")
     QUESTION_GROUP = None
+    pyquiz.dynamic.leave()
 
 def text(s):
     """Attach the given text to the body of the current question.  This
@@ -356,6 +361,7 @@ def add_question(question):
     else:
         QUIZ.questions.append(question)
     QUESTION = question
+    pyquiz.dynamic.enter()
 
 def add_answer(answer):
     """(private internal) Checks that there are no duplicate answers."""
@@ -620,3 +626,4 @@ def end_question(*, shuffle_answers=False):
             raise Exception("No answers to shuffle.")
         shuffle(QUESTION.answers)
     QUESTION = None
+    pyquiz.dynamic.leave()

@@ -1,53 +1,70 @@
 # Random numbers and objects
 
 from pyquiz.expr import *
+import pyquiz.dynamic
 import fractions
 import math
 
-# Create a random generator with a specified seed.
-# This lets quiz generation be reproducible.
-_random_gen = None
+__all__ = [
+    "seed", "duplicate_random",
+    "random", "uniform", "triangular",
+    "randint", "randrange", "randint_nonzero", "randrange_nonzero",
+    "choice", "sample", "shuffle", "gauss", "normalvariate",
+    "rand_matrix", "rand_diagonal_matrix", "rand_invertible_2x2", "rand_unimodular_2x2"
+]
 
-def _check_random_initialized():
-    if _random_gen == None:
+def random_gen():
+    """Get the random generator from the dynamic scope."""
+    g = pyquiz.dynamic.get("random_gen")
+    if g == None:
         raise Exception("You need to seed the random number generator.")
+    return g
 
 ##
-## Export methods from the _random_gen
+## Export methods from the random_gen()
 ##
 
 def seed(s):
-    """Set the seed for the random generator."""
-    global _random_gen
+    """Create a random generator with the given seed.
+
+    The random generator is a dynamic variable.  This means if this is
+    used inside, for example, a question group, once the question
+    group is ended the random generator is destroyed, and if there was
+    a random generator defined before the question group started it is
+    restored.
+    """
     import random
-    if _random_gen == None:
-        _random_gen = random.Random(s)
-    else:
-        _random_gen.seed(s)
+    pyquiz.dynamic.set("random_gen", random.Random(s))
+
+def duplicate_random():
+    """Take the current random generator and duplicate it in the current
+    dynamic scope.  This can be used to have multiple questions get
+    the same random numbers.  (It's not clear exactly why you would
+    want to do this, but it's here just in case it might be useful.)
+    """
+    import random
+    g = random.Random()
+    g.setstate(random_gen().getstate())
+    pyquiz.dynamic.set("random_gen", g)
 
 def random():
     """Give uniform at random float in [0.0, 1.0)"""
-    _check_random_initialized()
-    return _random_gen.random()
+    return random_gen().random()
 
 def uniform(a, b):
     """Gives uniform at random float in [a, b]"""
-    _check_random_initialized()
-    return _random_gen.uniform(a, b)
+    return random_gen().uniform(a, b)
 
 def triangular(low=0.0, high=1.0, mode=None):
-    _check_random_initialized()
-    return _random_gen.triangular(low, high, mode)
+    return random_gen().triangular(low, high, mode)
 
 def randint(a, b):
     """Gives uniform at random integer in [a, b] (including both bounds)."""
-    _check_random_initialized()
-    return _random_gen.randint(a, b)
+    return random_gen().randint(a, b)
 
 def randrange(a, b):
     """Gives uniform at random integer in [a, b) (excluding upper bound)."""
-    _check_random_initialized()
-    return _random_gen.randrange(a, b)
+    return random_gen().randrange(a, b)
 
 def randint_nonzero(a, b):
     """Returns a uniform at random integer in [a,b]-{0}."""
@@ -69,38 +86,37 @@ def randrange_nonzero(a, b):
 
 def choice(seq):
     """Chooses a uniform at random element from a given sequence"""
-    _check_random_initialized()
-    return _random_gen.choice(seq)
+    return random_gen().choice(seq)
 
 def sample(seq, k):
     """sample(seq, k) returns k randomly chosen elements from seq without replacement"""
-    _check_random_initialized()
-    return _random_gen.sample(seq, k)
+    return random_gen().sample(seq, k)
 
 def shuffle(x):
     """shuffle(x) shuffles the list x in place"""
-    _check_random_initialized()
-    return _random_gen.shuffle(x)
+    return random_gen().shuffle(x)
 
 def gauss(mu=0.0, sigma=1.0):
     """normal distribution with mean mu and standard deviation sigma"""
-    _check_random_initialized()
-    # Note: _random_gen.gauss is not thread-safe.  This shouldn't matter, since this
+    # Note: random.gauss is not thread-safe.  This shouldn't matter, since this
     # is a single-threaded program, but better be safe.
-    return _random_gen.normalvariate(mu, sigma)
+    return random_gen().normalvariate(mu, sigma)
 
 normalvariate = gauss
+r"""
+A synonym for `gauss`.
+"""
 
-# choices = _random_gen.choices
-# lognormvariate = _random_gen.lognormvariate
-# expovariate = _random_gen.expovariate
-# vonmisesvariate = _random_gen.vonmisesvariate
-# gammavariate = _random_gen.gammavariate
-# betavariate = _random_gen.betavariate
-# paretovariate = _random_gen.paretovariate
-# weibullvariate = _random_gen.weibullvariate
-# getrandbits = _random_gen.getrandbits
-# randbytes = _random_gen.randbytes
+# choices = random_gen().choices
+# lognormvariate = random_gen().lognormvariate
+# expovariate = random_gen().expovariate
+# vonmisesvariate = random_gen().vonmisesvariate
+# gammavariate = random_gen().gammavariate
+# betavariate = random_gen().betavariate
+# paretovariate = random_gen().paretovariate
+# weibullvariate = random_gen().weibullvariate
+# getrandbits = random_gen().getrandbits
+# randbytes = random_gen().randbytes
 
 def rand_matrix(n, m, a, b):
     """Generate a random nxm matrix with integer entries in the range [a, b]."""

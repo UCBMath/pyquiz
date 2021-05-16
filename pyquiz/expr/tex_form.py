@@ -1,12 +1,13 @@
 r"""
 The function `tex` gives the LaTeX form of an expression.
 
-
+Note: this module changes `__str__` of `Fraction` to use `tex` instead.
 """
 
 from collections import defaultdict
 from fractions import Fraction
 from .core import *
+import pyquiz.dynamic
 
 __all__ = [
     "tex",
@@ -16,7 +17,7 @@ __all__ = [
     "tex_deriv_primes_limit"
 ]
 
-TEX_VECTOR_AS_TUPLE = False
+DEFAULT_TEX_VECTOR_AS_TUPLE = False
 def tex_vector_as_tuple(state):
     r"""Change the way in which vectors are rendered to TeX.  By default, they are rendered as column vectors.
 
@@ -26,39 +27,53 @@ def tex_vector_as_tuple(state):
     print(vector(1, 2))
     ```
     prints out "`(1,2)`" rather than "`\begin{bmatrix}1\\2\end{bmatrix}`".
-    """
-    global TEX_VECTOR_AS_TUPLE
-    TEX_VECTOR_AS_TUPLE = state
 
-TEX_DERIV_USE_PRIMES = True
-TEX_DERIV_INDEP_VAR = var("t")
-TEX_DERIV_PRIMES_LIMIT = 3
+    This is a dynamic variable.
+    """
+    pyquiz.dynamic.set("TEX_VECTOR_AS_TUPLE", state)
+def TEX_VECTOR_AS_TUPLE():
+    return pyquiz.dynamic.get("TEX_VECTOR_AS_TUPLE", DEFAULT_TEX_VECTOR_AS_TUPLE)
+
+DEFAULT_TEX_DERIV_USE_PRIMES = True
+DEFAULT_TEX_DERIV_INDEP_VAR = var("t")
+DEFAULT_TEX_DERIV_PRIMES_LIMIT = 3
 
 def tex_deriv_use_primes(state):
     r"""If `state` is `True` (the default), then derivatives with exactly
     one independent variable are rendered using prime notation, if
     that variable is the one set by `tex_deriv_indep_var`.
+
+    This is a dynamic variable.
     """
-    global TEX_DERIV_USE_PRIMES
-    TEX_DERIV_USE_PRIMES = state
+    pyquiz.dynamic.set("TEX_DERIV_USE_PRIMES", state)
+def TEX_DERIV_USE_PRIMES():
+    return pyquiz.dynamic.get("TEX_DERIV_USE_PRIMES", DEFAULT_TEX_DERIV_USE_PRIMES)
 
 def tex_deriv_indep_var(var):
     r"""Set the independent variable used by the feature in `tex_deriv_use_primes`.
     By default, the variable is `var("t")`.
+
+    This is a dynamic variable.
     """
-    global TEX_DERIV_INDEP_VAR
-    assert head(var) == "var"
-    TEX_DERIV_INDEP_VAR = var
+    if head(var) != "var":
+        raise ValueError("Expecting var")
+    pyquiz.dynamic.set("TEX_DERIV_INDEP_VAR", var)
+def TEX_DERIV_INDEP_VAR():
+    return pyquiz.dynamic.get("TEX_DERIV_INDEP_VAR", DEFAULT_TEX_DERIV_INDEP_VAR)
 
 def tex_deriv_primes_limit(n):
     r"""When the `tex_deriv_use_primes` feature is active, gives point
     after which primes are instead rendered with parentheses.  By
     default, this is 3.  For example, the fourth derivative of `y`
     would be `y^{(4)}` rather than `y''''`.
+
+    This is a dynamic variable.
     """
-    global TEX_DERIV_PRIMES_LIMIT
-    assert type(n) == int and n >= 0
-    TEX_DERIV_PRIMES_LIMIT = n
+    if not (type(n) == int and n >= 0):
+        raise ValueError("Expecting non-negative integer")
+    pyquiz.dynamic.set("TEX_DERIV_PRIMES_LIMIT", n)
+def TEX_DERIV_PRIMES_LIMIT():
+    return pyquiz.dynamic.get("TEX_DERIV_PRIMES_LIMIT", DEFAULT_TEX_DERIV_PRIMES_LIMIT)
 
 # precedences:
 # 20 add
@@ -186,16 +201,16 @@ def tex_prec(prec, e, small):
         elif e.head == "var" or e.head == "const":
             return "{" + e.args[0] + "}"
         elif e.head == "matrix":
-            if TEX_VECTOR_AS_TUPLE and is_vector(e):
+            if TEX_VECTOR_AS_TUPLE() and is_vector(e):
                 return "\\left(" + ",".join(tex_prec(0, row[0], small) for row in e.args) + "\\right)"
             return (r"\begin{bmatrix}"
                     + r"\\".join("&".join(tex_prec(0, x, True) for x in row) for row in e.args)
                     + r"\end{bmatrix}")
         elif e.head == "Deriv":
             x, spec, constants = e.args
-            if TEX_DERIV_USE_PRIMES and len(spec) == 1 and spec[0][0] == TEX_DERIV_INDEP_VAR:
+            if TEX_DERIV_USE_PRIMES() and len(spec) == 1 and spec[0][0] == TEX_DERIV_INDEP_VAR():
                 n = spec[0][1]
-                if type(n) == int and 1 <= n <= TEX_DERIV_PRIMES_LIMIT:
+                if type(n) == int and 1 <= n <= TEX_DERIV_PRIMES_LIMIT():
                     exp = "\\prime" * n
                 else:
                     exp = "(" + tex_prec(0, n, True) + ")"
