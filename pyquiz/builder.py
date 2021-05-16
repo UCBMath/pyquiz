@@ -39,6 +39,10 @@ groups begin with `begin_group()` and end with `end_group()`.  Questions begin w
 
 The text of a question is given by one or more `text()` and `para()` calls.
 
+For questions that have answers, `shuffle_answers()` can be used to
+randomize their order.  When paired with question groups, this can
+simulate the corresponding quiz option on a per-question basis.
+
 Feedback can be provided to a student using the following functions:
 
 * `comment_general()` for general comments about a question.
@@ -49,15 +53,15 @@ Feedback can be provided to a student using the following functions:
 
 * `answer_comment()` for feedback about specific answers given by a student.
 
-*(Internal: not for quiz authors.)* By setting the quiz builder with
-`set_quiz_builder` before executing a quiz file (done by the uploader
-UI for example), the resulting quiz can have different effects.  For
-example, `pyquiz.html` creates an HTML output file, and
-`pyquiz.canvas` uploads the quiz to Canvas.
+*(Internal: not for quiz authors.)* `reset_quiz_builder()` clears all
+the global state, and after evaluating quiz files the resulting
+quizzes can be accessed using `get_loaded_quizzes()`.  Two places quiz files are used are
+`pyquiz.html` for creating HTML previews and `pyquiz.canvas` to upload them to Canvas.
 
 """
 
 from numbers import Number
+from .rand import shuffle
 
 __all__ = [
     "begin_quiz", "end_quiz",
@@ -78,55 +82,88 @@ __all__ = [
     "comment_general", "comment_correct", "comment_incorrect",
     "answer_comment",
 
+    "shuffle_answers",
+
     "end_question",
 
-    "set_quiz_builder", "get_loaded_quizzes", "is_in_quiz"
+    "reset_quiz_builder", "get_loaded_quizzes", "is_in_quiz"
 ]
 
-BUILDER = None
+class Quiz:
+    def __init__(self, *, id, title, description, options):
+        self.id = id
+        self.title = title
+        self.description = description
+        self.options = options
+        self.questions = [] # a list of QuestionGroup and Question
+
+class QuestionGroup:
+    def __init__(self, *, name, pick_count, points):
+        self.name = name
+        self.pick_count = pick_count
+        self.points = points
+        self.questions = [] # a list of Question
+    def is_group(self):
+        return True
+
+class Question:
+    def __init__(self, *, question_type, name, points, options=None):
+        self.question_type = question_type
+        self.name = name
+        self.points = points
+        self.options = options or {}
+        self.text = ""
+        self.answers = []
+        self.comment_general = None
+        self.comment_correct = None
+        self.comment_incorrect = None
+    def is_group(self):
+        return False
+
+class Answer:
+    def __init__(self, *, text, correct, options=None):
+        self.text = text
+        self.correct = correct
+        self.options = options or {}
+        self.comment = None
 
 LOADED_QUIZZES = []
+QUIZ = None
+QUESTION_GROUP = None
+QUESTION = None
 
-IN_QUIZ = False
-IN_QUESTION_GROUP = False
-IN_QUESTION = False
-
-def set_quiz_builder(b):
-    """*(Internal: not for quiz authors.)* Sets the current quiz builder."""
-    global BUILDER, LOADED_QUIZZES, IN_QUIZ, IN_QUESTION_GROUP, IN_QUESTION
-    BUILDER = b
+def reset_quiz_builder():
+    """*(Internal: not for quiz authors.)" Reset the state of the quiz
+    builder.  Used before loading a new quiz file."""
+    global LOADED_QUIZZES, QUIZ, QUESTION_GROUP, QUESTION
     LOADED_QUIZZES = []
-    IN_QUIZ = False
-    IN_QUESTION_GROUP = False
-    IN_QUESTION = False
+    QUIZ = None
+    QUESTION_GROUP = None
+    QUESTION = None
 
 def get_loaded_quizzes():
-    """*(Internal: not for quiz authors.)* Return a list of quiz titles that have been loaded so far.  This is
-    used by the uploader UI to show the titles of quizzes that a file contained."""
+    """*(Internal: not for quiz authors.)* Return a list of quizzes that have been loaded so far."""
     return LOADED_QUIZZES
 
 def is_in_quiz():
     """*(Internal: not for quiz authors.)* Returns whether we are currently in a quiz (begun by
     `begin_quiz()`) without yet ending the quiz (by `end_quiz()`)."""
-    return IN_QUIZ
+    return QUIZ != None
 
-def check_quiz_builder():
-    """(Internal) Checks that there is currently a quiz builder set."""
-    if not BUILDER:
-        raise Exception("No quiz builder is set.  Make sure to set_quiz_builder first.")
+def assert_in_quiz():
+    """(private internal)"""
+    if not QUIZ:
+        raise Exception("Not currently in a quiz.  Make sure to begin_quiz() first.")
 
-def check_in_quiz():
-    check_quiz_builder()
-    if not IN_QUIZ:
-        raise Exception("Not currently in a quiz.")
-
-def check_in_question(question_type=True):
-    check_in_quiz()
-    if question_type == True:
-        if not IN_QUESTION:
-            raise Exception("Not currently in a question.")
-    elif IN_QUESTION != question_type:
-        raise Exception(f"Not currently in a {question_type} question.")
+def assert_in_question(question_type=True):
+    """(private internal) Check that we are currently in a question with
+    the given `question_type`.  The special value `question_type=True`
+    indicates "any type."""
+    assert_in_quiz()
+    if not QUESTION:
+        raise Exception("Not currently in a question.")
+    elif question_type != True and QUESTION.question_type != question_type:
+        raise Exception(f"Expecting a {question_type} question, not {QUESTION.question_type}.")
 
 def begin_quiz(*, id=None, title=None, description="",
                quiz_type=None, time_limit=None,
@@ -162,9 +199,8 @@ def begin_quiz(*, id=None, title=None, description="",
     [This page](https://canvas.instructure.com/doc/api/live#!/quizzes.json/edit_quiz_put_3) might also be helpful.
 
     """
-    global IN_QUIZ
-    check_quiz_builder()
-    if IN_QUIZ:
+    global QUIZ
+    if QUIZ:
         raise Exception("Currently in a quiz.  Make sure to end_quiz() first.")
 
     if not title:
@@ -202,20 +238,19 @@ def begin_quiz(*, id=None, title=None, description="",
         "one_time_results": one_time_results
     }
 
-    LOADED_QUIZZES.append(title)
-    IN_QUIZ = True
-    BUILDER.begin_quiz(id=id, title=title, description=description, options=options)
+    QUIZ = Quiz(id=id, title=title, description=description, options=options)
 
 def end_quiz():
-    """Finish the quiz started with `begin_quiz()`."""
-    global IN_QUIZ
-    check_in_quiz()
-    if IN_QUESTION:
+    """Finish the quiz started with `begin_quiz()`.  Adds the quiz to the
+    list of loaded quizzes and allows a new quiz to begin."""
+    global QUIZ
+    assert_in_quiz()
+    if QUESTION:
         raise Exception("Currently in a question. Make sure to end_question() first.")
-    if IN_QUESTION_GROUP:
+    if QUESTION_GROUP:
         raise Exception("Currently in a question group. Make sure to end_group() first.")
-    IN_QUIZ = False
-    BUILDER.end_quiz()
+    LOADED_QUIZZES.append(QUIZ)
+    QUIZ = None
 
 def begin_group(name="", pick_count=1, points=1):
     """Begin a new question group, which is ended with `end_group()`.
@@ -228,59 +263,67 @@ def begin_group(name="", pick_count=1, points=1):
     For example, if `pick_count=3` and `points=2`, then this group accounts for 6 points of the quiz.
 
     """
-    global IN_QUESTION_GROUP
-    check_in_quiz()
-    if IN_QUESTION_GROUP:
+    global QUESTION_GROUP
+    assert_in_quiz()
+    if QUESTION_GROUP:
         raise Exception("Already in a question group. Make sure to end_group() first.")
-    if IN_QUESTION:
+    if QUESTION:
         raise Exception("Currently in a question. Make sure to end_question() first.")
-    IN_QUESTION_GROUP = True
-    BUILDER.begin_group(name=name, pick_count=pick_count, points=points)
+    QUESTION_GROUP = QuestionGroup(name=name, pick_count=pick_count, points=points)
+    QUIZ.questions.append(QUESTION_GROUP)
 
 def end_group():
     """Ends the question group begun by a `begin_group()'."""
-    global IN_QUESTION_GROUP
-    if not IN_QUESTION_GROUP:
+    global QUESTION_GROUP
+    if not QUESTION_GROUP:
         raise Exception("Not currently in a question group.")
-    IN_QUESTION_GROUP = False
-    BUILDER.end_group()
+    if not QUESTION_GROUP.questions:
+        raise Exception("Question groups must have at least one question.")
+    QUESTION_GROUP = None
 
 def text(s):
-    """Attach the given text to the body of the current question."""
-    check_in_question(True)
-    BUILDER.text(s)
+    """Attach the given text to the body of the current question.  This
+    function can be used multiple times, concatenating the text."""
+    assert_in_question(True)
+    QUESTION.text += s
 
 def para(s):
     """Attach the given text as a paragraph to the body of the current
     question.  This simply wraps the text in an HTML paragraph tag."""
-    check_in_question(True)
-    text("<p>" + s + "</p>")
+    assert_in_question(True)
+    text("\n<p>" + s + "</p>")
 
 def comment_general(s):
     """Attach the given general comment to the current question.  This
     comment is always shown to the student after they take the quiz."""
-    check_in_question(True)
-    BUILDER.comment_general(s)
+    assert_in_question(True)
+    if QUESTION.comment_general:
+        raise Exception("Question already has a general comment")
+    QUESTION.comment_general = s
 
 def comment_correct(s):
     """Attach the given comment for correct answers to the current
     question. This comment is shown to the student after they take the
     quiz if they got the question correct."""
-    check_in_question(True)
-    BUILDER.comment_correct(s)
+    assert_in_question(True)
+    if QUESTION.comment_correct:
+        raise Exception("Question already has a comment for correct answers")
+    QUESTION.comment_correct = s
 
 def comment_incorrect(s):
     """Attach the given comment for incorrect answers to the current
     question.  This comment is shown to the student after they take
     the quiz if they got the question incorrect.
     """
-    check_in_question(True)
-    BUILDER.comment_incorrect(s)
+    assert_in_question(True)
+    if QUESTION.comment_incorrect:
+        raise Exception("Question already has a comment for incorrect answers")
+    QUESTION.comment_incorrect = s
 
 def answer_comment(s):
-    """Attach the given comment to the previous answer to the current
-    question.  This comment is shown to the student at the end of the
-    quiz if they selected this answer for most question types.  In a
+    """Attach the given comment to the previous answer for the current
+    question.  For most question types, this comment is shown to the
+    student at the end of the quiz if they selected this answer.  In a
     matching question, an answer comment is shown if a student missed
     the match.
 
@@ -296,61 +339,93 @@ def answer_comment(s):
     ```
 
     """
-    check_in_question(True)
-    BUILDER.answer_comment(s)
+    assert_in_question(True)
+    if QUESTION.question_type == "true_false_question":
+        raise Exception("For true/false questions, use the keyword arguments for true_false_answer instead")
+    if not QUESTION.answers:
+        raise Exception("Question has no answers")
+    if QUESTION.answers[-1].comment:
+        raise Exception("Answer already has a comment")
+    QUESTION.answers[-1].comment = s
+
+def add_question(question):
+    """(private internal) Add the question to the current thing that accepts
+    questions: the question group or the quiz itself."""
+    global QUESTION
+    if QUESTION_GROUP:
+        QUESTION_GROUP.questions.append(question)
+    else:
+        QUIZ.questions.append(question)
+    QUESTION = question
+
+def add_answer(answer):
+    """(private internal) This should not actually be needed, but just in case..."""
+    global QUESTION
+    if QUESTION.answers == None:
+        raise Exception("Question does not accept answers (internal error!)")
+    QUESTION.answers.append(answer)
 
 def begin_text_only_question(name=''):
     """Begin a text-only question.  This is an answer-free question, useful
     for prompting reading, setting up the context for some following
     questions, or otherwise providing directions.  End with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "text only"
-    BUILDER.begin_text_only_question(name=name)
+    assert_in_quiz()
+    q = Question(question_type="text_only_question",
+                 name=name,
+                 points=None)
+    q.answers = None
+    add_question(q)
 
 def begin_essay_question(name='', points=1):
     """Begin a free-form essay question. End with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "essay"
-    BUILDER.begin_essay_question(name=name, points=points)
+    assert_in_quiz()
+    q = Question(question_type="essay_question",
+                 name=name,
+                 points=points)
+    q.answers = None
+    add_question(q)
 
 def begin_file_upload_question(name='', points=1):
     """Begin a file upload question. End with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "file upload"
-    BUILDER.begin_file_upload_question(name=name, points=points)
+    assert_in_quiz()
+    q = Question(question_type="file_upload_question",
+                 name=name,
+                 points=points)
+    q.answers = None
+    add_question(q)
 
 def begin_short_answer_question(name='', points=1):
     """Begin a short-answer question.  Accepted answers are specified with
     calls to `short_answer()`. End with `end_question()`.
     """
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "short answer"
-    BUILDER.begin_short_answer_question(name=name, points=points)
+    assert_in_quiz()
+    add_question(Question(question_type="short_answer_question",
+                          name=name,
+                          points=points))
 
 def short_answer(text):
     """The answer to a short answer question.  Can be called multiple
     times for multiple acceptible answers."""
-    check_in_question("short answer")
-    BUILDER.short_answer(text)
+    assert_in_question("short_answer_question")
+    add_answer(Answer(text=text,
+                      correct=True))
 
 def begin_fill_in_multiple_blanks_question(name='', points=1):
     """Begin a fill-in-multiple-blanks question.  Each blank is given by
     text in square brackets (for example, "Roses are [color]"). End with
     `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "fill in multiple blanks"
-    BUILDER.begin_fill_in_multiple_blanks_question(name=name, points=points)
+    assert_in_quiz()
+    add_question(Question(question_type="fill_in_multiple_blanks_question",
+                          name=name,
+                          points=points))
 
 def fill_in_multiple_blanks_answer(blank_id, text):
     """An answer to a fill-in-multiple-blanks question.  The `blank_id` is
     the text in square brackets in the body of the question."""
-    check_in_question("fill in multiple blanks")
-    BUILDER.fill_in_multiple_blanks_answer(blank_id, text)
+    assert_in_question("fill_in_multiple_blanks_question")
+    add_answer(Answer(text=text,
+                      correct=True,
+                      options={"blank_id": blank_id}))
 
 def begin_multiple_dropdowns_question(name='', points=1):
     """Begin a fill-in-multiple-blanks question, just like
@@ -359,47 +434,55 @@ def begin_multiple_dropdowns_question(name='', points=1):
     text in square brackets (for example, "Roses are [color]").  End
     with `end_question()`.
     """
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "multiple dropdowns"
-    BUILDER.begin_multiple_dropdowns_question(name=name, points=points)
+    assert_in_quiz()
+    add_question(Question(question_type="multiple_dropdowns_question",
+                          name=name,
+                          points=points))
 
 def multiple_dropdowns_answer(blank_id, correct, text):
     """An answer to a multiple dropdowns question.  The `blank_id` refers
     to the text in square brackets in the body of the question, and
     `correct` is `True` or `False` whether it is one of the expected
     responses."""
-    check_in_question("multiple dropdowns")
-    BUILDER.multiple_dropdowns_answer(blank_id, correct, text)
+    assert_in_question("multiple_dropdowns_question")
+    if not isinstance(correct, bool):
+        raise ValueError("The second argument must be True or False")
+    add_answer(Answer(text=text,
+                      correct=correct,
+                      options={"blank_id": blank_id}))
 
 def begin_matching_question(name='', points=1):
     """Begin a matching question.  A list of "left" items are matched
     against a set of "right" items, and the "right" items might have mixed
     amongst them a set of "distractors." End with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "matching question"
-    BUILDER.begin_matching_question(name=name, points=points)
+    assert_in_quiz()
+    add_question(Question(question_type="matching_question",
+                          name=name,
+                          points=points,
+                          options={"incorrect_matches": []}))
 
 def matching_answer(left, right):
     """An answer to a matching question.  The "left" item is shown in a
     list in the left, and the "right" item is added to a set of things
     matched."""
-    check_in_question("matching question")
-    BUILDER.matching_answer(left, right)
+    assert_in_question("matching_question")
+    add_answer(Answer(text=None,
+                      correct=None,
+                      options={"match_left": left,
+                               "match_right": right}))
 
 def matching_distractor(text):
     """A distractor to a matching question.  Shows up in the set of "right" items."""
-    check_in_question("matching question")
-    BUILDER.matching_distractor(text)
+    assert_in_question("matching_question")
+    QUESTION.options['incorrect_matches'].append(text)
 
 def begin_numeric_question(name='', points=1):
     """Begin a numeric question.  Like `begin_short_answer_question()` but
     the answer is interpreted numerically. End with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "numeric question"
-    BUILDER.begin_numeric_question(name=name, points=points)
+    assert_in_quiz()
+    add_question(Question(question_type="numerical_question",
+                          name=name,
+                          points=points))
 
 def numeric_answer(val, margin=None, precision=None):
     """The answer to a numeric question.
@@ -416,8 +499,27 @@ def numeric_answer(val, margin=None, precision=None):
     """
     if not isinstance(val, Number):
         raise ValueError("Expecting number")
-    check_in_question("numeric question")
-    BUILDER.numeric_answer(float(val), margin=margin, precision=precision)
+    assert_in_question("numerical_question")
+    if margin != None and precision != None:
+        raise ValueError("Not both margin and precision can be set")
+    if margin == None and precision == None:
+        margin = 0
+    if margin != None:
+        if not isinstance(margin, Number):
+            raise ValueError("The margin must be a number.")
+        add_answer(Answer(text=None,
+                          correct=True,
+                          options={"numerical_answer_type": "exact_answer",
+                                   "answer_exact": float(val),
+                                   "answer_error_margin": margin}))
+    else:
+        if not isinstance(precision, Number):
+            raise ValueError("The precision must be a number.")
+        add_answer(Answer(text=None,
+                          correct=True,
+                          options={"numerical_answer_type": "precision_answer",
+                                   "answer_approximate": float(val),
+                                   "answer_precision": precision}))
 
 def numeric_answer_range(val_lo, val_hi):
     """The answer to a numeric question, where the answer lies in the
@@ -430,9 +532,14 @@ def numeric_answer_range(val_lo, val_hi):
         raise ValueError("Expecting lower bound to be number")
     if not isinstance(val_hi, Number):
         raise ValueError("Expecting upper bound to be number")
-    check_in_question("numeric question")
-    BUILDER.numeric_answer_range(float(val_lo), float(val_hi))
-
+    if val_lo > val_hi:
+        raise ValueError("Lower bound must be less than or equal to upper bound")
+    assert_in_question("numerical_question")
+    add_answer(Answer(text=None,
+                      correct=True,
+                      options={"numerical_answer_type": "range_answer",
+                               "answer_range_start": float(val_lo),
+                               "answer_range_end": float(val_hi)}))
 
 def begin_multiple_choice_question(name='', points=1, checkboxes=False):
     """Begin a multiple choice question.  Ended with `end_question()`.
@@ -443,10 +550,11 @@ def begin_multiple_choice_question(name='', points=1, checkboxes=False):
 
     End with `end_question()`.
     """
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "multiple choice"
-    BUILDER.begin_multiple_choice_question(name=name, points=points, checkboxes=checkboxes)
+    assert_in_quiz()
+    add_question(Question(question_type="multiple_choice_question",
+                          name=name,
+                          points=points,
+                          options={"checkboxes": checkboxes}))
 
 def multiple_choice_answer(correct, text):
     """The answer to a multiple choice question.
@@ -456,31 +564,58 @@ def multiple_choice_answer(correct, text):
     * `text` is how this response is shown to the student.
 
     """
-    check_in_question("multiple choice")
+    assert_in_question("multiple_choice_question")
     if not isinstance(correct, bool):
         raise ValueError("The first argument must be True or False")
-    BUILDER.multiple_choice_answer(correct, text)
+    add_answer(Answer(text=text,
+                      correct=correct))
 
 def begin_true_false_question(name='', points=1):
-    """Begin a true/false question.  Ended with `end_question()`."""
-    global IN_QUESTION
-    check_in_quiz()
-    IN_QUESTION = "true/false"
-    BUILDER.begin_true_false_question(name=name, points=points)
+    """Begin a true/false question.  Ended with `end_question()`.
 
-def true_false_answer(correct_value):
+    This is essentially a multiple choice question with two answers: "True" and "False"."""
+    assert_in_quiz()
+    add_question(Question(question_type="true_false_question",
+                          name=name,
+                          points=points))
+
+def true_false_answer(correct_value, true_comment=None, false_comment=None):
     """The answer to a true/false question.
     * `correct_value` is `True` or `False` depending on whether the answer is "true" or "false."
+
+    This function adds two answers, so it's not possible to use `answer_comment()`.  Instead:
+    * If `true_comment` is set, then it will be the answer comment for "true".
+    * If `false_comment` is set, then it will be the answer comment for "false".
     """
-    check_in_question("true/false")
+    assert_in_question("true_false_question")
     if not isinstance(correct_value, bool):
         raise ValueError("The first argument must be True or False")
-    BUILDER.true_false_answer(correct_value)
+    if QUESTION.answers:
+        raise Exception("True/false question already has an answer")
+
+    add_answer(Answer(text="True",
+                      correct=correct_value))
+    if true_comment:
+        answer_comment(true_comment)
+
+    add_answer(Answer(text="False",
+                      correct=not correct_value))
+    if false_comment:
+        answer_comment(false_comment)
+
+def shuffle_answers():
+    """Shuffle the answers to the current question.  If you create
+    multiple copies of a question in a question group, this lets you
+    mimick the "shuffle_answers" option for quizzes, but for a single
+    question."""
+    assert_in_question(True)
+    if not QUESTION.answers:
+        raise Exception("No answers to shuffle.")
+    shuffle(QUESTION.answers)
 
 def end_question():
     """End the current question."""
-    global IN_QUESTION
-    if not IN_QUESTION:
+    global QUESTION
+    if not QUESTION:
         raise Exception("Not currently in a question")
-    IN_QUESTION = False
-    BUILDER.end_question()
+    QUESTION = None

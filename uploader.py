@@ -2,6 +2,7 @@ import tkinter, tkinter.ttk
 import tkinter.filedialog
 import tkinter.messagebox
 import os, sys, subprocess, traceback, json
+import urllib.parse
 import pyquiz, pyquiz.html
 
 #import logging
@@ -13,6 +14,7 @@ NO_CANVAS_CONFIG = "Missing canvas_config.json file."
 BAD_CANVAS_CONFIG_ERROR = "Malformed canvas_config.json file."
 MISSING_END_QUIZ = "Missing end_quiz() in quiz file."
 NO_PREVIEW_FILE = "Generate an HTML preview first."
+NO_UPLOAD = "Need to upload a quiz to Canvas first."
 
 UPLOADER_STATE_FILE = ".uploader_state.json"
 
@@ -186,7 +188,17 @@ def exec_quiz(quiz_filename):
             quiz_globals = {}
             exec(c, quiz_globals, quiz_globals)
 
-    print("Loaded quizzes with titles: " + ", ".join(pyquiz.get_loaded_quizzes()))
+    print("Loaded quizzes with titles: " + ", ".join(q.title for q in pyquiz.get_loaded_quizzes()))
+
+def do_exec_quiz(quiz_filename):
+    """Run exec_quiz and return the list of quizzes.  Show error popups on errors."""
+    pyquiz.reset_quiz_builder()
+    exec_quiz(quiz_file)
+    if pyquiz.is_in_quiz():
+        tkinter.messagebox.showerror("Error", MISSING_END_QUIZ)
+        print("Error: " + MISSING_END_QUIZ)
+        return
+    return pyquiz.get_loaded_quizzes()
 
 def get_html_file(quiz_file):
     #return quiz_file + ".html"
@@ -198,18 +210,14 @@ def preview_command():
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
 
-    html_file = get_html_file(quiz_file)
-    builder = pyquiz.html.HTMLQuizBuilder(html_file)
-    pyquiz.set_quiz_builder(builder)
+    quizzes = do_exec_quiz(quiz_file)
 
-    exec_quiz(quiz_file)
-
-    if pyquiz.is_in_quiz():
-        tkinter.messagebox.showerror("Error", MISSING_END_QUIZ)
-        print("Error: " + MISSING_END_QUIZ)
-        return
-
-    print("Click 'View' to open generated HTML file")
+    if quizzes:
+        html_file = get_html_file(quiz_file)
+        pyquiz.html.write_quizzes(html_file, quizzes)
+        print("Click 'View' to open generated HTML file")
+    else:
+        print("No quizzes so did not generate HTML file")
 
 def view_command():
     if quiz_file == None:
@@ -222,6 +230,9 @@ def view_command():
         tkinter.messagebox.showerror("Error", NO_PREVIEW_FILE)
         return
 
+    platform_open_file(html_file)
+
+def platform_open_file(html_file):
     if sys.platform == "win32":
         # Windows
         os.startfile(html_file)
@@ -239,24 +250,36 @@ def upload_command():
         tkinter.messagebox.showerror("Error", NO_QUIZ_SELECT_ERROR)
         return
 
-    print("Uploading to " + the_canvas_config['name'])
+    quizzes = do_exec_quiz(quiz_file)
 
-    builder = pyquiz.canvas.CanvasQuizBuilder(
+    if not quizzes:
+        print("No quizzes to upload")
+        return
+
+    uploader = pyquiz.canvas.CanvasQuizUploader(
         api_url=the_canvas_config['API_URL'],
         api_key=the_canvas_config['API_KEY'],
         course_id=the_canvas_config['COURSE_ID']
     )
-    pyquiz.set_quiz_builder(builder)
-
-    exec_quiz(quiz_file)
-
-    if pyquiz.is_in_quiz():
-        tkinter.messagebox.showerror("Error", MISSING_END_QUIZ)
-        print("Error: " + MISSING_END_QUIZ)
-        return
+    urls = []
+    for quiz in quizzes:
+        id = uploader.upload_quiz(quiz)
+        print(f"Uploaded quiz {quiz.title!r} with id {id} to {the_canvas_config['name']!r}")
+        url = urllib.parse.urljoin(the_canvas_config['API_URL'],
+                                   f"courses/{the_canvas_config['COURSE_ID']}/quizzes/{id}")
+        urls.append(url)
+    uploaded_quizzes.configure(value=urls)
+    uploaded_quizzes.set(urls[0])
 
     tkinter.messagebox.showinfo("Success",
-                                "Uploaded the following quizzes: " + ", ".join(pyquiz.get_loaded_quizzes()))
+                                "Uploaded the following quizzes: " + ", ".join(q.title for q in quizzes))
+
+def view_upload_command():
+    url = uploaded_quizzes.get()
+    if not url:
+        tkinter.messagebox.showerror("Error", NO_UPLOAD)
+        return
+    platform_open_file(url)
 
 ###
 ### Choose file
@@ -321,6 +344,12 @@ else:
 
     upload_button = tkinter.ttk.Button(master=upload_buttons, text="Upload", command=upload_command)
     upload_button.grid(row=0, column=1)
+
+    uploaded_quizzes = tkinter.ttk.Combobox(master=upload_buttons, state="readonly", value=[])
+    uploaded_quizzes.grid(row=1, column=0)
+    view_uploaded_quizzes = tkinter.ttk.Button(master=upload_buttons, text="View", command=view_upload_command)
+    view_uploaded_quizzes.grid(row=1, column=1)
+
 
 ###
 ### Stdout redirector

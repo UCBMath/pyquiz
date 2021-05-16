@@ -1,5 +1,7 @@
 r"""
-This is the quiz builder (see `pyquiz.builder`) for Canvas output.  Quiz writers should not need to refer to this module.
+This is the quiz uploader for Canvas output.  Quiz authors should not need to refer to this module.
+
+See `pyquiz.builder`.
 """
 
 
@@ -9,15 +11,14 @@ from canvasapi.exceptions import ResourceDoesNotExist
 # By adding this to a Canvas question, it enables MathJax for the page.
 MATHJAX=r"""<p style="display: none;" aria-hidden="true"><math></math>Requires JavaScript enabled to see MathJax equations.</p>"""
 
-class CanvasQuizBuilder:
+
+
+class CanvasQuizUploader:
     def __init__(self, api_url, api_key, course_id):
         self.canvas = Canvas(api_url, api_key)
         self.course = self.canvas.get_course(course_id)
-        self.QUIZ = None
-        self.GROUP_ID = None
-        self.QUESTION_DATA = None
 
-    def begin_quiz(self, id=None, title=None, description="", options={}):
+    def upload_quiz(self, quiz):
         """If the `id` is given, then edit the existing quiz (raising an error
         of no such quiz exists), otherwise look up a quiz by that
         title and if one with that title doesn't exist already, create
@@ -28,15 +29,109 @@ class CanvasQuizBuilder:
         empty question groups in Canvas if they exist.
         """
 
-        if not title:
-            raise ValueError("Missing title for quiz")
-
         quiz_config = {
-            'title': title,
-            'description': f"{MATHJAX} {description}",
+            'title': quiz.title,
+            'description': f"{MATHJAX} {quiz.description}",
         }
-        quiz_config.update(options)
-        print(f"quiz config: {options}")
+        quiz_config.update(quiz.options)
+
+        self.quiz = self.create_quiz(quiz.id, quiz.title, quiz_config)
+
+        for q in quiz.questions:
+            if q.is_group():
+                self.upload_group(q)
+            else:
+                self.upload_question(q)
+
+        id = self.quiz.id
+        self.quiz = None
+        return id
+
+    def upload_group(self, group):
+        group_config = {
+            'name': group.name,
+            'pick_count': group.pick_count,
+            'question_points': group.points
+        }
+        cgroup = self.quiz.create_question_group([group_config])
+        for q in group.questions:
+            self.upload_question(q, group_id=cgroup.id)
+
+    def upload_question(self, q, *, group_id=None):
+        def create_question(question_type, answers=None, options=None):
+            question_data = {
+                'question_name': q.name,
+                'question_text': f"{MATHJAX} {q.text}",
+                'question_type': question_type,
+                'answers': answers or []
+            }
+            question_data.update(options or {})
+            if group_id != None:
+                question_data['quiz_group_id'] = group_id
+            if q.comment_general:
+                question_data['neutral_comments_html'] = q.comment_general
+            if q.comment_correct:
+                question_data['correct_comments_html'] = q.comment_correct
+            if q.comment_incorrect:
+                question_data['incorrect_comments_html'] = q.comment_incorrect
+
+            # TODO: remove this when Canvas is fixed.
+            # It is a workaround for an error in Canvas (as of deployment week of 2021/05/14)
+            # that causes an internal error when the answers list is a list!
+            if 'answers' in question_data:
+                question_data['answers'] = dict(enumerate(question_data['answers']))
+
+            if False:
+                print("creating question ")
+                import pprint
+                pprint.pprint(question_data)
+            self.quiz.create_question(question=question_data)
+
+        t = q.question_type
+
+        if t in ("text_only_question", "essay_question", "file_upload_question"):
+            create_question(t)
+        elif t in ("short_answer_question", "multiple_choice_question", "true_false_question"):
+            if t == "multiple_choice_question" and q.options['checkboxes']:
+                t = "multiple_answers_question"
+            answers = []
+            for ans in q.answers:
+                answers.append({'answer_weight': 100 if ans.correct else 0,
+                                'answer_text': ans.text,
+                                'comments_html': ans.comment})
+            create_question(t, answers=answers)
+        elif t in ("fill_in_multiple_blanks_question", "multiple_dropdowns_question"):
+            answers = []
+            for ans in q.answers:
+                answers.append({'answer_weight': 100 if ans.correct else 0,
+                                'blank_id': ans.options['blank_id'],
+                                'answer_text': ans.text,
+                                'comments_html': ans.comment})
+            create_question(t, answers=answers)
+        elif t == "matching_question":
+            answers = []
+            for ans in q.answers:
+                answers.append({'answer_match_left': ans.options['match_left'],
+                                'answer_match_right': ans.options['match_right'],
+                                'comments_html': ans.comment})
+            create_question(t, answers=answers,
+                            options={
+                                "matching_answer_incorrect_matches": "\n".join(q.options['incorrect_matches'])
+                            })
+        elif t == "numerical_question":
+            answers = []
+            for ans in q.answers:
+                data = {'answer_weight': 100 if ans.correct else 0,
+                        'comments_html': ans.comment}
+                data.update(ans.options)
+                answers.append(data)
+            create_question(t, answers=answers)
+        else:
+            raise Exception(f"(internal error) Unknown question type {t}")
+
+
+    def create_quiz(self, id, title, quiz_config):
+        """Find a quiz if it exists and delete questions.  If it doesn't exist, create it."""
 
         quiz = None
 
@@ -68,273 +163,9 @@ class CanvasQuizBuilder:
             for gid in groups:
                 quiz.get_quiz_group(gid).delete(gid) # TODO fix bug in canvasapi itself?
             quiz_config['notify_of_update'] = False
-            quiz = quiz.edit(quiz=quiz_config)
-            self.QUIZ = quiz
+            return quiz.edit(quiz=quiz_config)
         else:
             # Create a new quiz
             print(f"Creating a new quiz")
-            self.QUIZ = self.course.create_quiz(quiz_config)
+            return self.course.create_quiz(quiz_config)
 
-    def end_quiz(self):
-        if self.QUESTION_DATA != None:
-            raise Exception("need to end_question()")
-        if self.GROUP_ID != None:
-            raise Exception("need to end_group()")
-        if self.QUIZ == None:
-            raise Exception("not in a quiz")
-        print(f"Uploaded quiz with id={self.QUIZ.id} and title={self.QUIZ.title!r}")
-        self.QUIZ = None
-
-
-    def begin_group(self, name="", pick_count=1, points=1):
-        if self.GROUP_ID != None:
-            raise Exception("Already in a group. Make sure to use end_group().")
-        # Defer actually creating a question group -- the Canvas API
-        # does not seem to give any way to let you find a list of all
-        # existing question groups.
-        self.GROUP_ID = "defer"
-        self.GROUP_CONFIG = {
-            'name': name,
-            'pick_count': pick_count,
-            'question_points': points
-        }
-
-    def end_group(self):
-        if self.GROUP_ID == None:
-            raise Exception("Not in a group.")
-        if self.GROUP_ID == "defer":
-            raise Exception("Empty question group.  All question groups must have at least one question.")
-        self.GROUP_ID = None
-
-    def text(self, s):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not in a question.")
-        self.QUESTION_DATA['question_text'] += s
-
-    def comment_general(self, text):
-        self.QUESTION_DATA['neutral_comments_html'] = text
-
-    def comment_correct(self, text):
-        self.QUESTION_DATA['correct_comments_html'] = text
-
-    def comment_incorrect(self, text):
-        self.QUESTION_DATA['incorrect_comments_html'] = text
-
-    def answer_comment(self, comment):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not in a question")
-        if not self.QUESTION_DATA['answers']:
-            raise Exception("No answers to this question")
-        answer = self.QUESTION_DATA['answers'][-1]
-        answer['comments_html'] = answer.get('comments_html', "") + comment
-
-    def begin_text_only_question(self, name=''):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'question_text': MATHJAX,
-            'question_type': "text_only_question"
-        }
-
-    def begin_essay_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "essay_question"
-        }
-
-    def begin_file_upload_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "file_upload_question"
-        }
-
-    def begin_short_answer_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "short_answer_question",
-            'answers': []
-        }
-
-    def short_answer(self, text):
-        # TODO check if setting weight 0 is interesting
-        self.QUESTION_DATA['answers'].append({
-            'weight': 100,
-            'text': text
-        })
-
-    def begin_fill_in_multiple_blanks_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "fill_in_multiple_blanks_question",
-            'answers': []
-        }
-
-    def fill_in_multiple_blanks_answer(self, blank_id, text):
-        self.QUESTION_DATA['answers'].append({
-            'weight': 100,
-            'blank_id': blank_id,
-            'text': text
-        })
-
-    def begin_multiple_dropdowns_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "multiple_dropdowns_question",
-            'answers': []
-        }
-
-    def multiple_dropdowns_answer(self, blank_id, correct, text):
-        self.QUESTION_DATA['answers'].append({
-            'weight': 100 if correct else 0,
-            'blank_id': blank_id,
-            'text': text
-        })
-
-    def begin_matching_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "matching_question",
-            'answers': [],
-            'matching_answer_incorrect_matches': ""
-        }
-
-    def matching_answer(self, left, right):
-        self.QUESTION_DATA['answers'].append({
-            'answer_match_left': left,
-            'answer_match_right': right
-        })
-    def matching_distractor(self, text):
-        assert isinstance(text, str)
-        incorrect = [s for s in self.QUESTION_DATA['matching_answer_incorrect_matches'].split("\n") if s]
-        incorrect.append(text)
-        self.QUESTION_DATA['matching_answer_incorrect_matches'] = "\n".join(incorrect)
-
-    def begin_numeric_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "numerical_question",
-            'answers': []
-        }
-
-    def numeric_answer(self, val, margin=None, precision=None):
-        if margin != None and precision != None:
-            raise ValueError("Not both margin and precision can be set")
-        if margin == None and precision == None:
-            margin = 0
-        if margin != None:
-            self.QUESTION_DATA['answers'].append({
-                'weight': 100,
-                'numerical_answer_type': 'exact_answer',
-                'answer_exact': val,
-                'answer_error_margin': margin
-            })
-        elif precision != None:
-            self.QUESTION_DATA['answers'].append({
-                'weight': 100,
-                'numerical_answer_type': 'precision_answer',
-                'answer_approximate': val,
-                'answer_precision': precision
-            })
-        else:
-            raise Exception
-
-    def numeric_answer_range(self, lo, hi):
-        self.QUESTION_DATA['answers'].append({
-            'weight': 100,
-            'numerical_answer_type': 'range_answer',
-            'answer_range_start': lo,
-            'answer_range_end': hi
-        })
-
-    def begin_multiple_choice_question(self, name='', points=1, checkboxes=False):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "multiple_answers_question" if checkboxes else "multiple_choice_question",
-            'answers': []
-        }
-
-    def multiple_choice_answer(self, correct, text):
-        self.QUESTION_DATA['answers'].append({
-            'answer_weight': 100 if correct else 0,
-            'answer_html': text
-        })
-
-    def begin_true_false_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-        self.QUESTION_DATA = {
-            'question_name': name,
-            'points_possible': points,
-            'question_text': MATHJAX,
-            'question_type': "true_false_question",
-            'answers': []
-        }
-
-    def true_false_answer(self, correct_value):
-        self.QUESTION_DATA['answers'].append({
-            'weight': 100 if correct_value else 0,
-            'text': "True",
-        })
-        self.QUESTION_DATA['answers'].append({
-            'weight': 0 if correct_value else 100,
-            'text': "False"
-        })
-
-    def end_question(self):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not in a question")
-
-        # Create the question group if deferred (why defer? Canvas
-        # doesn't give you a way to get a list of question groups for
-        # a quiz, so it's safest to guarantee there is at least one
-        # question per question group)
-        if self.GROUP_ID == "defer":
-            group = self.QUIZ.create_question_group([self.GROUP_CONFIG])
-            self.GROUP_ID = group.id
-            self.GROUP_CONFIG = None
-        self.QUESTION_DATA['quiz_group_id'] = self.GROUP_ID
-
-        # TODO: remove this when Canvas is fixed.
-        # It is a workaround for an error in Canvas (as of deployment week of 2021/05/14)
-        # that causes an internal error when the answers list is a list!
-        if 'answers' in self.QUESTION_DATA:
-            new_answers = {}
-            for i, ans in enumerate(self.QUESTION_DATA['answers']):
-                new_answers[i] = ans
-            self.QUESTION_DATA['answers'] = new_answers
-
-        self.QUIZ.create_question(question=self.QUESTION_DATA)
-        self.QUESTION_DATA = None

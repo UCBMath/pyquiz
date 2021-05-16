@@ -1,293 +1,211 @@
-class HTMLQuizBuilder:
-    def __init__(self, filename):
-        print("HTML quiz builder writing to " + filename)
-        self.QUIZ = open(filename, "w")
-        self.IN_GROUP = False
-        self.QUESTION_DATA = None
+r"""
+Module to create previews of quizzes as HTML files.  Quiz authors should not need to refer to this module.
 
-    def write(self, s):
-        self.QUIZ.write(s)
+See `pyquiz.builder`.
+"""
 
-    def begin_quiz(self, id=None, title=None, description="", options={}):
-        if title == None:
-            raise Exception("Missing quiz title.")
-        self.write(f"""
-        <!doctype html>
-        <html>
-        <head>
+__all__ = [
+    "write_quizzes"
+]
+
+def write_header(fout):
+    fout.write(r"""
+    <!doctype html>
+    <html>
+      <head>
         <script type="text/javascript" async
           src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
         </script>
         <style>
-          table.options {{ margin: 1em; }}
-          table.options th {{ text-align: right; padding: 2px 8px 2px 0; }}
-          div.question_group {{ border: 1px solid #ccc; padding: 0 5px 0 5px; margin-bottom: 1em; }}
-          div.question {{ border: 1px solid #ccf; padding-left: 0 5px 0 5px; margin-bottom: 0.5em; }}
-          body {{ max-width: 700px; }}
+          table.options { margin: 1em; }
+          table.options th { text-align: right; padding: 2px 8px 2px 0; }
+          div.question_group { border: 1px solid #ccc; padding: 0 5px 0 5px; margin-bottom: 1em; }
+          div.question { border: 1px solid #ccf; padding-left: 0 5px 0 5px; margin-bottom: 0.5em; }
+          body { max-width: 700px; }
         </style>
-        </head>
-        <body>
-        <h1>{title}</h1>
-        <p>Quiz description: {description}</p>
+      </head>
+      <body>
+    """)
+def write_footer(fout):
+    fout.write(r"""
+      </body>
+    </html>
+    """)
+
+def write_quiz(fout, quiz):
+    fout.write(rf"""
+    <h1>{quiz.title}</h1>
+    <p>Quiz description: {quiz.description}</p>
+    """)
+    if quiz.id != None:
+        fout.write(f"""
+        <p>Will replace quiz with id {id}.</p>
         """)
-        if id:
-            self.write(f"""
-            <p>Will replace quiz with id {id}.</p>
-            """)
-        if options:
-            self.write('<table class="options">')
-            for k, v in options.items():
-                self.write(f"""<tr><th>{k}</th><td>{v}</td></tr>\n""")
-            self.write("</table>")
+    if quiz.options:
+        fout.write('<table class="options">')
+        for k, v in quiz.options.items():
+            fout.write(f"""<tr><th>{k}</th><td>{v}</td></tr>\n""")
+        fout.write("</table>\n")
+    for i, q in enumerate(quiz.questions):
+        if q.is_group():
+            write_group(fout, q, i)
+        else:
+            write_question(fout, q, i)
 
-    def end_quiz(self):
-        if self.QUESTION_DATA != None:
-            raise Exception("need to end_question()")
-        if self.IN_GROUP:
-            raise Exception("need to end_group()")
-        if self.QUIZ == None:
-            raise Exception("not in a quiz")
-        self.QUIZ.close()
-        self.QUIZ = None
+def write_group(fout, group, i):
+    fout.write(rf"""
+    <div class="question_group">
+    <h2>Question group {group.name}</h2>
+    <p>(picking {group.pick_count} question, {group.points} {"point" if group.points == 1 else "points"} each)</p>
+    """)
+    for q in group.questions:
+        write_question(fout, q, i, in_group=True)
+    fout.write(rf"""
+    </div>
+    """)
 
-    def begin_group(self, name="", pick_count=1, points=1):
-        if self.IN_GROUP:
-            raise Exception("Already in a group. Make sure to use end_group().")
-        self.IN_GROUP = True
-        self.write(f"""
-        <div class="question_group">
-        <h2>Question group {name}</h2>
-        <p>(picking {pick_count} question, {points} {"point" if points == 1 else "points"} each)</p>
-        """)
-        self.GROUP_HAS_QUESTION = False
+def write_question(fout, q, i, *, in_group=False):
+    if in_group or q.points == None:
+        points = ""
+    elif q.points == 1:
+        points = "(1 point)"
+    else :
+        points = f"({q.points} points)"
 
-    def end_group(self):
-        if not self.IN_GROUP:
-            raise Exception("Not in a group.")
-        if not self.GROUP_HAS_QUESTION:
-            raise Exception("Question group has no questions.")
-        self.write(f"""
-        </div>
-        """)
-        self.IN_GROUP = False
-
-    def text(self, s):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not currently in a question.")
-        self.write(f"""
-
-        {s}
-
+    def write_question_header(qtype):
+        fout.write(f"""
+        <div class="question">
+        <h3>{i+1}. {qtype} {q.name or ""} {points}</h3>
         """)
 
-    def comment_general(self, s):
-        self.write(f"""
-        <p>General comment (for all responses): {s}</p>
-        """)
-    def comment_correct(self, s):
-        self.write(f"""
-        <p>Comment for correct answers: {s}</p>
-        """)
-    def comment_incorrect(self, s):
-        self.write(f"""
-        <p>Comment for incorrect answers: {s}</p>
-        """)
-    def answer_comment(self, comment):
-        if not self.QUESTION_DATA:
-            raise Exception("Not in a question")
-        self.write(f"<p>Comment for this answer: {comment}</p>")
+        fout.write(rf"<p>{q.text}</p>")
 
-    def maybe_points(self, points):
-        if not self.IN_GROUP:
-            if points == 1:
-                return "(1 point)"
+    t = q.question_type
+
+    if t == "text_only_question":
+        write_question_header("Text-only question")
+    elif t == "essay_question":
+        write_question_header("Essay question")
+    elif t == "file_upload_question":
+        write_question_header("File upload question")
+    elif t == "short_answer_question":
+        write_question_header("Short answer question")
+        fout.write("<ul>\n")
+        for ans in q.answers:
+            fout.write("<li>\n")
+            if ans.correct:
+                fout.write(f"Answer: {ans.text}")
             else:
-                return f"({points} points)"
-        else:
-            return ""
+                fout.write(f"Incorrect answer: {ans.text}")
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</li>\n")
+        fout.write("</ul>\n")
+    elif t == "fill_in_multiple_blanks_question":
+        write_question_header("Fill in multiple blanks question")
+        fout.write("<ul>\n")
+        for ans in q.answers:
+            fout.write("<li>\n")
+            fout.write("Answer" if ans.correct else "Incorrect answer")
+            fout.write(f" for {ans.options['blank_id']}: {ans.text}")
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</li>\n")
+        fout.write("</ul>\n")
+    elif t == "multiple_dropdowns_question":
+        write_question_header("Multiple dropdowns question")
+        fout.write("<ul>\n")
+        for ans in q.answers:
+            fout.write("<li>\n")
+            fout.write("Answer" if ans.correct else "Incorrect answer")
+            fout.write(f" for {ans.options['blank_id']}: {ans.text}")
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</li>\n")
+        fout.write("</ul>\n")
+    elif t == "matching_question":
+        write_question_header("Matching question")
+        fout.write("<ul>\n")
+        for ans in q.answers:
+            fout.write("<li>\n")
+            fout.write(f"Match {ans.options['match_left']!r} to {ans.options['match_right']!r}")
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</li>\n")
+        for inc in q.options['incorrect_matches']:
+            fout.write("<li>\n")
+            fout.write(f"Nothing matches to {inc!r}")
+            fout.write("</li>\n")
+        fout.write("</ul>\n")
+    elif t == "numerical_question":
+        write_question_header("Numeric question")
+        fout.write("<ul>\n")
+        for ans in q.answers:
+            fout.write("<li>\n")
+            nat = ans.options['numerical_answer_type']
+            if nat == "exact_answer":
+                fout.write(f"{ans.options['answer_exact']}")
+                if ans.options['answer_error_margin']:
+                    fout.write(f" &pm; {ans.options['answer_error_margin']}")
+            elif nat == "precision_answer":
+                fout.write(f"{ans.options['answer_approximate']}")
+                fout.write(f" with precision {ans.options['answer_precision']} ")
+            elif nat == "range_answer":
+                fout.write(f"from {ans.options['answer_range_start']}")
+                fout.write(f" to {ans.options['answer_range_end']}")
+            else:
+                raise Exception("Internal error: unknown numerical_answer_type")
 
-    def begin_text_only_question(self, name=''):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</li>\n")
+    elif t == "multiple_choice_question":
+        checkbox = q.options['checkboxes']
+        write_question_header("Multiple choices question")
+        if checkbox:
+            fout.write("<p>Checkboxes (select all options that apply)</p>")
+        for ans in q.answers:
+            fout.write("<div>\n")
+            fout.write(f"""
+            <input type={'checkbox' if checkbox else 'radio'}
+                   {'checked' if ans.correct else ''}>
+            <label>{ans.text}</label>
+            """)
+            maybe_write_answer_comment(fout, ans)
+            fout.write("</div>\n")
+    elif t == "true_false_question":
+        write_question_header("True/false question")
+        for ans in q.answers:
+            fout.write("<div>\n")
+            fout.write(f"""
+            <input type=radio
+                   {'checked' if ans.correct else ''}>
+            <label>{ans.text}</label>
+            """)
+            fout.write("</div>\n")
+    else:
+        raise Exception(f"(internal error) Unknown question type {t}")
 
-        self.write(f"""
-        <div class="question">
-        <h3>Text-only question {name}</h3>
+    if q.comment_correct:
+        fout.write(f"""
+        <p>Comment for correct answers: {q.comment_correct}</p>
+        """)
+    if q.comment_incorrect:
+        fout.write(f"""
+        <p>General for incorrect answers: {q.comment_incorrect}</p>
+        """)
+    if q.comment_general:
+        fout.write(f"""
+        <p>General comment (for all responses): {q.comment_general}</p>
         """)
 
-        self.QUESTION_DATA = {
-            'question_type': "text_only_question"
-        }
+    fout.write(f"""
+    </div>
+    """)
 
-    def begin_essay_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
+def maybe_write_answer_comment(fout, ans):
+    if ans.comment:
+        fout.write(rf"""<p>Comment for this answer: {ans.comment}</p>""")
 
-        self.write(f"""
-        <div class="question">
-        <h3>Essay question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "essay_question"
-        }
-
-    def begin_file_upload_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>File upload question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "file_upload_question"
-        }
-
-    def begin_short_answer_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Short answer question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "short_answer_question",
-        }
-
-    def short_answer(self, text):
-        self.write(f"<p>Answer: {text}</p>")
-
-    def begin_fill_in_multiple_blanks_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Fill in multiple blanks question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "fill_in_multiple_blanks_question",
-        }
-
-    def fill_in_multiple_blanks_answer(self, blank_id, text):
-        self.write(f"<p>Answer for {blank_id}: {text}</p>")
-
-    def begin_multiple_dropdowns_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Multiple dropdowns question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "multiple_dropdowns_question",
-        }
-
-    def multiple_dropdowns_answer(self, blank_id, correct, text):
-        self.write(f"<p>Answer for {blank_id}: {text}")
-        if correct:
-            self.write(" <b>(answer)</b>")
-        self.write("</p>")
-
-    def begin_matching_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Matching question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "matching_question",
-        }
-
-    def matching_answer(self, left, right):
-        self.write(f"<p>Match {left!r} to {right!r}</p>")
-
-    def matching_distractor(self, text):
-        self.write(f"<p>Nothing matches to {text!r}</p>")
-
-    def begin_numeric_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Numeric question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "numerical_question",
-        }
-
-    def numeric_answer(self, val, margin=None, precision=None):
-        if margin != None and precision != None:
-            raise ValueError("Not both margin and precision can be set")
-        if margin == None and precision == None:
-            margin = 0
-        if margin != None:
-            self.write(f"<p>Numeric answer: {val}")
-            if margin != 0:
-                self.write(f" &pm; {margin}")
-        elif precision != None:
-            self.write(f"<p>Numeric answer: {val} with precision {precision}</p>")
-        else:
-            raise Exception
-
-    def numeric_answer_range(self, lo, hi):
-        self.write(f"<p>Numeric answer: from {lo} to {hi}</p>")
-
-    def begin_multiple_choice_question(self, name='', points=1, checkboxes=False):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>Multiple choice question {name} {self.maybe_points(points)}</h3>
-        """)
-        if checkboxes:
-            self.write("<p>Checkboxes (select all options that apply)</p>")
-
-        self.QUESTION_DATA = {
-            'question_type': "multiple_choice_question",
-        }
-
-    def multiple_choice_answer(self, correct, text):
-        if correct:
-            self.write(f"<p>Choice: {text} <b>(answer)</b></p>")
-        else:
-            self.write(f"<p>Choice: {text}</p>")
-
-    def begin_true_false_question(self, name='', points=1):
-        if self.QUESTION_DATA != None:
-            raise Exception("In a question. Make sure to use end_question().")
-
-        self.write(f"""
-        <div class="question">
-        <h3>True/false question {name} {self.maybe_points(points)}</h3>
-        """)
-
-        self.QUESTION_DATA = {
-            'question_type': "true_false_question",
-        }
-
-    def true_false_answer(self, correct_value):
-        self.write(f"<p>Answer: {correct_value}</p>")
-
-    def end_question(self):
-        if self.QUESTION_DATA == None:
-            raise Exception("Not in a question")
-        self.write(f"""
-        </div>
-        """)
-        self.QUESTION_DATA = None
-        self.GROUP_HAS_QUESTION = True
-
+def write_quizzes(filename, quizzes):
+    print("Writing HTML to " + filename)
+    with open(filename, "w") as fout:
+        write_header(fout)
+        for quiz in quizzes:
+            write_quiz(fout, quiz)
+        write_footer(fout)
