@@ -172,19 +172,25 @@ def write_question(fout, q, i, *, in_group=False):
     elif t == "numerical_question":
         write_question_header("Numeric question")
         fout.write("""<div class="answer"><ul>\n""")
+        def float_str(x):
+            x = float(x)
+            if int(x) == x:
+                return repr(int(x))
+            else:
+                return repr(x)
         for ans in q.answers:
             fout.write("<li>\n")
             nat = ans.options['numerical_answer_type']
             if nat == "exact_answer":
-                fout.write(f"{ans.options['answer_exact']}")
+                fout.write(f"{float_str(ans.options['answer_exact'])}")
                 if ans.options['answer_error_margin']:
                     fout.write(f" &pm; {ans.options['answer_error_margin']}")
             elif nat == "precision_answer":
-                fout.write(f"{ans.options['answer_approximate']}")
+                fout.write(f"{float_str(ans.options['answer_approximate'])}")
                 fout.write(f" with precision {ans.options['answer_precision']} ")
             elif nat == "range_answer":
-                fout.write(f"from {ans.options['answer_range_start']}")
-                fout.write(f" to {ans.options['answer_range_end']}")
+                fout.write(f"from {float_str(ans.options['answer_range_start'])}")
+                fout.write(f" to {float_str(ans.options['answer_range_end'])}")
             else:
                 raise Exception("Internal error: unknown numerical_answer_type")
 

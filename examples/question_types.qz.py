@@ -63,9 +63,9 @@ end_question()
 
 begin_numeric_question()
 text(rf"""
-The answer is \(2\) plus or minus \(0.2\), or \(31415\) with two digits of precision in scientific notation, or exactly \(100\), or anything between \(16\) and \(17\) inclusive.
+The answer is \(2.2\) plus or minus \(0.2\), or \(31415\) with two digits of precision in scientific notation, or exactly \(100\), or anything between \(16\) and \(17\) inclusive.
 """)
-numeric_answer(2, margin=0.2)
+numeric_answer(2.2, margin=0.2)
 numeric_answer(31415, precision=2)
 numeric_answer(100) # margin=0
 numeric_answer_range(16, 17)
