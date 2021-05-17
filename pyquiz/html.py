@@ -200,8 +200,8 @@ def write_question(fout, q, i, *, in_group=False):
     elif t == "multiple_choice_question":
         checkbox = q.options['checkboxes']
         write_question_header("Multiple choice question")
-        if checkbox:
-            fout.write("<p>Checkboxes (select all options that apply)</p>")
+        #if checkbox:
+        #    fout.write("<p>Checkboxes (select all options that apply)</p>")
         for ans in q.answers:
             fout.write("<div class=answer>\n")
             fout.write(f"""
