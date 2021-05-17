@@ -74,11 +74,38 @@
 <span class="s2">          src=&quot;https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML&quot;&gt;</span>
 <span class="s2">        &lt;/script&gt;</span>
 <span class="s2">        &lt;style&gt;</span>
+<span class="s2">          html { font-family: &quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif; }</span>
+<span class="s2">          body { line-height: 1.5; font-size: 16px; max-width: 700px; }</span>
 <span class="s2">          table.options { margin: 1em; }</span>
 <span class="s2">          table.options th { text-align: right; padding: 2px 8px 2px 0; }</span>
-<span class="s2">          div.question_group { border: 1px solid #ccc; padding: 0 5px 0 5px; margin-bottom: 1em; }</span>
-<span class="s2">          div.question { border: 1px solid #ccf; padding-left: 0 5px 0 5px; margin-bottom: 0.5em; }</span>
-<span class="s2">          body { max-width: 700px; }</span>
+<span class="s2">          div.question_group { border: 1px solid #aaa; background-color: #fff; padding-left: 0; margin-bottom: 1em; }</span>
+<span class="s2">          div.question_group_body { clear: left; padding: 10px 20px; }</span>
+<span class="s2">          div.question { border: 1px solid #aaa; background-color: #fff; padding-left: 0; margin-bottom: 1em; }</span>
+<span class="s2">          div.question_header {</span>
+<span class="s2">            font-size: 1.2em; font-weight: bold; border-bottom: 1px solid #aaa; background-color: #f5f5f5;</span>
+<span class="s2">            padding: 8px 20px; margin: 0;</span>
+<span class="s2">          }</span>
+<span class="s2">          span.name { }</span>
+<span class="s2">          span.points { float: right; font-size: 0.9em; color: #595959; margin-top: 0.1em; }</span>
+<span class="s2">          div.question_body { clear: left; padding: 5px 20px 20px 20px; }</span>
+<span class="s2">          div.question_text { margin-top: 1.5em; margin-bottom: 1.5em; max-width: 100%; min-height: 5px; }</span>
+<span class="s2">          .answer { padding: 5px; margin: 0; border-top: 1px solid #ddd; }</span>
+<span class="s2">          div.quiz_comment {</span>
+<span class="s2">            border: 1px solid #b5bfc7;</span>
+<span class="s2">            background-image: linear-gradient(to bottom, #fff, #f4f5f6);</span>
+<span class="s2">            border-radius: 5px;</span>
+<span class="s2">            box-shadow: 0 1px 2px rgb(0 0 0 / 20%);</span>
+<span class="s2">            font-size: 16px;</span>
+<span class="s2">            min-width: 100px; padding: 14px; position: relative; margin: 16px 30px; text-align: left;</span>
+<span class="s2">          }</span>
+<span class="s2">          div.quiz_comment::before {</span>
+<span class="s2">            border: 10px solid transparent; content: &quot; &quot;; height: 0; position: absolute; width: 0;</span>
+<span class="s2">            border-bottom-color: #b5bfc7; left: 30px; top: -20px;</span>
+<span class="s2">          }</span>
+<span class="s2">          div.quiz_comment::after {</span>
+<span class="s2">            border: 10px solid transparent; content: &quot; &quot;; height: 0; position: absolute; width: 0;</span>
+<span class="s2">            border-bottom-color: #fff; left: 30px; top: -19px;</span>
+<span class="s2">          }</span>
 <span class="s2">        &lt;/style&gt;</span>
 <span class="s2">      &lt;/head&gt;</span>
 <span class="s2">      &lt;body&gt;</span>
@@ -112,12 +139,17 @@
 <span class="k">def</span> <span class="nf">write_group</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
     <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    &lt;div class=&quot;question_group&quot;&gt;</span>
-<span class="s2">    &lt;h2&gt;Question group </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/h2&gt;</span>
-<span class="s2">    &lt;p&gt;(picking </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> question, </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">points</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;point&quot;</span> <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">points</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;points&quot;</span><span class="si">}</span><span class="s2"> each)&lt;/p&gt;</span>
+<span class="s2">      &lt;div class=&quot;question_header&quot;&gt;</span>
+<span class="s2">        &lt;span class=&quot;name&quot;&gt;Question group </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">        &lt;span class=&quot;points&quot;&gt;picking </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">pick_count</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;question&quot;</span> <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">pick_count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;questions&quot;</span><span class="si">}</span><span class="s2"> for</span>
+<span class="s2">          </span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">points</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s2">&quot;pt&quot;</span> <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">points</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;pts&quot;</span><span class="si">}</span><span class="s2"> each&lt;/span&gt;</span>
+<span class="s2">      &lt;/div&gt;</span>
+<span class="s2">      &lt;div class=&quot;question_group_body&quot;&gt;</span>
 <span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
         <span class="n">write_question</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">in_group</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">      &lt;/div&gt;</span>
 <span class="s2">    &lt;/div&gt;</span>
 <span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
 
@@ -125,17 +157,21 @@
     <span class="k">if</span> <span class="n">in_group</span> <span class="ow">or</span> <span class="n">q</span><span class="o">.</span><span class="n">points</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">points</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">elif</span> <span class="n">q</span><span class="o">.</span><span class="n">points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="s2">&quot;(1 point)&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="s2">&quot;1 pt&quot;</span>
     <span class="k">else</span> <span class="p">:</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">points</span><span class="si">}</span><span class="s2"> points)&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">points</span><span class="si">}</span><span class="s2"> pts&quot;</span>
 
     <span class="k">def</span> <span class="nf">write_question_header</span><span class="p">(</span><span class="n">qtype</span><span class="p">):</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;div class=&quot;question&quot;&gt;</span>
-<span class="s2">        &lt;h3&gt;</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">qtype</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">          &lt;div class=&quot;question_header&quot;&gt;</span>
+<span class="s2">            &lt;span class=&quot;name&quot;&gt;</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">qtype</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">            &lt;span class=&quot;points&quot;&gt;</span><span class="si">{</span><span class="n">points</span><span class="si">}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">          &lt;/div&gt;</span>
+<span class="s2">          &lt;div class=&quot;question_body&quot;&gt;</span>
+<span class="s2">            &lt;div class=&quot;question_text&quot;&gt;</span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/div&gt;</span>
+<span class="s2">            &lt;div class=&quot;question_answers&quot;&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
-
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
 
     <span class="n">t</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">question_type</span>
 
@@ -147,7 +183,7 @@
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;File upload question&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;short_answer_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Short answer question&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;answer&quot;&gt;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">correct</span><span class="p">:</span>
@@ -156,30 +192,30 @@
                 <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incorrect answer: </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">maybe_write_answer_comment</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">ans</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;fill_in_multiple_blanks_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Fill in multiple blanks question&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;answer&quot;&gt;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Answer&quot;</span> <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">correct</span> <span class="k">else</span> <span class="s2">&quot;Incorrect answer&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; for </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;blank_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">maybe_write_answer_comment</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">ans</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;multiple_dropdowns_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Multiple dropdowns question&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;answer&quot;&gt;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Answer&quot;</span> <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">correct</span> <span class="k">else</span> <span class="s2">&quot;Incorrect answer&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; for </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;blank_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">maybe_write_answer_comment</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">ans</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;matching_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Matching question&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;answer&quot;&gt;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Match </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;match_left&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> to </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;match_right&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -189,35 +225,42 @@
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nothing matches to </span><span class="si">{</span><span class="n">inc</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;numerical_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Numeric question&quot;</span><span class="p">)</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;answer&quot;&gt;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">float_str</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">nat</span> <span class="o">=</span> <span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_answer_type&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">nat</span> <span class="o">==</span> <span class="s2">&quot;exact_answer&quot;</span><span class="p">:</span>
-                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_exact&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">float_str</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_exact&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_error_margin&#39;</span><span class="p">]:</span>
                     <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &amp;pm; </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_error_margin&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">nat</span> <span class="o">==</span> <span class="s2">&quot;precision_answer&quot;</span><span class="p">:</span>
-                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_approximate&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">float_str</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_approximate&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; with precision </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_precision&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">nat</span> <span class="o">==</span> <span class="s2">&quot;range_answer&quot;</span><span class="p">:</span>
-                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_range_start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; to </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_range_end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">float_str</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_range_start&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; to </span><span class="si">{</span><span class="n">float_str</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;answer_range_end&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Internal error: unknown numerical_answer_type&quot;</span><span class="p">)</span>
 
             <span class="n">maybe_write_answer_comment</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">ans</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">:</span>
         <span class="n">checkbox</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;checkboxes&#39;</span><span class="p">]</span>
-        <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Multiple choices question&quot;</span><span class="p">)</span>
+        <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Multiple choice question&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">checkbox</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
-            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;div class=answer&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            &lt;input type=</span><span class="si">{</span><span class="s1">&#39;checkbox&#39;</span> <span class="k">if</span> <span class="n">checkbox</span> <span class="k">else</span> <span class="s1">&#39;radio&#39;</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                   </span><span class="si">{</span><span class="s1">&#39;checked&#39;</span> <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">correct</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&gt;</span>
@@ -228,7 +271,7 @@
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;true_false_question&quot;</span><span class="p">:</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;True/false question&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
-            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;div class=answer&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            &lt;input type=radio</span>
 <span class="s2">                   </span><span class="si">{</span><span class="s1">&#39;checked&#39;</span> <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">correct</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&gt;</span>
@@ -238,26 +281,33 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(internal error) Unknown question type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
     <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">:</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        &lt;p&gt;Comment for correct answers: </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_correct</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment if correct: </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_correct</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">:</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        &lt;p&gt;General for incorrect answers: </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment if incorrect: </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">comment_general</span><span class="p">:</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        &lt;p&gt;General comment (for all responses): </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_general</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;p&gt;General comment: </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">comment_general</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">comments</span><span class="p">:</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;quiz_comment&quot;&gt;</span><span class="si">{</span><span class="n">comments</span><span class="si">}</span><span class="s2">&lt;/div&gt;&quot;&quot;&quot;</span><span class="p">)</span>
 
     <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;/div&gt;</span>
+<span class="s2">      &lt;/div&gt;</span>
 <span class="s2">    &lt;/div&gt;</span>
 <span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">maybe_write_answer_comment</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">ans</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ans</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
-        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&quot;&quot;&lt;p&gt;Comment for this answer: </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;&quot;&quot;&lt;div class=&quot;quiz_comment&quot;&gt;Comment for this answer: </span><span class="si">{</span><span class="n">ans</span><span class="o">.</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/div&gt;&quot;&quot;&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">write_quizzes</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">quizzes</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing HTML to &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
