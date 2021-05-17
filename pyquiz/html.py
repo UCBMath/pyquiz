@@ -66,7 +66,7 @@ def write_quiz(fout, quiz):
     """)
     if quiz.id != None:
         fout.write(f"""
-        <p>Will replace quiz with id {id}.</p>
+        <p>Will replace quiz with id {quiz.id}.</p>
         """)
     if quiz.options:
         fout.write('<table class="options">')
