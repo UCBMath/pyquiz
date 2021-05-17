@@ -98,6 +98,18 @@ def zeroed_spec(spec):
     """Return a zeroed-out version of the spec to keep track of the independent variables."""
     return [(v, 0) for v, n in spec]
 
+fn_derivs = {
+    ("Pow", 2): lambda a, b: [b * pow(a, b - 1), pow(a, b * ln(a))],
+    ("ln", 1): lambda a: [frac(1, a)],
+    ("cos", 1): lambda a: [sin(a)],
+    ("sin", 1): lambda a: [-cos(a)]
+}
+r"""`fn_derivs` gives derivatives of various functions.  The key is a
+(head, arity) pair, and the value is a function that takes the point
+at which the derivative is taken and returns the Jacobian (a "row
+vector" as a list).
+"""
+
 @downvalue("Deriv")
 def rule_deriv_basic(e, spec, constants):
     spec, old_spec = normalize_deriv_spec(spec), spec
@@ -145,21 +157,17 @@ def rule_deriv_basic(e, spec, constants):
                           expr("Deriv", e.args[i], zeroed_spec(spec) + [(v, 1)], constants),
                           *e.args[i+1:])
         return expr("Deriv", deriv, spec2, constants)
-    elif head(e) == "Pow":
-        spec2, v = split_spec(spec)
-        if v == None:
-            raise Inapplicable
-        a, b = e.args
-        da = expr("Deriv", a, zeroed_spec(spec) + [(v, 1)], constants)
-        db = expr("Deriv", b, zeroed_spec(spec) + [(v, 1)], constants)
-        deriv = b * a**(b - 1) * da + a**b * ln(a) * db
-        return expr("Deriv", deriv, spec2, constants)
-    elif head(e) == "cos":
-        return sin(e.args[0]) * expr("Deriv", e.args[0], spec, constants)
-    elif head(e) == "sin":
-        return -cos(e.args[0]) * expr("Deriv", e.args[0], spec, constants)
     elif head(e) == "Part":
         # assume the index is discrete, so plays no role in the derivative
         return expr("Part", expr("Deriv", e.args[0], spec, constants), *e.args[1:])
+    elif isinstance(e, Expr) and (head(e), len(e.args)) in fn_derivs:
+        spec2, v = split_spec(spec)
+        if v == None:
+            raise Inapplicable
+        de = fn_derivs[(head(e), len(e.args))](*e.args)
+        ds = [expr("Deriv", a, zeroed_spec(spec) + [(v, 1)], constants) for a in e.args]
+        assert len(de) == len(ds)
+        deriv = sum(a*b for a,b in zip(de, ds))
+        return expr("Deriv", deriv, spec2, constants)
     else:
         raise Inapplicable
