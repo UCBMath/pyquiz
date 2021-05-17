@@ -57,10 +57,6 @@ def load_canvas_config():
 
     config_file.close()
 
-    # look for old-style format (single entry rather than list)
-    if type(config) == dict:
-        config = [config]
-
     if type(config) != list or len(config) == 0:
         canvas_config_error = BAD_CANVAS_CONFIG_ERROR
         return
@@ -276,6 +272,11 @@ def upload_command():
     tkinter.messagebox.showinfo("Success",
                                 "Uploaded the following quizzes: " + ", ".join(q.title for q in quizzes))
 
+def quiz_list_command():
+    url = urllib.parse.urljoin(the_canvas_config['API_URL'],
+                               f"courses/{the_canvas_config['COURSE_ID']}/quizzes")
+    platform_open_file(url)
+
 def view_upload_command():
     url = uploaded_quizzes.get()
     if not url:
@@ -346,6 +347,8 @@ else:
 
     upload_button = tkinter.ttk.Button(master=upload_buttons, text="Upload", command=upload_command)
     upload_button.grid(row=0, column=1)
+    quiz_list_button = tkinter.ttk.Button(master=upload_buttons, text="Open quiz list", command=quiz_list_command)
+    quiz_list_button.grid(row=0, column=2)
 
     uploaded_quizzes = tkinter.ttk.Combobox(master=upload_buttons, state="readonly", value=[])
     uploaded_quizzes.grid(row=1, column=0)
