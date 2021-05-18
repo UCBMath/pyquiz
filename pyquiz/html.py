@@ -207,7 +207,7 @@ def write_question(fout, q, i, *, in_group=False):
             fout.write(f"""
             <input type={'checkbox' if checkbox else 'radio'}
                    {'checked' if ans.correct else ''}>
-            <label>{ans.text}</label>
+            <label display="inline-block">{ans.text}</label>
             """)
             maybe_write_answer_comment(fout, ans)
             fout.write("</div>\n")
