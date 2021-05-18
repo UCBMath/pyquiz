@@ -387,10 +387,14 @@ def text(s, process=True):
         QUESTION.text_state.ensure_para()
         QUESTION.text_state.append(s)
 
-def para():
-    """Paragraph break.  Equivalent to a double-newline inside `text`."""
+def para(s=None):
+    """Like `text` but with a paragraph break before and after the text.
+    If `s` is `None` then does a paragraph break."""
     assert_in_question(True)
     QUESTION.text_state.end_para()
+    if s:
+        QUESTION.text_state.process(s)
+        QUESTION.text_state.end_para()
 
 def comment_general(s, process=True):
     """Attach the given general comment to the current question.  This
