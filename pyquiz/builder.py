@@ -107,19 +107,31 @@ class QuestionGroup:
         return True
 
 class TextState:
-    def __init__(self):
+    def __init__(self, *, avoid_para=False):
         self.in_para = False
         self.in_eqn = None
         self.text = ""
+        self.avoid_para = avoid_para # for single-paragraph, avoid p tag
     def append(self, s):
-        self.text += s
+        if not self.text and s == " ":
+            pass
+        else:
+            self.text += s
     def ensure_para(self):
         if not self.in_para:
-            self.text += "<p>"
+            if self.avoid_para:
+                if self.text:
+                    self.text = "<p>" + self.text + "</p>\n<p>"
+                    self.avoid_para = False
+            else:
+                self.text += "<p>"
             self.in_para = True
     def end_para(self):
         if self.in_para:
-            self.text += "</p>"
+            if self.avoid_para:
+                pass
+            else:
+                self.text += "</p>"
             self.in_para = False
     def finish_text(self):
         if self.in_eqn == "display":
@@ -174,8 +186,8 @@ class TextState:
                 self.append(s[i])
                 i += 1
 
-def process_text(s):
-    ts = TextState()
+def process_text(s, *, avoid_para=False):
+    ts = TextState(avoid_para=avoid_para)
     ts.process(s)
     return ts.finish_text()
 
@@ -682,7 +694,7 @@ def multiple_choice_answer(correct, text, process=True):
     if not isinstance(correct, bool):
         raise ValueError("The first argument must be True or False")
     if process:
-        text = process_text(text)
+        text = process_text(text, avoid_para=True)
     add_answer(Answer(text=text,
                       correct=correct))
 
