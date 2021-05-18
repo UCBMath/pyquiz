@@ -91,13 +91,20 @@ class CanvasQuizUploader:
 
         if t in ("text_only_question", "essay_question", "file_upload_question"):
             create_question(t)
-        elif t in ("short_answer_question", "multiple_choice_question", "true_false_question"):
-            if t == "multiple_choice_question" and q.options['checkboxes']:
-                t = "multiple_answers_question"
+        elif t in ("short_answer_question", "true_false_question"):
             answers = []
             for ans in q.answers:
                 answers.append({'answer_weight': 100 if ans.correct else 0,
                                 'answer_text': ans.text,
+                                'comments_html': ans.comment})
+            create_question(t, answers=answers)
+        elif t == "multiple_choice_question":
+            if q.options['checkboxes']:
+                t = "multiple_answers_question"
+            answers = []
+            for ans in q.answers:
+                answers.append({'answer_weight': 100 if ans.correct else 0,
+                                'answer_html': ans.text,
                                 'comments_html': ans.comment})
             create_question(t, answers=answers)
         elif t in ("fill_in_multiple_blanks_question", "multiple_dropdowns_question"):
