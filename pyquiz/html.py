@@ -33,6 +33,7 @@ def write_header(fout):
           div.question_body { clear: left; padding: 5px 20px 20px 20px; }
           div.question_text { margin-top: 1.5em; margin-bottom: 1.5em; max-width: 100%; min-height: 5px; }
           .answer { padding: 5px; margin: 0; border-top: 1px solid #ddd; }
+          .answer label { display: inline-block; }
           div.quiz_comment {
             border: 1px solid #b5bfc7;
             background-image: linear-gradient(to bottom, #fff, #f4f5f6);
