@@ -8,9 +8,9 @@ from pyquiz import *
 begin_quiz(
     title="Tutorial: simple quiz",
     description=r"""
-    <p>This is a simple quiz.</p>
+    This is a simple quiz.
 
-    <p>It has just two questions.</p>
+    It has just two questions.
     """
 )
 

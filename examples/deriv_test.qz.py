@@ -8,7 +8,7 @@ t = var("t")
 
 begin_quiz(
     title="Derivative test",
-    description=rf""" <p>Testing derivatives and such.</p> """,
+    description=rf"""Testing derivatives and such.""",
 
     quiz_type="practice_quiz",
     shuffle_answers=False,
@@ -26,8 +26,8 @@ y = var("y")
 c = const("c")
 f = y**2 + (2 + c)*y + E**(2*t)
 
-text(rf"""True or false: With \(c\) a constant and \(y\) a function of \(t\), then
-\[ \frac{{d}}{{dt}}\left({f}\right) = {D(f, t)}. \]
+text(rf"""True or false: With $c$ a constant and $y$ a function of $t$, then
+$$ \frac{{d}}{{dt}}\left({f}\right) = {D(f, t)}. $$
 """)
 
 true_false_answer(True)

@@ -21,7 +21,7 @@ def q2(i):
     begin_numeric_question()
 
     text(rf"""
-    <p>Suppose \(a={i}\).  What is \(y={y}\)?</p>
+    Suppose \(a={i}\).  What is \(y={y}\)?
     """)
 
     numeric_answer(replace(y, (a, i)),
@@ -33,7 +33,7 @@ def q3():
     begin_multiple_choice_question()
 
     text(rf"""
-    <p>What is another term for one-to-one?</p>
+    What is another term for one-to-one?
     """)
 
     multiple_choice_answer(True, "injective")
@@ -50,9 +50,9 @@ def q4():
     begin_true_false_question()
 
     text(r"""
-    <p>Suppose \(V\) is a vector space and \(\mathcal{B}_1\) and \(\mathcal{B}_2\) are two bases for \(V\).</p>
+    Suppose \(V\) is a vector space and \(\mathcal{B}_1\) and \(\mathcal{B}_2\) are two bases for \(V\).
 
-    <p>The cardinalities of \(\mathcal{B}_1\) and \(\mathcal{B}_2\) are equal.</p>
+    The cardinalities of \(\mathcal{B}_1\) and \(\mathcal{B}_2\) are equal.
     """)
 
     true_false_answer(True)
@@ -68,9 +68,9 @@ def q5():
                [a[3,1], a[3,2], a[3,3]])
 
     text(rf"""
-    <p>Suppose</p>
+    Suppose
     \[A = {A}.\]
-    <p>Which of the following is equal to \({det(var("A"))}\)?</p>
+    Which of the following is equal to \({det(var("A"))}\)?
     """)
 
     multiple_choice_answer(True, rf"\({det(A)}\)")

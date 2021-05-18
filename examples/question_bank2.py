@@ -22,7 +22,7 @@ def q1():
     begin_numeric_question()
 
     text(rf"""
-    <p>Solve the following system of equations, and give the value for \(x_1\).</p>
+    Solve the following system of equations, and give the value for \(x_1\).
     \[\begin{{align*}}
       {A[1,1]*x1 + A[1,2]*x2} &= {b[1]} \\
       {A[2,1]*x1 + A[2,2]*x2} &= {b[2]}
@@ -49,8 +49,8 @@ def q2():
     begin_numeric_question()
 
     text(rf"""
-    <p>Give the value of \(x_1\) for the point \((x_1,x_2)\) that simultaneously lies on the line
-    \({A[1,1]*x1 + A[1,2]*x2} = {b[1]}\) and on the line \({A[2,1]*x1 + A[2,2]*x2} = {b[2]}\).</p>
+    Give the value of \(x_1\) for the point \((x_1,x_2)\) that simultaneously lies on the line
+    \({A[1,1]*x1 + A[1,2]*x2} = {b[1]}\) and on the line \({A[2,1]*x1 + A[2,2]*x2} = {b[2]}\).
     """)
 
     numeric_answer(ans)
@@ -66,8 +66,8 @@ def q3():
     begin_numeric_question()
 
     text(rf"""
-    <p>For how many different values of \(h\) is the following an augmented matrix of
-    a consistent linear system?</p>
+    For how many different values of \(h\) is the following an augmented matrix of
+    a consistent linear system?
     \[
     \begin{{bmatrix}}
     {a} & {a * scale1} & h \\
@@ -89,8 +89,8 @@ def q4():
     begin_multiple_choice_question()
 
     text(rf"""
-    <p>For how many different values of \(h\) is the following an augmented matrix of
-    a consistent linear system?</p>
+    For how many different values of \(h\) is the following an augmented matrix of
+    a consistent linear system?
     \[
     \begin{{bmatrix}}
     {a} & h & {a * scale2} \\

@@ -106,19 +106,98 @@ class QuestionGroup:
     def is_group(self):
         return True
 
+class TextState:
+    def __init__(self):
+        self.in_para = False
+        self.in_eqn = None
+        self.text = ""
+    def append(self, s):
+        self.text += s
+    def ensure_para(self):
+        if not self.in_para:
+            self.text += "<p>"
+            self.in_para = True
+    def end_para(self):
+        if self.in_para:
+            self.text += "</p>"
+            self.in_para = False
+    def finish_text(self):
+        if self.in_eqn == "display":
+            raise Exception("Expecting $$ to end display equation.")
+        elif self.in_eqn == "inline":
+            raise Exception("Expecting $ to end inline equation.")
+        self.end_para()
+        return self.text
+
+    def process(self, s):
+        i = 0
+        while i < len(s):
+            if ord(s[i]) <= 32: # control character up to and including space
+                newlines = 0
+                while i < len(s) and ord(s[i]) <= 32:
+                    if s[i] == "\n":
+                        newlines += 1
+                    i += 1
+                if newlines < 2:
+                    self.append(" ")
+                else:
+                    self.end_para()
+            elif i + 1 < len(s) and s[i] == "\\":
+                # this is for the unlikely case that $ is being escaped.
+                self.ensure_para()
+                self.append(s[i:i+2])
+                i += 2
+            elif s[i] == "$":
+                self.ensure_para()
+                i += 1
+                if i < len(s) and s[i] == "$":
+                    i += 1
+                    if self.in_eqn == "display":
+                        self.append(r"\]")
+                        self.in_eqn = None
+                    elif self.in_eqn == "inline":
+                        raise Exception("Closing inline equation with $$, not $.")
+                    else:
+                        self.append(r"\[")
+                        self.in_eqn = "display"
+                else:
+                    if self.in_eqn == "display":
+                        raise Exception("Closing display equation with $, not $$.")
+                    elif self.in_eqn == "inline":
+                        self.append(r"\)")
+                        self.in_eqn = None
+                    else:
+                        self.append(r"\(")
+                        self.in_eqn = "inline"
+            else:
+                self.ensure_para()
+                self.append(s[i])
+                i += 1
+
+def process_text(s):
+    ts = TextState()
+    ts.process(s)
+    return ts.finish_text()
+
 class Question:
     def __init__(self, *, question_type, name, points, options=None):
         self.question_type = question_type
         self.name = name
         self.points = points
         self.options = options or {}
-        self.text = ""
+        self.text = None
         self.answers = []
         self.comment_general = None
         self.comment_correct = None
         self.comment_incorrect = None
+
+        # for text processing
+        self.text_state = TextState()
     def is_group(self):
         return False
+    def finalize(self):
+        self.text = self.text_state.finish_text()
+        self.text_state = None
 
 class Answer:
     def __init__(self, *, text, correct, options=None):
@@ -165,7 +244,7 @@ def assert_in_question(question_type=True):
     elif question_type != True and QUESTION.question_type != question_type:
         raise Exception(f"Expecting a {question_type} question, not {QUESTION.question_type}.")
 
-def begin_quiz(*, id=None, title=None, description="",
+def begin_quiz(*, id=None, title=None, description="", process_description=True,
                quiz_type=None, time_limit=None,
                scoring_policy="keep_highest",
                shuffle_answers=False,
@@ -180,7 +259,8 @@ def begin_quiz(*, id=None, title=None, description="",
 
     * `title` is the title of the quiz, which shows up in the list of quizzes.
     * `description` is the description for the quiz, which is presented to students
-      before they take the quiz.
+      before they take the quiz.  If `process_description` is `True`, then the description
+      is processed in a similar manner to question `text`.
     * `id` can be optionally supplied to replace a quiz with a specific id.
 
     If `id` is supplied, then that quiz will be replaced, thereby
@@ -223,6 +303,9 @@ def begin_quiz(*, id=None, title=None, description="",
 
     if type(allowed_attempts) != int or allowed_attempts < -1:
         raise ValueError("allowed_attempts must be an integer greater than or equal to -1")
+
+    if process_description:
+        description = process_text(description)
 
     options = {
         "quiz_type": quiz_type,
@@ -285,36 +368,52 @@ def end_group():
     QUESTION_GROUP = None
     pyquiz.dynamic.leave()
 
-def text(s):
+def text(s, process=True):
     """Attach the given text to the body of the current question.  This
-    function can be used multiple times, concatenating the text."""
-    assert_in_question(True)
-    QUESTION.text += s
+    function can be used multiple times, concatenating the text.
 
-def para(s):
-    """Attach the given text as a paragraph to the body of the current
-    question.  This simply wraps the text in an HTML paragraph tag."""
+    If `process` is `True`, then the text is processed in a couple
+    useful ways.  First, double-newlines are turned into paragraph
+    breaks as in LaTeX.  Second, `$` and `$$` are respectively turned
+    into delimiters for inline and display equations (versus using
+    `\(...\)` and `\[...\]`, which is what Canvas requires.)
+    """
     assert_in_question(True)
-    text("\n<p>" + s + "</p>")
+    if not isinstance(s, str):
+        raise ValueError("Expecting string")
+    if process:
+        QUESTION.text_state.process(s)
+    else:
+        QUESTION.text_state.ensure_para()
+        QUESTION.text_state.append(s)
 
-def comment_general(s):
+def para():
+    """Paragraph break.  Equivalent to a double-newline inside `text`."""
+    assert_in_question(True)
+    QUESTION.text_state.end_para()
+
+def comment_general(s, process=True):
     """Attach the given general comment to the current question.  This
     comment is always shown to the student after they take the quiz."""
     assert_in_question(True)
     if QUESTION.comment_general:
         raise Exception("Question already has a general comment")
+    if process:
+        s = process_text(s)
     QUESTION.comment_general = s
 
-def comment_correct(s):
+def comment_correct(s, process=True):
     """Attach the given comment for correct answers to the current
     question. This comment is shown to the student after they take the
     quiz if they got the question correct."""
     assert_in_question(True)
     if QUESTION.comment_correct:
         raise Exception("Question already has a comment for correct answers")
+    if process:
+        s = process_text(s)
     QUESTION.comment_correct = s
 
-def comment_incorrect(s):
+def comment_incorrect(s, process=True):
     """Attach the given comment for incorrect answers to the current
     question.  This comment is shown to the student after they take
     the quiz if they got the question incorrect.
@@ -322,9 +421,11 @@ def comment_incorrect(s):
     assert_in_question(True)
     if QUESTION.comment_incorrect:
         raise Exception("Question already has a comment for incorrect answers")
+    if process:
+        s = process_text(s)
     QUESTION.comment_incorrect = s
 
-def answer_comment(s):
+def answer_comment(s, process=True):
     """Attach the given comment to the previous answer for the current
     question.  For most question types, this comment is shown to the
     student at the end of the quiz if they selected this answer.  In a
@@ -350,6 +451,8 @@ def answer_comment(s):
         raise Exception("Question has no answers")
     if QUESTION.answers[-1].comment:
         raise Exception("Answer already has a comment")
+    if process:
+        s = process_text(s)
     QUESTION.answers[-1].comment = s
 
 def add_question(question):
@@ -563,7 +666,7 @@ def begin_multiple_choice_question(name='', points=1, checkboxes=False):
                           points=points,
                           options={"checkboxes": checkboxes}))
 
-def multiple_choice_answer(correct, text):
+def multiple_choice_answer(correct, text, process=True):
     """The answer to a multiple choice question.
 
     * `correct` is `True` or `False`, representing whether or not this
@@ -574,6 +677,8 @@ def multiple_choice_answer(correct, text):
     assert_in_question("multiple_choice_question")
     if not isinstance(correct, bool):
         raise ValueError("The first argument must be True or False")
+    if process:
+        text = process_text(text)
     add_answer(Answer(text=text,
                       correct=correct))
 
@@ -625,5 +730,6 @@ def end_question(*, shuffle_answers=False):
         if not QUESTION.answers:
             raise Exception("No answers to shuffle.")
         shuffle(QUESTION.answers)
+    QUESTION.finalize()
     QUESTION = None
     pyquiz.dynamic.leave()

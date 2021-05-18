@@ -5,7 +5,7 @@ import question_bank
 begin_quiz(
     title="question_bank_quiz.qz.py",
     description=rf"""
-    <p>This is an example quiz.  It uses questions drawn from a question bank.</p>
+    This is an example quiz.  It uses questions drawn from a question bank.
     """
 )
 

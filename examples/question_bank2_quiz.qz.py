@@ -10,7 +10,7 @@ seed(22)
 begin_quiz(
     title="question_bank2_quiz.qz.py",
     description=rf"""
-    <p>This is an example quiz using a question bank whose questions have random values.</p>
+    This is an example quiz using a question bank whose questions have random values.
     """
 )
 

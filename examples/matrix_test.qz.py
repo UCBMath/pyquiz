@@ -6,7 +6,7 @@ seed(100)
 
 begin_quiz(
     title="Matrix test",
-    description=rf""" <p>Testing matrix multiplication and such.</p> """
+    description=rf"""Testing matrix multiplication and such."""
 )
 
 begin_group()
