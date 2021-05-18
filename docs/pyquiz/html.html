@@ -123,7 +123,7 @@
 <span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        &lt;p&gt;Will replace quiz with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">.&lt;/p&gt;</span>
+<span class="s2">        &lt;p&gt;Will replace quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">.&lt;/p&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
         <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&lt;table class=&quot;options&quot;&gt;&#39;</span><span class="p">)</span>
@@ -257,8 +257,8 @@
     <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">:</span>
         <span class="n">checkbox</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;checkboxes&#39;</span><span class="p">]</span>
         <span class="n">write_question_header</span><span class="p">(</span><span class="s2">&quot;Multiple choice question&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">checkbox</span><span class="p">:</span>
-            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;</span><span class="p">)</span>
+        <span class="c1">#if checkbox:</span>
+        <span class="c1">#    fout.write(&quot;&lt;p&gt;Checkboxes (select all options that apply)&lt;/p&gt;&quot;)</span>
         <span class="k">for</span> <span class="n">ans</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;div class=answer&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>

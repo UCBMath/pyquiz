@@ -308,19 +308,98 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
+<span class="k">class</span> <span class="nc">TextState</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
+    <span class="k">def</span> <span class="nf">ensure_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">end_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">finish_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Expecting $$ to end display equation.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;inline&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Expecting $ to end inline equation.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_para</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">ord</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">32</span><span class="p">:</span> <span class="c1"># control character up to and including space</span>
+                <span class="n">newlines</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">ord</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">32</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                        <span class="n">newlines</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">newlines</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">end_para</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="c1"># this is for the unlikely case that $ is being escaped.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ensure_para</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ensure_para</span><span class="p">()</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\]&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;inline&quot;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Closing inline equation with $$, not $.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="s2">&quot;display&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Closing display equation with $, not $$.&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;inline&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\)&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="s2">&quot;inline&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ensure_para</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">def</span> <span class="nf">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">TextState</span><span class="p">()</span>
+    <span class="n">ts</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ts</span><span class="o">.</span><span class="n">finish_text</span><span class="p">()</span>
+
 <span class="k">class</span> <span class="nc">Question</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">question_type</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">question_type</span> <span class="o">=</span> <span class="n">question_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># for text processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_state</span> <span class="o">=</span> <span class="n">TextState</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">is_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">finish_text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_state</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">class</span> <span class="nc">Answer</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -367,7 +446,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">elif</span> <span class="n">question_type</span> <span class="o">!=</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span> <span class="o">!=</span> <span class="n">question_type</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expecting a </span><span class="si">{</span><span class="n">question_type</span><span class="si">}</span><span class="s2"> question, not </span><span class="si">{</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">question_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">process_description</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                <span class="n">quiz_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">scoring_policy</span><span class="o">=</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span>
                <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -382,7 +461,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
 <span class="sd">    * `title` is the title of the quiz, which shows up in the list of quizzes.</span>
 <span class="sd">    * `description` is the description for the quiz, which is presented to students</span>
-<span class="sd">      before they take the quiz.</span>
+<span class="sd">      before they take the quiz.  If `process_description` is `True`, then the description</span>
+<span class="sd">      is processed in a similar manner to question `text`.</span>
 <span class="sd">    * `id` can be optionally supplied to replace a quiz with a specific id.</span>
 
 <span class="sd">    If `id` is supplied, then that quiz will be replaced, thereby</span>
@@ -425,6 +505,9 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">allowed_attempts</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">allowed_attempts</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;allowed_attempts must be an integer greater than or equal to -1&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">process_description</span><span class="p">:</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
 
     <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;quiz_type&quot;</span><span class="p">:</span> <span class="n">quiz_type</span><span class="p">,</span>
@@ -487,36 +570,52 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="n">QUESTION_GROUP</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.  This</span>
-<span class="sd">    function can be used multiple times, concatenating the text.&quot;&quot;&quot;</span>
-    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
+<span class="sd">    function can be used multiple times, concatenating the text.</span>
 
-<span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
-<span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
+<span class="sd">    If `process` is `True`, then the text is processed in a couple</span>
+<span class="sd">    useful ways.  First, double-newlines are turned into paragraph</span>
+<span class="sd">    breaks as in LaTeX.  Second, `$` and `$$` are respectively turned</span>
+<span class="sd">    into delimiters for inline and display equations (versus using</span>
+<span class="sd">    `\(...\)` and `\[...\]`, which is what Canvas requires.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">ensure_para</span><span class="p">()</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">para</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Paragraph break.  Equivalent to a double-newline inside `text`.&quot;&quot;&quot;</span>
+    <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">end_para</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
 <span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a general comment&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="n">s</span>
 
-<span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
 <span class="sd">    question. This comment is shown to the student after they take the</span>
 <span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for correct answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="n">s</span>
 
-<span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for incorrect answers to the current</span>
 <span class="sd">    question.  This comment is shown to the student after they take</span>
 <span class="sd">    the quiz if they got the question incorrect.</span>
@@ -524,9 +623,11 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for incorrect answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="n">s</span>
 
-<span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer for the current</span>
 <span class="sd">    question.  For most question types, this comment is shown to the</span>
 <span class="sd">    student at the end of the quiz if they selected this answer.  In a</span>
@@ -552,6 +653,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question has no answers&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Answer already has a comment&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">s</span>
 
 <span class="k">def</span> <span class="nf">add_question</span><span class="p">(</span><span class="n">question</span><span class="p">):</span>
@@ -765,7 +868,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
                           <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
                           <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;checkboxes&quot;</span><span class="p">:</span> <span class="n">checkboxes</span><span class="p">}))</span>
 
-<span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a multiple choice question.</span>
 
 <span class="sd">    * `correct` is `True` or `False`, representing whether or not this</span>
@@ -776,6 +879,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
                       <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 
@@ -827,6 +932,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
         <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
         <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
     <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
@@ -844,6 +950,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     id=None,
     title=None,
     description=&#39;&#39;,
+    process_description=True,
     quiz_type=None,
     time_limit=None,
     scoring_policy=&#39;keep_highest&#39;,
@@ -860,7 +967,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">begin_quiz</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">process_description</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                <span class="n">quiz_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">scoring_policy</span><span class="o">=</span><span class="s2">&quot;keep_highest&quot;</span><span class="p">,</span>
                <span class="n">shuffle_answers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -875,7 +982,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 
 <span class="sd">    * `title` is the title of the quiz, which shows up in the list of quizzes.</span>
 <span class="sd">    * `description` is the description for the quiz, which is presented to students</span>
-<span class="sd">      before they take the quiz.</span>
+<span class="sd">      before they take the quiz.  If `process_description` is `True`, then the description</span>
+<span class="sd">      is processed in a similar manner to question `text`.</span>
 <span class="sd">    * `id` can be optionally supplied to replace a quiz with a specific id.</span>
 
 <span class="sd">    If `id` is supplied, then that quiz will be replaced, thereby</span>
@@ -919,6 +1027,9 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">allowed_attempts</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">allowed_attempts</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;allowed_attempts must be an integer greater than or equal to -1&quot;</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">process_description</span><span class="p">:</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+
     <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;quiz_type&quot;</span><span class="p">:</span> <span class="n">quiz_type</span><span class="p">,</span>
         <span class="s2">&quot;time_limit&quot;</span><span class="p">:</span> <span class="n">time_limit</span><span class="p">,</span>
@@ -944,7 +1055,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
 <ul>
 <li><code>title</code> is the title of the quiz, which shows up in the list of quizzes.</li>
 <li><code>description</code> is the description for the quiz, which is presented to students
-before they take the quiz.</li>
+before they take the quiz.  If <code>process_description</code> is <code>True</code>, then the description
+is processed in a similar manner to question <code><a href="#text">text</a></code>.</li>
 <li><code>id</code> can be optionally supplied to replace a quiz with a specific id.</li>
 </ul>
 
@@ -1079,22 +1191,41 @@ to this question group.</p>
 
         
             <span class="def">def</span>
-            <span class="name">text</span><span class="signature">(s)</span>:
+            <span class="name">text</span><span class="signature">(s, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given text to the body of the current question.  This</span>
-<span class="sd">    function can be used multiple times, concatenating the text.&quot;&quot;&quot;</span>
+<span class="sd">    function can be used multiple times, concatenating the text.</span>
+
+<span class="sd">    If `process` is `True`, then the text is processed in a couple</span>
+<span class="sd">    useful ways.  First, double-newlines are turned into paragraph</span>
+<span class="sd">    breaks as in LaTeX.  Second, `$` and `$$` are respectively turned</span>
+<span class="sd">    into delimiters for inline and display equations (versus using</span>
+<span class="sd">    `\(...\)` and `\[...\]`, which is what Canvas requires.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting string&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">ensure_para</span><span class="p">()</span>
+        <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Attach the given text to the body of the current question.  This
 function can be used multiple times, concatenating the text.</p>
+
+<p>If <code>process</code> is <code>True</code>, then the text is processed in a couple
+useful ways.  First, double-newlines are turned into paragraph
+breaks as in LaTeX.  Second, <code>$</code> and <code>$$</code> are respectively turned
+into delimiters for inline and display equations (versus using
+<code>\(...\)</code> and <code>\[...\]</code>, which is what Canvas requires.)</p>
 </div>
 
 
@@ -1104,22 +1235,20 @@ function can be used multiple times, concatenating the text.</p>
 
         
             <span class="def">def</span>
-            <span class="name">para</span><span class="signature">(s)</span>:
+            <span class="name">para</span><span class="signature">()</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">para</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Attach the given text as a paragraph to the body of the current</span>
-<span class="sd">    question.  This simply wraps the text in an HTML paragraph tag.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">para</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Paragraph break.  Equivalent to a double-newline inside `text`.&quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">text_state</span><span class="o">.</span><span class="n">end_para</span><span class="p">()</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Attach the given text as a paragraph to the body of the current
-question.  This simply wraps the text in an HTML paragraph tag.</p>
+            <div class="docstring"><p>Paragraph break.  Equivalent to a double-newline inside <code><a href="#text">text</a></code>.</p>
 </div>
 
 
@@ -1389,12 +1518,12 @@ answers.</li>
 
         
             <span class="def">def</span>
-            <span class="name">multiple_choice_answer</span><span class="signature">(correct, text)</span>:
+            <span class="name">multiple_choice_answer</span><span class="signature">(correct, text, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">multiple_choice_answer</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The answer to a multiple choice question.</span>
 
 <span class="sd">    * `correct` is `True` or `False`, representing whether or not this</span>
@@ -1405,6 +1534,8 @@ answers.</li>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
                       <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
@@ -1769,17 +1900,19 @@ matched.</p>
 
         
             <span class="def">def</span>
-            <span class="name">comment_general</span><span class="signature">(s)</span>:
+            <span class="name">comment_general</span><span class="signature">(s, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_general</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given general comment to the current question.  This</span>
 <span class="sd">    comment is always shown to the student after they take the quiz.&quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a general comment&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_general</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
@@ -1796,18 +1929,20 @@ comment is always shown to the student after they take the quiz.</p>
 
         
             <span class="def">def</span>
-            <span class="name">comment_correct</span><span class="signature">(s)</span>:
+            <span class="name">comment_correct</span><span class="signature">(s, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_correct</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for correct answers to the current</span>
 <span class="sd">    question. This comment is shown to the student after they take the</span>
 <span class="sd">    quiz if they got the question correct.&quot;&quot;&quot;</span>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for correct answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_correct</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
@@ -1825,12 +1960,12 @@ quiz if they got the question correct.</p>
 
         
             <span class="def">def</span>
-            <span class="name">comment_incorrect</span><span class="signature">(s)</span>:
+            <span class="name">comment_incorrect</span><span class="signature">(s, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">comment_incorrect</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment for incorrect answers to the current</span>
 <span class="sd">    question.  This comment is shown to the student after they take</span>
 <span class="sd">    the quiz if they got the question incorrect.</span>
@@ -1838,6 +1973,8 @@ quiz if they got the question correct.</p>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question already has a comment for incorrect answers&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">comment_incorrect</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
@@ -1855,12 +1992,12 @@ the quiz if they got the question incorrect.</p>
 
         
             <span class="def">def</span>
-            <span class="name">answer_comment</span><span class="signature">(s)</span>:
+            <span class="name">answer_comment</span><span class="signature">(s, process=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">answer_comment</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attach the given comment to the previous answer for the current</span>
 <span class="sd">    question.  For most question types, this comment is shown to the</span>
 <span class="sd">    student at the end of the quiz if they selected this answer.  In a</span>
@@ -1886,6 +2023,8 @@ the quiz if they got the question incorrect.</p>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Question has no answers&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Answer already has a comment&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">s</span>
 </pre></div>
 
@@ -1936,6 +2075,7 @@ the match.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No answers to shuffle.&quot;</span><span class="p">)</span>
         <span class="n">shuffle</span><span class="p">(</span><span class="n">QUESTION</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span>
+    <span class="n">QUESTION</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
     <span class="n">QUESTION</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">pyquiz</span><span class="o">.</span><span class="n">dynamic</span><span class="o">.</span><span class="n">leave</span><span class="p">()</span>
 </pre></div>
