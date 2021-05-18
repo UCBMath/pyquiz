@@ -294,21 +294,21 @@ def row_reduce(e, rref=True, steps_out=None):
         # R_i <-> R_j
         mat[i], mat[j] = mat[j], mat[i]
         if steps_out != None:
-            steps_out.append(rf"R_{i} \leftrightarrow R_{j}")
+            steps_out.append(rf"R_{i+1} \leftrightarrow R_{j+1}")
     def scale(i, c):
         # c * R_i -> R_i
         for k in range(cols):
             mat[i][k] *= c
         if steps_out != None:
-            Ri = var(f"R_{i}")
+            Ri = var(f"R_{i+1}")
             steps_out.append(rf"{c * Ri} \rightarrow {Ri}")
     def replace(i, j, c):
         # R_i + c * R_j -> R_i
         for k in range(cols):
             mat[i][k] += c * mat[j][k]
         if steps_out != None:
-            Ri = var(f"R_{i}")
-            Rj = var(f"R_{j}")
+            Ri = var(f"R_{i+1}")
+            Rj = var(f"R_{j+1}")
             steps_out.append(rf"{Ri + c * Rj} \rightarrow {Ri}")
     def is_zero(i):
         # whether row i is a zero row
