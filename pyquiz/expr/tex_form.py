@@ -7,6 +7,7 @@ Note: this module changes `__str__` of `Fraction` to use `tex` instead.
 from collections import defaultdict
 from fractions import Fraction
 from .core import *
+from pyquiz.expr.matrix import is_vector
 import pyquiz.dynamic
 
 __all__ = [
