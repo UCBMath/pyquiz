@@ -693,6 +693,8 @@ def multiple_choice_answer(correct, text, process=True):
     assert_in_question("multiple_choice_question")
     if not isinstance(correct, bool):
         raise ValueError("The first argument must be True or False")
+    if not isinstance(text, str):
+        raise ValueError("The second argument must be a string")
     if process:
         text = process_text(text, avoid_para=True)
     add_answer(Answer(text=text,

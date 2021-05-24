@@ -26,14 +26,14 @@ for i in range(5):
 
     ans = (A@B)[1,2]
 
-    multiple_choice_answer(True, ans)
+    multiple_choice_answer(True, rf"""${ans}$""")
 
     fake_answers = list(range(-20, 21))
     if ans in fake_answers:
         fake_answers.remove(ans)
 
     for fake in sample(fake_answers, 3):
-        multiple_choice_answer(False, fake)
+        multiple_choice_answer(False, rf"""${fake}$""")
 
     end_question()
 end_group()
