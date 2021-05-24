@@ -8,7 +8,6 @@ from .core import *
 
 __all__ = [
     "sqrt", "exp", "ln", "E", "Pi", "I", "sin", "cos",
-    "pow", "py_pow",
     "abs", "py_abs",
     "N"
 ]
