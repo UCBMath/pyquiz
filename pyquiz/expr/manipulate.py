@@ -8,7 +8,9 @@ from .core import *
 __all__ = [
     "replace",
     "expand",
-    "collect"
+    "collect",
+    "get_coeff",
+    "coeff_list"
 ]
 
 def replace(e, *repls):
@@ -226,3 +228,34 @@ def collect(x, vars=None, *, f=None):
         else:
             cs.append((c, mon))
     return collect_coeffs_rebuild(cs, vars)
+
+def get_coeff(x, var, n):
+    """Get the coefficient in front of `var ** n` in `x`.  Uses the
+    underlying mechanism for `collect`."""
+
+    for c, mon in collect_coeffs(x, [var]):
+        if mon == (n,):
+            return c
+    return 0
+
+def coeff_list(x, var):
+    """Get a list of coefficients for `x` as a polynomial in `var`.  The
+    exponents must all be non-negative integers.  Uses the underlying
+    mechanism for `collect`.
+
+    For example,
+    ```python
+    x = var("x")
+    coeff_list((x + 1)*(x + 2)**3, x)  # [8, 20, 18, 7, 1]
+    ```
+    """
+
+    coeffs = []
+    for c, mon in collect_coeffs(x, [var]):
+        n = mon[0]
+        if type(n) != int or n < 0:
+            raise ValueError("coeff_list found non-polynomial power")
+        while len(coeffs) <= n:
+            coeffs.append(0)
+        coeffs[n] += c
+    return coeffs
