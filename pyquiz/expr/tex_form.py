@@ -141,7 +141,7 @@ def tex_prec(prec, e, small):
                     text += op + tex_prec(30, coeff, small) + tex_prec(30, b, small)
             if text == "":
                 text = "0"
-            return parens(prec, 20, text)
+            return parens(prec, 19, text) # make sure -(x+1)+2 doesn't appear as -x+1+2
         elif e.head == "Times":
             numer = []
             denom = []
