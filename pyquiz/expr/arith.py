@@ -100,18 +100,21 @@ def rule_times_collect(*args):
     else:
         # sort args2 so that most functions occur last
         nums = []
+        consts = []
         args = []
         fns = []
         for arg in args2:
             if head(arg) == "number":
                 nums.append(arg)
-            elif head(arg) == "pow" and head(arg.args[0]) == "number":
+            elif head(arg) == "Pow" and head(arg.args[0]) == "number":
                 nums.append(arg)
-            elif head(arg) in ("var", "const", "Plus", "Times", "Pow"):
+            elif head(arg) == "const" or (head(arg) == "Pow" and head(arg.args[0]) == "const"):
+                consts.append(arg)
+            elif head(arg) in ("var", "Plus", "Times", "Pow"):
                 args.append(arg)
             else:
                 fns.append(arg)
-        return expr("Times", *nums, *args, *fns)
+        return expr("Times", *nums, *consts, *args, *fns)
 
 def iroot(a, n):
     """Give the largest integer k such that k**n <= a."""
