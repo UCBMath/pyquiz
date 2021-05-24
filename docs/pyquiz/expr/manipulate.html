@@ -36,6 +36,9 @@
             <li>
                     <a class="function" href="#expand">expand</a>
             </li>
+            <li>
+                    <a class="function" href="#collect">collect</a>
+            </li>
     </ul>
 
 
@@ -60,12 +63,13 @@
 <span class="sd">Functions for manipulating expressions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;expand&quot;</span>
+    <span class="s2">&quot;expand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;collect&quot;</span>
 <span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">):</span>
@@ -94,9 +98,9 @@
 
 <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mathematica-like `ExpandAll`.  Distributes multiplications over additions everywhere in the expression.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to expand.&quot;</span><span class="p">)</span>
@@ -121,6 +125,168 @@
         <span class="k">return</span> <span class="n">val</span>
 
     <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">head</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(internal) Given the polynomial representation from</span>
+<span class="sd">    `collect_coeffs`, turn it back into an expression.&quot;&quot;&quot;</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">pr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">mon</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+<span class="k">def</span> <span class="nf">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;(internal) Helper for `collect`.&quot;&quot;&quot;</span>
+
+    <span class="c1"># extract a polynomial representation of x</span>
+    <span class="c1"># type: [(coeff, (exps...))]</span>
+    <span class="c1"># where (exps...) represents exponents for the list of `vars`.</span>
+
+    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="n">cs1</span><span class="p">,</span> <span class="n">cs2</span><span class="p">):</span>
+        <span class="c1"># add polynomial representation `cs2` to `cs1`, mutating `cs1`.</span>
+        <span class="k">for</span> <span class="n">c2</span><span class="p">,</span> <span class="n">mon2</span> <span class="ow">in</span> <span class="n">cs2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">mon1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cs1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">mon1</span> <span class="o">==</span> <span class="n">mon2</span><span class="p">:</span>
+                    <span class="n">cs1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="p">,</span> <span class="n">mon1</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cs1</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c2</span><span class="p">,</span> <span class="n">mon2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cs1</span>
+
+    <span class="k">def</span> <span class="nf">del_zeroes</span><span class="p">(</span><span class="n">cs</span><span class="p">):</span>
+        <span class="c1"># remove terms with zero coefficient from `cs`, mutating it.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">cs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">cs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cs</span>
+
+    <span class="k">def</span> <span class="nf">sort_cs</span><span class="p">(</span><span class="n">cs</span><span class="p">):</span>
+        <span class="c1"># put all the all-number exponents first, and lexicographically sort them in decreasing order</span>
+        <span class="n">num_cs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">rest_cs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">mon</span><span class="p">):</span>
+                <span class="n">num_cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rest_cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
+        <span class="n">num_cs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">num_cs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rest_cs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">num_cs</span>
+
+    <span class="k">def</span> <span class="nf">collect_core</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">vars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">mon</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">vars</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mon</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Plus&quot;</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                <span class="n">add_to</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">collect_core</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">del_zeroes</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Times&quot;</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">distr</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">collect_core</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">)):</span>
+                <span class="n">mon2</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">)</span>
+                <span class="n">c2</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">distr</span><span class="p">:</span>
+                    <span class="n">mon2</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mon2</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
+                    <span class="n">c2</span> <span class="o">*=</span> <span class="n">c</span>
+                <span class="c1">#print(&quot;times c2 = &quot; + repr(c2))</span>
+                <span class="n">add_to</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="p">[(</span><span class="n">c2</span><span class="p">,</span> <span class="n">mon2</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="n">del_zeroes</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span><span class="p">:</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span>
+            <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">collect_core</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">neg</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">neg</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">assert</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">ac</span> <span class="o">=</span> <span class="n">collect_core</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">a</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">b</span><span class="p">))))</span>
+                <span class="k">if</span> <span class="n">neg</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="p">[]</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ac</span>
+                        <span class="k">return</span> <span class="p">[(</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">mon</span><span class="p">))]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="p">[(</span><span class="nb">pow</span><span class="p">(</span><span class="n">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="nb">vars</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">))]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">ac</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ac</span> <span class="o">=</span> <span class="n">collect_core</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[(</span><span class="nb">pow</span><span class="p">(</span><span class="n">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="nb">vars</span><span class="p">),</span> <span class="n">b</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">))]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">))]</span>
+
+    <span class="k">return</span> <span class="n">sort_cs</span><span class="p">(</span><span class="n">collect_core</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is an</span>
+<span class="sd">    array of expressions used as the variables, and if it is `None` it</span>
+<span class="sd">    is the collection of all `var` terms in the expression.  The `f`</span>
+<span class="sd">    function is applied to each coefficient; `collect` will not</span>
+<span class="sd">    re-collect after `f` is applied.</span>
+
+<span class="sd">    If `x` is a list or matrix, `collect` will apply to each element.</span>
+
+<span class="sd">    If there are symbolic exponents, `collect` might give unexpected</span>
+<span class="sd">    results since it does not try hard at all to tell when symbolic</span>
+<span class="sd">    expressions are equivalent.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    y = var(&quot;y&quot;)</span>
+<span class="sd">    collect((x + y)*(x - y), [x, y])</span>
+<span class="sd">    ```</span>
+<span class="sd">    If you leave off `[x, y]`, then `collect((x + y)*(x - y))` will automatically choose the variable list.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)</span>
+<span class="sd">    ```</span>
+<span class="sd">    This uses `expand` to simplify the coefficients.</span>
+
+<span class="sd">    See also: `expand`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">vars</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vars argument should be None or a list&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">vars</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get all variables in the expression</span>
+        <span class="k">def</span> <span class="nf">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="k">yield from</span> <span class="n">find_vars</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">var_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">f</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">mon</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="nb">vars</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -189,9 +355,9 @@ Similar to Replace in Mathematica.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mathematica-like `ExpandAll`.  Distributes multiplications over additions everywhere in the expression.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">e</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">expand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Expr</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown type of value (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">!r}</span><span class="s2">) to expand.&quot;</span><span class="p">)</span>
@@ -221,6 +387,114 @@ Similar to Replace in Mathematica.</p>
         </details>
 
             <div class="docstring"><p>Mathematica-like <code>ExpandAll</code>.  Distributes multiplications over additions everywhere in the expression.</p>
+</div>
+
+
+                </section>
+                <section id="collect">
+                            <div class="attr function"><a class="headerlink" href="#collect">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">collect</span><span class="signature">(x, vars=None, *, f=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is an</span>
+<span class="sd">    array of expressions used as the variables, and if it is `None` it</span>
+<span class="sd">    is the collection of all `var` terms in the expression.  The `f`</span>
+<span class="sd">    function is applied to each coefficient; `collect` will not</span>
+<span class="sd">    re-collect after `f` is applied.</span>
+
+<span class="sd">    If `x` is a list or matrix, `collect` will apply to each element.</span>
+
+<span class="sd">    If there are symbolic exponents, `collect` might give unexpected</span>
+<span class="sd">    results since it does not try hard at all to tell when symbolic</span>
+<span class="sd">    expressions are equivalent.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    y = var(&quot;y&quot;)</span>
+<span class="sd">    collect((x + y)*(x - y), [x, y])</span>
+<span class="sd">    ```</span>
+<span class="sd">    If you leave off `[x, y]`, then `collect((x + y)*(x - y))` will automatically choose the variable list.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)</span>
+<span class="sd">    ```</span>
+<span class="sd">    This uses `expand` to simplify the coefficients.</span>
+
+<span class="sd">    See also: `expand`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">vars</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vars argument should be None or a list&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">vars</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get all variables in the expression</span>
+        <span class="k">def</span> <span class="nf">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Expr</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="k">yield from</span> <span class="n">find_vars</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">var_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="n">cs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">f</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">mon</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="nb">vars</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Collect terms of the polynomial <code>x</code>.  The <code>vars</code> argument is an
+array of expressions used as the variables, and if it is <code>None</code> it
+is the collection of all <code>var</code> terms in the expression.  The <code>f</code>
+function is applied to each coefficient; <code><a href="#collect">collect</a></code> will not
+re-collect after <code>f</code> is applied.</p>
+
+<p>If <code>x</code> is a list or matrix, <code><a href="#collect">collect</a></code> will apply to each element.</p>
+
+<p>If there are symbolic exponents, <code><a href="#collect">collect</a></code> might give unexpected
+results since it does not try hard at all to tell when symbolic
+expressions are equivalent.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+<span class="n">collect</span><span class="p">((</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">),</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+</code></pre></div>
+
+<p>If you leave off <code>[x, y]</code>, then <code>collect((x + y)*(x - y))</code> will automatically choose the variable list.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">collect</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">)),</span> <span class="n">f</span><span class="o">=</span><span class="n">expand</span><span class="p">)</span>
+</code></pre></div>
+
+<p>This uses <code><a href="#expand">expand</a></code> to simplify the coefficients.</p>
+
+<p>See also: <code><a href="#expand">expand</a></code></p>
 </div>
 
 

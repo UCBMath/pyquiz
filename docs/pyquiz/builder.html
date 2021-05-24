@@ -309,19 +309,31 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
         <span class="k">return</span> <span class="kc">True</span>
 
 <span class="k">class</span> <span class="nc">TextState</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avoid_para</span> <span class="o">=</span> <span class="n">avoid_para</span> <span class="c1"># for single-paragraph, avoid p tag</span>
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="ow">and</span> <span class="n">s</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="n">s</span>
     <span class="k">def</span> <span class="nf">ensure_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">avoid_para</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+</span> <span class="s2">&quot;&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&lt;p&gt;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">avoid_para</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">def</span> <span class="nf">end_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">avoid_para</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/p&gt;&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">in_para</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">def</span> <span class="nf">finish_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_eqn</span> <span class="o">==</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span>
@@ -376,8 +388,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
                 <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-<span class="k">def</span> <span class="nf">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">TextState</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">process_text</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">TextState</span><span class="p">(</span><span class="n">avoid_para</span><span class="o">=</span><span class="n">avoid_para</span><span class="p">)</span>
     <span class="n">ts</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ts</span><span class="o">.</span><span class="n">finish_text</span><span class="p">()</span>
 
@@ -884,7 +896,7 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
                       <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 
@@ -1544,7 +1556,7 @@ answers.</li>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
                       <span class="n">correct</span><span class="o">=</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
