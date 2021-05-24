@@ -71,6 +71,7 @@
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.matrix</span> <span class="kn">import</span> <span class="n">matrix</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
@@ -236,13 +237,15 @@
     <span class="k">return</span> <span class="n">sort_cs</span><span class="p">(</span><span class="n">collect_core</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is an</span>
-<span class="sd">    array of expressions used as the variables, and if it is `None` it</span>
+    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is a</span>
+<span class="sd">    list of expressions used as the variables, and if it is `None` it</span>
 <span class="sd">    is the collection of all `var` terms in the expression.  The `f`</span>
 <span class="sd">    function is applied to each coefficient; `collect` will not</span>
 <span class="sd">    re-collect after `f` is applied.</span>
 
 <span class="sd">    If `x` is a list or matrix, `collect` will apply to each element.</span>
+
+<span class="sd">    As a convenience, if `vars` is not a list, it will be interpreted as `[vars]`.</span>
 
 <span class="sd">    If there are symbolic exponents, `collect` might give unexpected</span>
 <span class="sd">    results since it does not try hard at all to tell when symbolic</span>
@@ -261,13 +264,10 @@
 <span class="sd">    x = var(&quot;x&quot;)</span>
 <span class="sd">    collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)</span>
 <span class="sd">    ```</span>
-<span class="sd">    This uses `expand` to simplify the coefficients.</span>
+<span class="sd">    This uses `expand` to simplify the coefficients, and it will use `x` as the variable.</span>
 
 <span class="sd">    See also: `expand`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">vars</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vars argument should be None or a list&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">vars</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># get all variables in the expression</span>
@@ -282,6 +282,9 @@
         <span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
         <span class="n">var_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">vars</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
@@ -441,13 +444,15 @@ Similar to Replace in Mathematica.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is an</span>
-<span class="sd">    array of expressions used as the variables, and if it is `None` it</span>
+    <span class="sd">&quot;&quot;&quot;Collect terms of the polynomial `x`.  The `vars` argument is a</span>
+<span class="sd">    list of expressions used as the variables, and if it is `None` it</span>
 <span class="sd">    is the collection of all `var` terms in the expression.  The `f`</span>
 <span class="sd">    function is applied to each coefficient; `collect` will not</span>
 <span class="sd">    re-collect after `f` is applied.</span>
 
 <span class="sd">    If `x` is a list or matrix, `collect` will apply to each element.</span>
+
+<span class="sd">    As a convenience, if `vars` is not a list, it will be interpreted as `[vars]`.</span>
 
 <span class="sd">    If there are symbolic exponents, `collect` might give unexpected</span>
 <span class="sd">    results since it does not try hard at all to tell when symbolic</span>
@@ -466,13 +471,10 @@ Similar to Replace in Mathematica.</p>
 <span class="sd">    x = var(&quot;x&quot;)</span>
 <span class="sd">    collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)</span>
 <span class="sd">    ```</span>
-<span class="sd">    This uses `expand` to simplify the coefficients.</span>
+<span class="sd">    This uses `expand` to simplify the coefficients, and it will use `x` as the variable.</span>
 
 <span class="sd">    See also: `expand`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">vars</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vars argument should be None or a list&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">vars</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># get all variables in the expression</span>
@@ -487,6 +489,9 @@ Similar to Replace in Mathematica.</p>
         <span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">find_vars</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
         <span class="n">var_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">vars</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">collect</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="nb">vars</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
@@ -504,13 +509,15 @@ Similar to Replace in Mathematica.</p>
 
         </details>
 
-            <div class="docstring"><p>Collect terms of the polynomial <code>x</code>.  The <code>vars</code> argument is an
-array of expressions used as the variables, and if it is <code>None</code> it
+            <div class="docstring"><p>Collect terms of the polynomial <code>x</code>.  The <code>vars</code> argument is a
+list of expressions used as the variables, and if it is <code>None</code> it
 is the collection of all <code>var</code> terms in the expression.  The <code>f</code>
 function is applied to each coefficient; <code><a href="#collect">collect</a></code> will not
 re-collect after <code>f</code> is applied.</p>
 
 <p>If <code>x</code> is a list or matrix, <code><a href="#collect">collect</a></code> will apply to each element.</p>
+
+<p>As a convenience, if <code>vars</code> is not a list, it will be interpreted as <code>[vars]</code>.</p>
 
 <p>If there are symbolic exponents, <code><a href="#collect">collect</a></code> might give unexpected
 results since it does not try hard at all to tell when symbolic
@@ -531,7 +538,7 @@ expressions are equivalent.</p>
 <span class="n">collect</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">)),</span> <span class="n">f</span><span class="o">=</span><span class="n">expand</span><span class="p">)</span>
 </code></pre></div>
 
-<p>This uses <code><a href="#expand">expand</a></code> to simplify the coefficients.</p>
+<p>This uses <code><a href="#expand">expand</a></code> to simplify the coefficients, and it will use <code>x</code> as the variable.</p>
 
 <p>See also: <code><a href="#expand">expand</a></code></p>
 </div>

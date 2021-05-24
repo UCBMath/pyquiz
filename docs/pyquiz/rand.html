@@ -84,6 +84,9 @@
             <li>
                     <a class="function" href="#rand_unimodular_2x2">rand_unimodular_2x2</a>
             </li>
+            <li>
+                    <a class="function" href="#rand_matrix_rank">rand_matrix_rank</a>
+            </li>
     </ul>
 
 
@@ -114,7 +117,8 @@
     <span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span> <span class="s2">&quot;triangular&quot;</span><span class="p">,</span>
     <span class="s2">&quot;randint&quot;</span><span class="p">,</span> <span class="s2">&quot;randrange&quot;</span><span class="p">,</span> <span class="s2">&quot;randint_nonzero&quot;</span><span class="p">,</span> <span class="s2">&quot;randrange_nonzero&quot;</span><span class="p">,</span>
     <span class="s2">&quot;choice&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;shuffle&quot;</span><span class="p">,</span> <span class="s2">&quot;gauss&quot;</span><span class="p">,</span> <span class="s2">&quot;normalvariate&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rand_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_invertible_2x2&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_unimodular_2x2&quot;</span>
+    <span class="s2">&quot;rand_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_invertible_2x2&quot;</span><span class="p">,</span> <span class="s2">&quot;rand_unimodular_2x2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rand_matrix_rank&quot;</span>
 <span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">random_gen</span><span class="p">():</span>
@@ -197,8 +201,9 @@
     <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in place&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in-place.  Returns the shuffled list as a convenience.&quot;&quot;&quot;</span>
+    <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
 
 <span class="k">def</span> <span class="nf">gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;normal distribution with mean mu and standard deviation sigma&quot;&quot;&quot;</span>
@@ -265,6 +270,66 @@
         <span class="k">if</span> <span class="n">x</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">matrix</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span>
                           <span class="p">[</span><span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">rand_matrix_rank</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a random `n` x `m` matrix with rank `r` and entries in the range `[-bound, bound]`.</span>
+<span class="sd">    If `n == m == r`, then the result is unimodular (i.e., has determinant 1) with integer entries.</span>
+
+<span class="sd">    If `m &gt; n`, then the row-reduced matrix might not have integers in the free columns.</span>
+
+<span class="sd">    If `r` is `None`, then `r = min(n, m)` (the maximal rank).</span>
+
+<span class="sd">    Inspired by the procedure described in:</span>
+<span class="sd">    &gt; Jürgen Hausen, &quot;Generating problems in linear algebra.&quot;</span>
+<span class="sd">    &gt; [MapleTech. Volume 1, Number 2. Fall 1994.](https://www.researchgate.net/publication/322520524_MapleTech_Volume_1_no_2_-_Fall_1994)</span>
+
+<span class="sd">    Roughly:</span>
+<span class="sd">    1. Create a random matrix with `r` 1&#39;s on the diagonal, with random entries in [-1,1] to the right of these entries.</span>
+<span class="sd">    2. Shuffle the rows.</span>
+<span class="sd">    3. Shuffle the columns.</span>
+<span class="sd">    4. Apply random row/column replacement operations with coefficient in {-1, 1} so long as the result has</span>
+<span class="sd">       entries that stay in [-bound, bound].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">bound</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The bound argument must be a positive integer.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rank can&#39;t be larger than the number of rows or columns&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create matrix with r 1&#39;s on the diagonal with random numbers in</span>
+    <span class="c1"># the range [-1,1] to the right of those 1&#39;s.</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Shuffle the rows</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="c1"># Shuffle the columns</span>
+    <span class="n">idxs</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">]</span>
+    <span class="c1"># random row/column replacement operations</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="c1"># row replacement, Ri + cRj -&gt; Ri</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row2</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">bound</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row2</span><span class="p">):</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">row2</span>
+        <span class="c1"># col replacement, Ci + cCj -&gt; Ci</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">bound</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">col2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">A</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -554,13 +619,14 @@ want to do this, but it's here just in case it might be useful.)</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in place&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;shuffle(x) shuffles the list x in-place.  Returns the shuffled list as a convenience.&quot;&quot;&quot;</span>
+    <span class="n">random_gen</span><span class="p">()</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>shuffle(x) shuffles the list x in place</p>
+            <div class="docstring"><p>shuffle(x) shuffles the list x in-place.  Returns the shuffled list as a convenience.</p>
 </div>
 
 
@@ -729,6 +795,106 @@ where all entries are in the range [a, b].</p>
 entries are in the range [a, b].</p>
 
 <p>Warning: might infinite loop there are no such matrices!</p>
+</div>
+
+
+                </section>
+                <section id="rand_matrix_rank">
+                            <div class="attr function"><a class="headerlink" href="#rand_matrix_rank">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">rand_matrix_rank</span><span class="signature">(n, m, r=None, bound=3)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">rand_matrix_rank</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a random `n` x `m` matrix with rank `r` and entries in the range `[-bound, bound]`.</span>
+<span class="sd">    If `n == m == r`, then the result is unimodular (i.e., has determinant 1) with integer entries.</span>
+
+<span class="sd">    If `m &gt; n`, then the row-reduced matrix might not have integers in the free columns.</span>
+
+<span class="sd">    If `r` is `None`, then `r = min(n, m)` (the maximal rank).</span>
+
+<span class="sd">    Inspired by the procedure described in:</span>
+<span class="sd">    &gt; Jürgen Hausen, &quot;Generating problems in linear algebra.&quot;</span>
+<span class="sd">    &gt; [MapleTech. Volume 1, Number 2. Fall 1994.](https://www.researchgate.net/publication/322520524_MapleTech_Volume_1_no_2_-_Fall_1994)</span>
+
+<span class="sd">    Roughly:</span>
+<span class="sd">    1. Create a random matrix with `r` 1&#39;s on the diagonal, with random entries in [-1,1] to the right of these entries.</span>
+<span class="sd">    2. Shuffle the rows.</span>
+<span class="sd">    3. Shuffle the columns.</span>
+<span class="sd">    4. Apply random row/column replacement operations with coefficient in {-1, 1} so long as the result has</span>
+<span class="sd">       entries that stay in [-bound, bound].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">bound</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">bound</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The bound argument must be a positive integer.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rank can&#39;t be larger than the number of rows or columns&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create matrix with r 1&#39;s on the diagonal with random numbers in</span>
+    <span class="c1"># the range [-1,1] to the right of those 1&#39;s.</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Shuffle the rows</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="c1"># Shuffle the columns</span>
+    <span class="n">idxs</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">]</span>
+    <span class="c1"># random row/column replacement operations</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bound</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="c1"># row replacement, Ri + cRj -&gt; Ri</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">row2</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">bound</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row2</span><span class="p">):</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">row2</span>
+        <span class="c1"># col replacement, Ci + cCj -&gt; Ci</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">bound</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">col2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Generates a random <code>n</code> x <code>m</code> matrix with rank <code>r</code> and entries in the range <code>[-bound, bound]</code>.
+If <code>n == m == r</code>, then the result is unimodular (i.e., has determinant 1) with integer entries.</p>
+
+<p>If <code>m &gt; n</code>, then the row-reduced matrix might not have integers in the free columns.</p>
+
+<p>If <code>r</code> is <code>None</code>, then <code>r = min(n, m)</code> (the maximal rank).</p>
+
+<p>Inspired by the procedure described in:</p>
+
+<blockquote>
+  <p>Jürgen Hausen, "Generating problems in linear algebra."
+  <a href="https://www.researchgate.net/publication/322520524_MapleTech_Volume_1_no_2_-_Fall_1994">MapleTech. Volume 1, Number 2. Fall 1994.</a></p>
+</blockquote>
+
+<p>Roughly:</p>
+
+<ol>
+<li>Create a random matrix with <code>r</code> 1's on the diagonal, with random entries in [-1,1] to the right of these entries.</li>
+<li>Shuffle the rows.</li>
+<li>Shuffle the columns.</li>
+<li>Apply random row/column replacement operations with coefficient in {-1, 1} so long as the result has
+entries that stay in [-bound, bound].</li>
+</ol>
 </div>
 
 
