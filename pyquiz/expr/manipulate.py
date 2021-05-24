@@ -4,6 +4,7 @@ Functions for manipulating expressions.
 
 import itertools
 from .core import *
+from .matrix import matrix
 
 __all__ = [
     "replace",
@@ -169,13 +170,15 @@ def collect_coeffs(x, vars):
     return sort_cs(collect_core(x))
 
 def collect(x, vars=None, *, f=None):
-    """Collect terms of the polynomial `x`.  The `vars` argument is an
-    array of expressions used as the variables, and if it is `None` it
+    """Collect terms of the polynomial `x`.  The `vars` argument is a
+    list of expressions used as the variables, and if it is `None` it
     is the collection of all `var` terms in the expression.  The `f`
     function is applied to each coefficient; `collect` will not
     re-collect after `f` is applied.
 
     If `x` is a list or matrix, `collect` will apply to each element.
+
+    As a convenience, if `vars` is not a list, it will be interpreted as `[vars]`.
 
     If there are symbolic exponents, `collect` might give unexpected
     results since it does not try hard at all to tell when symbolic
@@ -194,13 +197,10 @@ def collect(x, vars=None, *, f=None):
     x = var("x")
     collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)
     ```
-    This uses `expand` to simplify the coefficients.
+    This uses `expand` to simplify the coefficients, and it will use `x` as the variable.
 
     See also: `expand`
     """
-
-    if vars != None and not isinstance(vars, list):
-        raise ValueError("vars argument should be None or a list")
 
     if vars == None:
         # get all variables in the expression
@@ -215,6 +215,9 @@ def collect(x, vars=None, *, f=None):
         var_names = list(set(find_vars(x)))
         var_names.sort()
         vars = [var(name) for name in var_names]
+
+    if not isinstance(vars, list):
+        vars = [vars]
 
     if head(x) == "list":
         return [collect(e, vars=vars, f=f) for e in x]

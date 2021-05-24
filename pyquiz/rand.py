@@ -10,7 +10,8 @@ __all__ = [
     "random", "uniform", "triangular",
     "randint", "randrange", "randint_nonzero", "randrange_nonzero",
     "choice", "sample", "shuffle", "gauss", "normalvariate",
-    "rand_matrix", "rand_diagonal_matrix", "rand_invertible_2x2", "rand_unimodular_2x2"
+    "rand_matrix", "rand_diagonal_matrix", "rand_invertible_2x2", "rand_unimodular_2x2",
+    "rand_matrix_rank"
 ]
 
 def random_gen():
@@ -93,8 +94,9 @@ def sample(seq, k):
     return random_gen().sample(seq, k)
 
 def shuffle(x):
-    """shuffle(x) shuffles the list x in place"""
-    return random_gen().shuffle(x)
+    """shuffle(x) shuffles the list x in-place.  Returns the shuffled list as a convenience."""
+    random_gen().shuffle(x)
+    return x
 
 def gauss(mu=0.0, sigma=1.0):
     """normal distribution with mean mu and standard deviation sigma"""
@@ -161,3 +163,63 @@ def rand_unimodular_2x2(a, b):
         if x * w - y * z == 1:
             return matrix([x, y],
                           [z, w])
+
+def rand_matrix_rank(n, m, r=None, bound=3):
+    """Generates a random `n` x `m` matrix with rank `r` and entries in the range `[-bound, bound]`.
+    If `n == m == r`, then the result is unimodular (i.e., has determinant 1) with integer entries.
+
+    If `m > n`, then the row-reduced matrix might not have integers in the free columns.
+
+    If `r` is `None`, then `r = min(n, m)` (the maximal rank).
+
+    Inspired by the procedure described in:
+    > Jürgen Hausen, "Generating problems in linear algebra."
+    > [MapleTech. Volume 1, Number 2. Fall 1994.](https://www.researchgate.net/publication/322520524_MapleTech_Volume_1_no_2_-_Fall_1994)
+
+    Roughly:
+    1. Create a random matrix with `r` 1's on the diagonal, with random entries in [-1,1] to the right of these entries.
+    2. Shuffle the rows.
+    3. Shuffle the columns.
+    4. Apply random row/column replacement operations with coefficient in {-1, 1} so long as the result has
+       entries that stay in [-bound, bound].
+    """
+
+    if type(bound) != int or bound <= 0:
+        raise ValueError("The bound argument must be a positive integer.")
+
+    if r == None:
+        r = min(n, m)
+
+    if r > min(n, m):
+        raise ValueError("The rank can't be larger than the number of rows or columns")
+
+    # Create matrix with r 1's on the diagonal with random numbers in
+    # the range [-1,1] to the right of those 1's.
+    A = [[0 for i in range(m)] for j in range(n)]
+    for i in range(r):
+        A[i][i] = 1
+        for j in range(i + 1, m):
+            A[i][j] = randint(-1, 1)
+    # Shuffle the rows
+    shuffle(A)
+    # Shuffle the columns
+    idxs = shuffle(list(range(m)))
+    for i in range(n):
+        A[i] = [A[i][j] for j in idxs]
+    # random row/column replacement operations
+    steps = math.ceil(max(n, m) * (math.log(bound, 1.2) + 2))
+    for s in range(steps):
+        # row replacement, Ri + cRj -> Ri
+        i, j = sample(range(n), 2)
+        c = (-1)**randint(0, 1)
+        row2 = [A[i][k] + c*A[j][k] for k in range(m)]
+        if all(abs(e) <= bound for e in row2):
+            A[i] = row2
+        # col replacement, Ci + cCj -> Ci
+        i, j = sample(range(m), 2)
+        c = (-1)**randint(0, 1)
+        col2 = [A[k][i] + c*A[k][j] for k in range(n)]
+        if all(abs(e) <= bound for e in col2):
+            for k in range(n):
+                A[k][i] = col2[k]
+    return matrix(*A)

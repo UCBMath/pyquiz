@@ -7,7 +7,7 @@ Note: this module changes `__str__` of `Fraction` to use `tex` instead.
 from collections import defaultdict
 from fractions import Fraction
 from .core import *
-from pyquiz.expr.matrix import is_vector
+from pyquiz.expr.matrix import is_vector, nrows, vector_entries
 import pyquiz.dynamic
 
 __all__ = [
@@ -15,7 +15,9 @@ __all__ = [
     "tex_vector_as_tuple",
     "tex_deriv_use_primes",
     "tex_deriv_indep_var",
-    "tex_deriv_primes_limit"
+    "tex_deriv_primes_limit",
+    "vector_align",
+    "tex_list"
 ]
 
 DEFAULT_TEX_VECTOR_AS_TUPLE = False
@@ -253,3 +255,25 @@ def tex(e):
 if True:
     # A hack: monkey patch so that the string form of a Fraction is its TeX form
     Fraction.__str__ = lambda self: tex(self)
+
+def vector_align(v, w):
+    """Given vectors `v` and `w` with the same dimensions, return an
+    `align*` environment representing equalities between the entries
+    of the vectors."""
+    if not is_vector(v):
+        raise ValueError("First argument must be a vector")
+    if not is_vector(w):
+        raise ValueError("Second argument must be a vector")
+    if nrows(v) != nrows(w):
+        raise ValueError("The vectors must have the same number of rows")
+    s = r"\begin{align*} "
+    for a, b in zip(vector_entries(v), vector_entries(w)):
+        s += rf"{tex(a)} &= {tex(b)}\\ "
+    s += r"\end{align*}"
+    return s
+
+def tex_list(x):
+    """Gives the tex form of a list as an ordered set (i.e., using curly braces)."""
+    if head(x) != "list":
+        raise ValueError("Expecting list")
+    return "\\left\{" + ",".join(tex(a) for a in x) + "\\right\}"

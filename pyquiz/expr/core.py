@@ -16,6 +16,7 @@ __all__ = [
     "Inapplicable", "downvalue", "evaluate",
     "irange",
     "var", "const",
+    "vars",
     "py_pow"
 ]
 
@@ -435,3 +436,21 @@ def const(name):
     if not isinstance(name, str):
         raise ValueError("Expecting string")
     return expr("const", name)
+
+def vars(name, n):
+    """`vars("x", 3)` returns the list of vars with name "x" indexed by 1,2,3.
+
+    Example:
+    ```python
+    x1, x2, x3 = vars("x", 3)
+    ```
+    is short for
+    ```python
+    x = var("x")
+    x1 = x[1]
+    x2 = x[2]
+    x3 = x[3]
+    ```
+    (though the first example does not define `x`).
+    """
+    return [var(name)[i] for i in irange(n)]

@@ -8,6 +8,7 @@ from .arith import *
 
 __all__ = [
     "vector", "matrix", "is_vector",
+    "vector_of", "vector_entries",
     "nrows", "ncols", "rows", "cols",
     "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
@@ -29,6 +30,10 @@ def matrix(*rows):
         raise ValueError("Not all rows in the matrix have the same length.")
     return Expr("matrix", rows)
 
+def vector_of(x, n):
+    """Example: `vector_of(x, 3)` gives `vector(x[1], x[2], x[3])`."""
+    return vector(*(x[i] for i in irange(n)))
+
 def diagonal_matrix(*entries):
     """`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions."""
     if not entries:
@@ -46,6 +51,15 @@ def identity_matrix(n):
 def is_vector(e):
     """A vector is a matrix whose rows each have one entry."""
     return head(e) == "matrix" and ncols(e) == 1
+
+def vector_entries(e):
+    """Returns a list of the entries of the given vector.
+
+    Relation: `vector(*vector_entries(e)) == e`."""
+
+    if not is_vector(e):
+        raise ValueError("Expecting vector")
+    return [row[0] for row in e.args]
 
 def nrows(e):
     """Gives the number of rows in the matrix."""
