@@ -165,7 +165,7 @@ def factors(a):
 def rule_pow_constants(a, b):
     """Compute powers when numeric constants are present."""
 
-    if a == 0:
+    if b == 0:
         return 1
 
     if b == 1:
