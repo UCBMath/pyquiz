@@ -74,6 +74,7 @@ def q5():
     """)
 
     multiple_choice_answer(True, rf"\({det(A)}\)")
+    #multiple_choice_answer(True, rf"\({expand(det(A))}\)")
     multiple_choice_answer(False, r"\(a_{1,1}a_{2,2}a_{3,3}\)")
 
     end_question()
