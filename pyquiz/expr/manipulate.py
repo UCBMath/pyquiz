@@ -179,6 +179,21 @@ def collect(x, vars=None, *, f=None):
     results since it does not try hard at all to tell when symbolic
     expressions are equivalent.
 
+    Example:
+    ```python
+    x = var("x")
+    y = var("y")
+    collect((x + y)*(x - y), [x, y])
+    ```
+    If you leave off `[x, y]`, then `collect((x + y)*(x - y))` will automatically choose the variable list.
+
+    Example:
+    ```python
+    x = var("x")
+    collect((x - (4+3*I)) * (x - (4-3*I)), f=expand)
+    ```
+    This uses `expand` to simplify the coefficients.
+
     See also: `expand`
     """
 
