@@ -39,6 +39,12 @@
             <li>
                     <a class="function" href="#collect">collect</a>
             </li>
+            <li>
+                    <a class="function" href="#get_coeff">get_coeff</a>
+            </li>
+            <li>
+                    <a class="function" href="#coeff_list">coeff_list</a>
+            </li>
     </ul>
 
 
@@ -69,7 +75,9 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
     <span class="s2">&quot;expand&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;collect&quot;</span>
+    <span class="s2">&quot;collect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_coeff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coeff_list&quot;</span>
 <span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">repls</span><span class="p">):</span>
@@ -287,6 +295,37 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">mon</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">collect_coeffs_rebuild</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="nb">vars</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_coeff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the coefficient in front of `var ** n` in `x`.  Uses the</span>
+<span class="sd">    underlying mechanism for `collect`.&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">var</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">mon</span> <span class="o">==</span> <span class="p">(</span><span class="n">n</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">coeff_list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get a list of coefficients for `x` as a polynomial in `var`.  The</span>
+<span class="sd">    exponents must all be non-negative integers.  Uses the underlying</span>
+<span class="sd">    mechanism for `collect`.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    coeff_list((x + 1)*(x + 2)**3, x)  # [8, 20, 18, 7, 1]</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">var</span><span class="p">]):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">mon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;coeff_list found non-polynomial power&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="n">coeffs</span>
 </pre></div>
 
         </details>
@@ -495,6 +534,82 @@ expressions are equivalent.</p>
 <p>This uses <code><a href="#expand">expand</a></code> to simplify the coefficients.</p>
 
 <p>See also: <code><a href="#expand">expand</a></code></p>
+</div>
+
+
+                </section>
+                <section id="get_coeff">
+                            <div class="attr function"><a class="headerlink" href="#get_coeff">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_coeff</span><span class="signature">(x, var, n)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_coeff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the coefficient in front of `var ** n` in `x`.  Uses the</span>
+<span class="sd">    underlying mechanism for `collect`.&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">var</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">mon</span> <span class="o">==</span> <span class="p">(</span><span class="n">n</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="mi">0</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the coefficient in front of <code>var ** n</code> in <code>x</code>.  Uses the
+underlying mechanism for <code><a href="#collect">collect</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="coeff_list">
+                            <div class="attr function"><a class="headerlink" href="#coeff_list">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">coeff_list</span><span class="signature">(x, var)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">coeff_list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get a list of coefficients for `x` as a polynomial in `var`.  The</span>
+<span class="sd">    exponents must all be non-negative integers.  Uses the underlying</span>
+<span class="sd">    mechanism for `collect`.</span>
+
+<span class="sd">    For example,</span>
+<span class="sd">    ```python</span>
+<span class="sd">    x = var(&quot;x&quot;)</span>
+<span class="sd">    coeff_list((x + 1)*(x + 2)**3, x)  # [8, 20, 18, 7, 1]</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">collect_coeffs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">var</span><span class="p">]):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">mon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;coeff_list found non-polynomial power&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">coeffs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="n">coeffs</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get a list of coefficients for <code>x</code> as a polynomial in <code>var</code>.  The
+exponents must all be non-negative integers.  Uses the underlying
+mechanism for <code><a href="#collect">collect</a></code>.</p>
+
+<p>For example,</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="n">var</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">coeff_list</span><span class="p">((</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>  <span class="c1"># [8, 20, 18, 7, 1]</span>
+</code></pre></div>
 </div>
 
 

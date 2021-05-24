@@ -895,6 +895,8 @@ quizzes can be accessed using <code><a href="#get_loaded_quizzes">get_loaded_qui
     <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The second argument must be a string&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
@@ -1555,6 +1557,8 @@ answers.</li>
     <span class="n">assert_in_question</span><span class="p">(</span><span class="s2">&quot;multiple_choice_question&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first argument must be True or False&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The second argument must be a string&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">process</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">process_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">avoid_para</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">add_answer</span><span class="p">(</span><span class="n">Answer</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
