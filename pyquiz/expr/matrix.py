@@ -12,6 +12,7 @@ __all__ = [
     "nrows", "ncols", "row", "col", "rows", "cols",
     "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
+    "matrix_of",
     "row_reduce", "rank", "nullity",
     "det",
     "norm", "normalize"
@@ -33,6 +34,16 @@ def matrix(*rows):
 def vector_of(x, n):
     """Example: `vector_of(x, 3)` gives `vector(x[1], x[2], x[3])`."""
     return vector(*(x[i] for i in irange(n)))
+
+def matrix_of(x, m, n):
+    """Example; `matrix_of(x, 3, 2)` gives
+    ```python
+    matrix([x[1,1], x[1,2]],
+           [x[2,1], x[2,2]],
+           [x[3,1], x[3,2]])
+    ```
+    """
+    return matrix(*([x[i,j] for j in irange(n)] for i in irange(m)))
 
 def diagonal_matrix(*entries):
     """`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions."""

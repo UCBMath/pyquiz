@@ -79,6 +79,9 @@
                     <a class="function" href="#identity_matrix">identity_matrix</a>
             </li>
             <li>
+                    <a class="function" href="#matrix_of">matrix_of</a>
+            </li>
+            <li>
                     <a class="function" href="#row_reduce">row_reduce</a>
             </li>
             <li>
@@ -130,6 +133,7 @@
     <span class="s2">&quot;nrows&quot;</span><span class="p">,</span> <span class="s2">&quot;ncols&quot;</span><span class="p">,</span> <span class="s2">&quot;row&quot;</span><span class="p">,</span> <span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;cols&quot;</span><span class="p">,</span>
     <span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_rows&quot;</span><span class="p">,</span>
     <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;matrix_of&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
     <span class="s2">&quot;det&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span>
@@ -151,6 +155,16 @@
 <span class="k">def</span> <span class="nf">vector_of</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Example: `vector_of(x, 3)` gives `vector(x[1], x[2], x[3])`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">vector</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">matrix_of</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Example; `matrix_of(x, 3, 2)` gives</span>
+<span class="sd">    ```python</span>
+<span class="sd">    matrix([x[1,1], x[1,2]],</span>
+<span class="sd">           [x[2,1], x[2,2]],</span>
+<span class="sd">           [x[3,1], x[3,2]])</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
 
 <span class="k">def</span> <span class="nf">diagonal_matrix</span><span class="p">(</span><span class="o">*</span><span class="n">entries</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;`diagonal_matrix(a11, a22, ..., ann)` gives an nxn matrix whose diagonal is given by these n expressions.&quot;&quot;&quot;</span>
@@ -1059,6 +1073,39 @@ concatenated.</p>
         </details>
 
             <div class="docstring"><p>Returns the n by n identity matrix.</p>
+</div>
+
+
+                </section>
+                <section id="matrix_of">
+                            <div class="attr function"><a class="headerlink" href="#matrix_of">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">matrix_of</span><span class="signature">(x, m, n)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matrix_of</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Example; `matrix_of(x, 3, 2)` gives</span>
+<span class="sd">    ```python</span>
+<span class="sd">    matrix([x[1,1], x[1,2]],</span>
+<span class="sd">           [x[2,1], x[2,2]],</span>
+<span class="sd">           [x[3,1], x[3,2]])</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Example; <code>matrix_of(x, 3, 2)</code> gives</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">matrix</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span>
+       <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span>
+       <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
+</code></pre></div>
 </div>
 
 
