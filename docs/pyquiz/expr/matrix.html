@@ -52,6 +52,12 @@
                     <a class="function" href="#ncols">ncols</a>
             </li>
             <li>
+                    <a class="function" href="#row">row</a>
+            </li>
+            <li>
+                    <a class="function" href="#col">col</a>
+            </li>
+            <li>
                     <a class="function" href="#rows">rows</a>
             </li>
             <li>
@@ -121,7 +127,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;is_vector&quot;</span><span class="p">,</span>
     <span class="s2">&quot;vector_of&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_entries&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;nrows&quot;</span><span class="p">,</span> <span class="s2">&quot;ncols&quot;</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;cols&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nrows&quot;</span><span class="p">,</span> <span class="s2">&quot;ncols&quot;</span><span class="p">,</span> <span class="s2">&quot;row&quot;</span><span class="p">,</span> <span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;cols&quot;</span><span class="p">,</span>
     <span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_rows&quot;</span><span class="p">,</span>
     <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
@@ -184,6 +190,57 @@
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">row</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`row(e, i)` gives row `i` of matrix `e` as a row vector.  If a</span>
+<span class="sd">    column vector is wanted, use `transpose(row(e, i))`.</span>
+
+<span class="sd">    `row(e, irange(i, j))` gives the submatrix given by rows `i` through `j` of `e`.</span>
+
+<span class="sd">    In general, `row(e, [i,j,k,...])` gives the matrix created from</span>
+<span class="sd">    rows `i,j,k,...` of `e`.  The indices do not have to be in any</span>
+<span class="sd">    specific order, and they may repeat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting int or iterable (for example a list) for second argument&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting the indices to be ints&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">col</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`col(e, i) gives column `i` of matrix `e` as a column vector.</span>
+
+<span class="sd">    `col(e, irange(i, j))` gives the submatrix given by columns `i` through `j` of `e`.</span>
+
+<span class="sd">    In general, `col(e, [i,j,k,...])` gives the matrix created from</span>
+<span class="sd">    columns `i,j,k,...` of `e`.  The indices do not have to be in any</span>
+<span class="sd">    specific order, and they may repeat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting int or iterable (for example a list) for second argument&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting the indices to be ints&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">rows</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a list of the rows of the matrix as column vectors.&quot;&quot;&quot;</span>
@@ -689,6 +746,106 @@
         </details>
 
             <div class="docstring"><p>Gives the number of columns in the matrix.</p>
+</div>
+
+
+                </section>
+                <section id="row">
+                            <div class="attr function"><a class="headerlink" href="#row">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">row</span><span class="signature">(e, i)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">row</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`row(e, i)` gives row `i` of matrix `e` as a row vector.  If a</span>
+<span class="sd">    column vector is wanted, use `transpose(row(e, i))`.</span>
+
+<span class="sd">    `row(e, irange(i, j))` gives the submatrix given by rows `i` through `j` of `e`.</span>
+
+<span class="sd">    In general, `row(e, [i,j,k,...])` gives the matrix created from</span>
+<span class="sd">    rows `i,j,k,...` of `e`.  The indices do not have to be in any</span>
+<span class="sd">    specific order, and they may repeat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting int or iterable (for example a list) for second argument&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting the indices to be ints&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p><code>row(e, i)</code> gives row <code>i</code> of matrix <code>e</code> as a row vector.  If a
+column vector is wanted, use <code>transpose(row(e, i))</code>.</p>
+
+<p><code>row(e, irange(i, j))</code> gives the submatrix given by rows <code>i</code> through <code>j</code> of <code>e</code>.</p>
+
+<p>In general, <code>row(e, [i,j,k,...])</code> gives the matrix created from
+rows <code>i,j,k,...</code> of <code>e</code>.  The indices do not have to be in any
+specific order, and they may repeat.</p>
+</div>
+
+
+                </section>
+                <section id="col">
+                            <div class="attr function"><a class="headerlink" href="#col">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">col</span><span class="signature">(e, i)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">col</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`col(e, i) gives column `i` of matrix `e` as a column vector.</span>
+
+<span class="sd">    `col(e, irange(i, j))` gives the submatrix given by columns `i` through `j` of `e`.</span>
+
+<span class="sd">    In general, `col(e, [i,j,k,...])` gives the matrix created from</span>
+<span class="sd">    columns `i,j,k,...` of `e`.  The indices do not have to be in any</span>
+<span class="sd">    specific order, and they may repeat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting int or iterable (for example a list) for second argument&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting the indices to be ints&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idxs</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p><code>col(e, i) gives column</code>i<code>of matrix</code>e` as a column vector.</p>
+
+<p><code>col(e, irange(i, j))</code> gives the submatrix given by columns <code>i</code> through <code>j</code> of <code>e</code>.</p>
+
+<p>In general, <code>col(e, [i,j,k,...])</code> gives the matrix created from
+columns <code>i,j,k,...</code> of <code>e</code>.  The indices do not have to be in any
+specific order, and they may repeat.</p>
 </div>
 
 
