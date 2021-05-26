@@ -9,7 +9,7 @@ from .arith import *
 __all__ = [
     "vector", "matrix", "is_vector",
     "vector_of", "vector_entries",
-    "nrows", "ncols", "rows", "cols",
+    "nrows", "ncols", "row", "col", "rows", "cols",
     "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
     "row_reduce", "rank", "nullity",
@@ -72,6 +72,57 @@ def ncols(e):
     if head(e) != "matrix":
         raise ValueError("expecting a matrix")
     return len(e.args[0])
+
+def row(e, i):
+    """`row(e, i)` gives row `i` of matrix `e` as a row vector.  If a
+    column vector is wanted, use `transpose(row(e, i))`.
+
+    `row(e, irange(i, j))` gives the submatrix given by rows `i` through `j` of `e`.
+
+    In general, `row(e, [i,j,k,...])` gives the matrix created from
+    rows `i,j,k,...` of `e`.  The indices do not have to be in any
+    specific order, and they may repeat.
+    """
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    if type(i) == int:
+        idxs = [i]
+    else:
+        try:
+            idxs = list(i)
+        except TypeError:
+            raise ValueError("expecting int or iterable (for example a list) for second argument")
+    if not all(type(i) == int for i in idxs):
+        raise ValueError("Expecting the indices to be ints")
+    for i in idxs:
+        if not (1 <= i <= nrows(e)):
+            raise ValueError(f"index {i} is out of bounds")
+    return matrix(*(e.args[i - 1][:] for i in idxs))
+
+def col(e, i):
+    """`col(e, i) gives column `i` of matrix `e` as a column vector.
+
+    `col(e, irange(i, j))` gives the submatrix given by columns `i` through `j` of `e`.
+
+    In general, `col(e, [i,j,k,...])` gives the matrix created from
+    columns `i,j,k,...` of `e`.  The indices do not have to be in any
+    specific order, and they may repeat.
+    """
+    if head(e) != "matrix":
+        raise ValueError("expecting a matrix")
+    if type(i) == int:
+        idxs = [i]
+    else:
+        try:
+            idxs = list(i)
+        except TypeError:
+            raise ValueError("expecting int or iterable (for example a list) for second argument")
+    if not all(type(i) == int for i in idxs):
+        raise ValueError("Expecting the indices to be ints")
+    for i in idxs:
+        if not (1 <= i <= ncols(e)):
+            raise ValueError(f"index {i} is out of bounds")
+    return matrix(*([row[i - 1] for i in idxs] for row in e.args))
 
 def rows(e):
     """Returns a list of the rows of the matrix as column vectors."""
