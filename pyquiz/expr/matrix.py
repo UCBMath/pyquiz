@@ -8,7 +8,7 @@ from .arith import *
 
 __all__ = [
     "vector", "matrix", "is_vector",
-    "vector_of", "vector_entries",
+    "coord_vec", "vector_of", "vector_entries",
     "nrows", "ncols", "row", "col", "rows", "cols",
     "transpose", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
@@ -35,6 +35,21 @@ def matrix(*rows):
 def vector_of(x, n):
     """Example: `vector_of(x, 3)` gives `vector(x[1], x[2], x[3])`."""
     return vector(*(x[i] for i in irange(n)))
+
+def coord_vec(n, i):
+    """`coord_vec(n, i)` gives the `i`th standard basis vector in `R^n`.
+    That is, it gives `vector(0,...,0,1,0,...,0)` with `n` entries and a `1` in position `i`.
+
+    Relation:
+    `matrix_with_cols(coord_vec(n, 1), coord_vec(n, 2), ..., coord_vec(n, n))` is `identity_matrix(n)`.
+    """
+    assert isinstance(n, int)
+    assert isinstance(i, int)
+    if n <= 1:
+        raise ValueError("We require vectors to have at least one entry")
+    if not (1 <= i <= n):
+        raise ValueError("Second argument must be in the range 1 through n")
+    return vector(*(int(i == j) for j in irange(n)))
 
 def matrix_of(x, m, n):
     """Example; `matrix_of(x, 3, 2)` gives
