@@ -375,6 +375,8 @@ def reduce_matrix_inverse(A, n):
         return P
     else:
         d = det(P)
+        if d == 0:
+            raise ValueError("Taking inverse of singular matrix")
         a = adj(P)
         return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
