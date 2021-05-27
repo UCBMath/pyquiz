@@ -68,7 +68,7 @@ def write_footer(fout):
 def write_quiz(fout, quiz):
     fout.write(rf"""<div class="toc"><ul>""")
     for i, q in enumerate(quiz.questions):
-        fout.write(rf"""<li><a href="#q{i}">Question {i} {q.name or ""}</a></li>""")
+        fout.write(rf"""<li><a href="#q{i+1}">Question {i+1} {q.name or ""}</a></li>""")
     fout.write(rf"""</ul></div>""")
     fout.write(rf"""
     <h1>{quiz.title}</h1>
@@ -84,7 +84,7 @@ def write_quiz(fout, quiz):
             fout.write(f"""<tr><th>{k}</th><td>{v}</td></tr>\n""")
         fout.write("</table>\n")
     for i, q in enumerate(quiz.questions):
-        fout.write(f"""<a name="q{i}"></a>""")
+        fout.write(f"""<a name="q{i+1}"></a>""")
         if q.is_group():
             write_group(fout, q, i)
         else:
