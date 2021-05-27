@@ -94,6 +94,9 @@
                     <a class="function" href="#det">det</a>
             </li>
             <li>
+                    <a class="function" href="#minors">minors</a>
+            </li>
+            <li>
                     <a class="function" href="#norm">norm</a>
             </li>
             <li>
@@ -136,6 +139,7 @@
     <span class="s2">&quot;matrix_of&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
     <span class="s2">&quot;det&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;minors&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span>
 <span class="p">]</span>
 
@@ -363,9 +367,30 @@
             <span class="n">submatrix</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
             <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">expand</span><span class="p">(</span><span class="n">submatrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">acc</span>
-
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;det expecting square matrix&quot;</span><span class="p">)</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">expand</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">r</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">minors</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a square matrix, gives a matrix of the same dimensions whose</span>
+<span class="sd">    (i,j) entry is the determinant of the matrix obtained from deleting</span>
+<span class="sd">    row i and column j.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;minors expecting square matrix&quot;</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">submatrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i0</span><span class="p">][</span><span class="n">j0</span><span class="p">]</span> <span class="k">for</span> <span class="n">j0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">j0</span> <span class="o">!=</span> <span class="n">j</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">i0</span> <span class="o">!=</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">det</span><span class="p">(</span><span class="n">submatrix</span><span class="p">))</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">)</span>
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">rule_scalar_multiplication</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -419,7 +444,7 @@
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;adj&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">adj</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the adjugate matrix&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Computes the adjugate matrix.  This is the transpose of the cofactor matrix.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span>
@@ -1309,7 +1334,8 @@ populated with TeX for each rule that was applied.</p>
             <span class="n">submatrix</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
             <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">expand</span><span class="p">(</span><span class="n">submatrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">acc</span>
-
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;det expecting square matrix&quot;</span><span class="p">)</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">expand</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">r</span>
 </pre></div>
@@ -1317,6 +1343,47 @@ populated with TeX for each rule that was applied.</p>
         </details>
 
             <div class="docstring"><p>Computes the determinant of the given matrix</p>
+</div>
+
+
+                </section>
+                <section id="minors">
+                            <div class="attr function"><a class="headerlink" href="#minors">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;minors&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">minors</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">minors</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a square matrix, gives a matrix of the same dimensions whose</span>
+<span class="sd">    (i,j) entry is the determinant of the matrix obtained from deleting</span>
+<span class="sd">    row i and column j.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;minors expecting square matrix&quot;</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">submatrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i0</span><span class="p">][</span><span class="n">j0</span><span class="p">]</span> <span class="k">for</span> <span class="n">j0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">j0</span> <span class="o">!=</span> <span class="n">j</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">i0</span> <span class="o">!=</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">det</span><span class="p">(</span><span class="n">submatrix</span><span class="p">))</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Given a square matrix, gives a matrix of the same dimensions whose
+(i,j) entry is the determinant of the matrix obtained from deleting
+row i and column j.</p>
 </div>
 
 

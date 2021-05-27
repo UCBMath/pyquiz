@@ -15,6 +15,7 @@ __all__ = [
     "matrix_of",
     "row_reduce", "rank", "nullity",
     "det",
+    "minors",
     "norm", "normalize"
 ]
 
@@ -242,9 +243,30 @@ def det(e):
             submatrix = [row[1:] for row in rows[:i] + rows[i+1:]]
             acc += (-1) ** i * rows[i][0] * expand(submatrix)
         return acc
-
+    if nrows(e) != ncols(e):
+        raise ValueError("det expecting square matrix")
     r = expand(e.args)
     return r
+
+@downvalue("minors", def_expr=True)
+def minors(e):
+    """Given a square matrix, gives a matrix of the same dimensions whose
+    (i,j) entry is the determinant of the matrix obtained from deleting
+    row i and column j."""
+    if head(e) != "matrix":
+        raise Inapplicable
+    if nrows(e) != ncols(e):
+        raise ValueError("minors expecting square matrix")
+    n = nrows(e)
+    rows = []
+    for i in range(n):
+        row = []
+        for j in range(n):
+            submatrix = matrix(*([e.args[i0][j0] for j0 in range(n) if j0 != j]
+                                 for i0 in range(n) if i0 != i))
+            row.append(det(submatrix))
+        rows.append(row)
+    return matrix(*rows)
 
 @downvalue("Times")
 def rule_scalar_multiplication(*args):
@@ -298,7 +320,7 @@ def reduce_matmul(A, B):
 
 @downvalue("adj", def_expr=True)
 def adj(e):
-    """Computes the adjugate matrix"""
+    """Computes the adjugate matrix.  This is the transpose of the cofactor matrix."""
     if head(e) != "matrix":
         raise Inapplicable
     rows = e.args
