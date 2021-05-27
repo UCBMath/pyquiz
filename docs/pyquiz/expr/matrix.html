@@ -97,6 +97,9 @@
                     <a class="function" href="#minors">minors</a>
             </li>
             <li>
+                    <a class="function" href="#adj">adj</a>
+            </li>
+            <li>
                     <a class="function" href="#norm">norm</a>
             </li>
             <li>
@@ -139,7 +142,7 @@
     <span class="s2">&quot;matrix_of&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
     <span class="s2">&quot;det&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;minors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="s2">&quot;adj&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span>
 <span class="p">]</span>
 
@@ -1384,6 +1387,40 @@ populated with TeX for each rule that was applied.</p>
             <div class="docstring"><p>Given a square matrix, gives a matrix of the same dimensions whose
 (i,j) entry is the determinant of the matrix obtained from deleting
 row i and column j.</p>
+</div>
+
+
+                </section>
+                <section id="adj">
+                            <div class="attr function"><a class="headerlink" href="#adj">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;adj&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">adj</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;adj&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">adj</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the adjugate matrix.  This is the transpose of the cofactor matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting square matrix&quot;</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">C</span><span class="p">(</span><span class="n">i0</span><span class="p">,</span> <span class="n">j0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;(i,j) cofactor&quot;&quot;&quot;</span>
+        <span class="n">rows2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">v</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">j0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">i0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">det</span><span class="p">(</span><span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">[[(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="n">C</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)])</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Computes the adjugate matrix.  This is the transpose of the cofactor matrix.</p>
 </div>
 
 
