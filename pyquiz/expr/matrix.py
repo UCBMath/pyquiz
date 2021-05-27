@@ -15,7 +15,7 @@ __all__ = [
     "matrix_of",
     "row_reduce", "rank", "nullity",
     "det",
-    "minors",
+    "minors", "adj",
     "norm", "normalize"
 ]
 
