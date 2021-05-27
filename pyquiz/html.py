@@ -50,6 +50,11 @@ def write_header(fout):
             border: 10px solid transparent; content: " "; height: 0; position: absolute; width: 0;
             border-bottom-color: #fff; left: 30px; top: -19px;
           }
+          div.toc {
+            position: fixed; right: 5px; top: 5px;
+            padding: 5px;
+            border: 1px solid #aaa;
+          }
         </style>
       </head>
       <body>
@@ -61,6 +66,10 @@ def write_footer(fout):
     """)
 
 def write_quiz(fout, quiz):
+    fout.write(rf"""<div class="toc"><ul>""")
+    for i, q in enumerate(quiz.questions):
+        fout.write(rf"""<li><a href="#q{i}">Question {i} {q.name or ""}</a></li>""")
+    fout.write(rf"""</ul></div>""")
     fout.write(rf"""
     <h1>{quiz.title}</h1>
     <p>Quiz description: {quiz.description}</p>
@@ -75,6 +84,7 @@ def write_quiz(fout, quiz):
             fout.write(f"""<tr><th>{k}</th><td>{v}</td></tr>\n""")
         fout.write("</table>\n")
     for i, q in enumerate(quiz.questions):
+        fout.write(f"""<a name="q{i}"></a>""")
         if q.is_group():
             write_group(fout, q, i)
         else:
