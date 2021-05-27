@@ -40,6 +40,9 @@
                     <a class="function" href="#is_vector">is_vector</a>
             </li>
             <li>
+                    <a class="function" href="#coord_vec">coord_vec</a>
+            </li>
+            <li>
                     <a class="function" href="#vector_of">vector_of</a>
             </li>
             <li>
@@ -135,7 +138,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;is_vector&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;vector_of&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_entries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_vec&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_of&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_entries&quot;</span><span class="p">,</span>
     <span class="s2">&quot;nrows&quot;</span><span class="p">,</span> <span class="s2">&quot;ncols&quot;</span><span class="p">,</span> <span class="s2">&quot;row&quot;</span><span class="p">,</span> <span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;cols&quot;</span><span class="p">,</span>
     <span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_rows&quot;</span><span class="p">,</span>
     <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span>
@@ -162,6 +165,21 @@
 <span class="k">def</span> <span class="nf">vector_of</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Example: `vector_of(x, 3)` gives `vector(x[1], x[2], x[3])`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">vector</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">coord_vec</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`coord_vec(n, i)` gives the `i`th standard basis vector in `R^n`.</span>
+<span class="sd">    That is, it gives `vector(0,...,0,1,0,...,0)` with `n` entries and a `1` in position `i`.</span>
+
+<span class="sd">    Relation:</span>
+<span class="sd">    `matrix_with_cols(coord_vec(n, 1), coord_vec(n, 2), ..., coord_vec(n, n))` is `identity_matrix(n)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require vectors to have at least one entry&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Second argument must be in the range 1 through n&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vector</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
 
 <span class="k">def</span> <span class="nf">matrix_of</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Example; `matrix_of(x, 3, 2)` gives</span>
@@ -700,6 +718,43 @@
         </details>
 
             <div class="docstring"><p>A vector is a matrix whose rows each have one entry.</p>
+</div>
+
+
+                </section>
+                <section id="coord_vec">
+                            <div class="attr function"><a class="headerlink" href="#coord_vec">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">coord_vec</span><span class="signature">(n, i)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">coord_vec</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;`coord_vec(n, i)` gives the `i`th standard basis vector in `R^n`.</span>
+<span class="sd">    That is, it gives `vector(0,...,0,1,0,...,0)` with `n` entries and a `1` in position `i`.</span>
+
+<span class="sd">    Relation:</span>
+<span class="sd">    `matrix_with_cols(coord_vec(n, 1), coord_vec(n, 2), ..., coord_vec(n, n))` is `identity_matrix(n)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require vectors to have at least one entry&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Second argument must be in the range 1 through n&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vector</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p><code>coord_vec(n, i)</code> gives the <code>i</code>th standard basis vector in <code>R^n</code>.
+That is, it gives <code>vector(0,...,0,1,0,...,0)</code> with <code>n</code> entries and a <code>1</code> in position <code>i</code>.</p>
+
+<p>Relation:
+<code>matrix_with_cols(coord_vec(n, 1), coord_vec(n, 2), ..., coord_vec(n, n))</code> is <code>identity_matrix(n)</code>.</p>
 </div>
 
 
