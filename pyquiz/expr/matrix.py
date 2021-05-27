@@ -363,12 +363,14 @@ def reduce_matrix_inverse(A, n):
         a = adj(P)
         return matrix(*[[frac(v, d) for v in row] for row in a.args])
 
-def row_reduce(e, rref=True, steps_out=None):
+def row_reduce(e, rref=True, steps_out=None, to_col=None):
     """Puts the matrix into row echelon form.
 
     * If `rref=True` then gives the reduced row echelon form.
 
     * If `rref=False` then gives row echelon form.
+
+    * If `to_col` is an integer, then row reduce only for pivots in columns 1 through `to_col`.
 
     Follows the algorithm in Lay.
 
@@ -388,6 +390,15 @@ def row_reduce(e, rref=True, steps_out=None):
 
     rows = len(mat)
     cols = len(mat[0])
+
+    if to_col == None:
+        to_col = cols
+
+    if type(to_col) != int:
+        raise ValueError("to_col should be an int or None")
+
+    to_col = min(cols, to_col) # make sure it's in range
+
     def swap(i, j):
         # R_i <-> R_j
         mat[i], mat[j] = mat[j], mat[i]
@@ -417,7 +428,7 @@ def row_reduce(e, rref=True, steps_out=None):
     last_nz = rows - 1
     while last_nz >= 0 and is_zero(last_nz):
         last_nz -= 1
-    while i < rows and j < cols:
+    while i < rows and j < to_col:
         if is_zero(i):
             if i >= last_nz:
                 break
@@ -440,7 +451,7 @@ def row_reduce(e, rref=True, steps_out=None):
         j += 1
     if rref:
         for i in range(last_nz, -1, -1):
-            for j in range(cols):
+            for j in range(to_col):
                 if mat[i][j] != 0:
                     # in fact, the entry is 1
                     for k in range(i - 1, -1, -1):
