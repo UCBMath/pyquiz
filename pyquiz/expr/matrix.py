@@ -15,6 +15,7 @@ __all__ = [
     "diagonal_matrix", "identity_matrix",
     "matrix_of",
     "row_reduce", "rank", "nullity",
+    "pivots", "col_basis", "null_basis",
     "det",
     "minors", "adj",
     "norm", "normalize"
@@ -539,6 +540,55 @@ def nullity(e):
     if head(e) != "matrix":
         raise Inapplicable
     return ncols(e) - rank(e)
+
+def pivots(A):
+    """Gives a list of pivot positions for the matrix `A`.  A pivot position
+    is a pair (i,j) such that `row_reduce(A)[i,j]` is a leading `1`."""
+    if head(A) != "matrix":
+        raise ValueError("Expecting a matrix")
+    Ared = row_reduce(A)
+    pivs = []
+    for i, row in enumerate(Ared.args):
+        for j, x in enumerate(row):
+            if x != 0:
+                pivs.append((i+1, j+1))
+                break
+    return pivs
+
+def col_basis(A):
+    """Gives a basis for the column space of the matrix `A`.  In particular, returns a list of the
+    pivot columns of `A`.  (Uses `pivots`.)
+
+    Relation: `matrix_with_cols(*col_basis(A))` is the matrix with non-pivot columns removed.
+    It is the matrix of an injective linear transformation with the same column space as `A`."""
+
+    if head(A) != "matrix":
+        raise ValueError("Expecting a matrix")
+    return [col(A, j) for i,j in pivots(A)]
+
+def null_basis(A):
+    """Gives a basis for the null space of the matrix `A`. Follows the standard algorithm.
+
+    Relation: `matrix_with_cols(*null_basis(A))` is the matrix of an injective linear transformation whose
+    image is the null space of `A`."""
+    if head(A) != "matrix":
+        raise ValueError("Expecting a matrix")
+    Ared = row_reduce(A)
+    pivs = pivots(A)
+    pivcols = set(j for i,j in pivs)
+    pivmap = {i:j for i,j in pivs} # map row to col
+    basis = []
+    for j in irange(ncols(A)):
+        if j in pivcols:
+            continue
+        # it's a non-pivot column
+        vec = coord_vec(ncols(A), j)
+        for i in irange(nrows(A)):
+            if i not in pivmap:
+                break
+            vec[pivmap[i]] = -Ared[i,j]
+        basis.append(vec)
+    return basis
 
 @downvalue("norm", def_expr=True)
 def norm(e):
