@@ -7,7 +7,7 @@ Note: this module changes `__str__` of `Fraction` to use `tex` instead.
 from collections import defaultdict
 from fractions import Fraction
 from .core import *
-from pyquiz.expr.matrix import is_vector, nrows, vector_entries
+from pyquiz.expr.matrix import is_vector, nrows, ncols, vector_entries
 import pyquiz.dynamic
 
 __all__ = [
@@ -81,9 +81,10 @@ def TEX_DERIV_PRIMES_LIMIT():
 # precedences:
 # 20 add
 # 30 mul
+# 33 dot
 # 35 slash
 # 40 frac
-# 50 pow
+# 50 pow and transpose
 # 60 subscripts
 
 def parens(par_prec, prec, text):
@@ -198,6 +199,11 @@ def tex_prec(prec, e, small):
             return parens(prec, 30, "".join([tex_prec(30, a, small) for a in e.args]))
         elif e.head == "Pow":
             return parens(prec, 49, tex_prec(50, e.args[0], small) + "^{" + tex_prec(0, e.args[1], True) + "}")
+        elif e.head == "transpose":
+            return parens(prec, 49, tex_prec(50, e.args[0], small) + "^T")
+        elif e.head == "dot":
+            a, b = e.args
+            return parens(prec, 33, tex_prec(33, a, small) + " \\cdot " + tex_prec(33, b, small))
         elif e.head == "Part":
             return parens(prec, 60,
                           tex_prec(60, e.args[0], small) + "_{" + ",".join(tex_prec(0, x, True) for x in e.args[1:]) + "}")
@@ -209,6 +215,59 @@ def tex_prec(prec, e, small):
             return (r"\begin{bmatrix}"
                     + r"\\".join("&".join(tex_prec(0, x, True) for x in row) for row in e.args)
                     + r"\end{bmatrix}")
+        elif e.head == "blockmatrix":
+            # TODO make nicer results for cases we are able.  MathJax doesn't have multicolumn or multirow.
+            # For now, symbolic entries are placed in the row/col that's centered (rounded down) in the block...
+
+            # get number of columns and rows per block.  None if unknown.
+            bncols = [None for _ in e.args[0]]
+            bnrows = [None for _ in e.args]
+            for i, row in enumerate(e.args):
+                for j, b in enumerate(row):
+                    if head(b) == "matrix":
+                        c = ncols(b)
+                        r = nrows(b)
+                        if bncols[j] == None:
+                            bncols[j] = c
+                        elif bncols[j] != c:
+                            raise ValueError(f"Block matrix has inconsistent numbers of columns in block column {j+1}")
+                        if bnrows[i] == None:
+                            bnrows[i] = r
+                        elif bnrows[i] != r:
+                            raise ValueError(f"Block matrix has inconsistent numbers of rows in block row {i+1}")
+            # set unknown dimensions to 1
+            for i, r in enumerate(bnrows):
+                if r == None:
+                    bnrows[i] = 1
+            for j, c in enumerate(bncols):
+                if c == None:
+                    bncols[j] = 1
+            # assemble the entries
+            cols = sum(bncols)
+            rows = sum(bnrows)
+            entries = [["" for j0 in range(cols)] for i0 in range(rows)]
+            hlinerows = set()
+            i0 = 0
+            for i, row in enumerate(e.args):
+                j0 = 0
+                for j, b in enumerate(row):
+                    if head(b) == "matrix":
+                        for i1, brow in enumerate(b.args):
+                            for j1, e in enumerate(brow):
+                                entries[i0 + i1][j0 + j1] = tex_prec(0, e, True)
+                    else:
+                        # try to center it vertically...
+                        i1 = bnrows[i]//2
+                        j1 = bncols[j]//2
+                        entries[i1][j1] = tex_prec(0, b, True)
+                    j0 += bncols[j]
+                if i0 > 0:
+                    hlinerows.add(i0)
+                i0 += bnrows[i]
+            return (r"\left[\begin{array}{" + "|".join("c"*nc for nc in bncols) + r"} "
+                    + r" \\ ".join((r"\hline " if i in hlinerows else "") + " & ".join(row)
+                                   for i, row in enumerate(entries))
+                    + r"\end{array}\right]")
         elif e.head == "Deriv":
             x, spec, constants = e.args
             if TEX_DERIV_USE_PRIMES() and len(spec) == 1 and spec[0][0] == TEX_DERIV_INDEP_VAR():

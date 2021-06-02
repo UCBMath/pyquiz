@@ -10,7 +10,8 @@ __all__ = [
     "vector", "matrix", "is_vector",
     "coord_vec", "vector_of", "vector_entries",
     "nrows", "ncols", "row", "col", "rows", "cols",
-    "transpose", "matrix_with_cols", "matrix_with_rows",
+    "dot", "transpose",
+    "block_matrix", "matrix_with_cols", "matrix_with_rows",
     "diagonal_matrix", "identity_matrix",
     "matrix_of",
     "row_reduce", "rank", "nullity",
@@ -26,7 +27,7 @@ def vector(*elts):
     return Expr("matrix", [[elt] for elt in elts])
 def matrix(*rows):
     """Example: `matrix([1,2],[3,4])` for a matrix with rows `[1,2]` and `[3,4]`."""
-    if len(rows) == 0:
+    if len(rows) == 0 or len(rows[0]) == 0:
         raise ValueError("We require matrices to have at least one row and column.")
     if any(len(row) != len(rows[0]) for row in rows):
         raise ValueError("Not all rows in the matrix have the same length.")
@@ -163,15 +164,79 @@ def cols(e):
         raise ValueError("expecting a matrix")
     return [vector(*col) for col in zip(*e.args)]
 
+@downvalue("transpose", def_expr=True)
 def transpose(e):
     """Returns the transpose of the matrix."""
+    if head(e) != "matrix":
+        raise Inapplicable
     return matrix(*(list(col) for col in zip(*e.args)))
+
+@downvalue("dot", def_expr=True)
+def dot(v, w):
+    """Returns the dot product of two vectors.  The dot product is generalized to accept two `m x n` matrices,
+    returning the sum of products of corresponding entries.
+
+    Relation: `dot(v, w) = (transpose(v) @ w)[1]` for two column vectors `v` and `w` of the same size."""
+
+    if head(v) != "matrix" or head(w) != "matrix":
+        raise Inapplicable
+    if nrows(v) != nrows(w) or ncols(v) != ncols(w):
+        raise ValueError("incompatible vectors or matrices")
+
+    return sum(a * b for ra, rb in zip(v.args, w.args) for a, b in zip(ra, rb))
+
+def block_matrix(*rows):
+    """Like `matrix`, but the entries are matrices that are assembled together into a block matrix.
+
+    Matrices in the same row of the block matrix have to have the same number of rows,
+    and matrices in the same column have to have the same number of columns.
+
+    Entries of the block matrix can be symbolic.  Once every entry of a block matrix is a `matrix`, then
+    the block matrix is converted into a matrix.
+
+    There are limited operations defined for partially evaluated block matrices, and they are mainly
+    implemented for TeX purposes.
+    """
+    if len(rows) == 0 or len(rows[0]) == 0:
+        raise ValueError("We require block matrices to have at least one row and column.")
+    if any(len(row) != len(rows[0]) for row in rows):
+        raise ValueError("Not all rows in the block matrix have the same length.")
+    return evaluate(Expr("blockmatrix", rows))
+
+@downvalue("blockmatrix")
+def rule_block_matrix_build(*rows):
+    """If every entry of the block matrix is a matrix, convert the block matrix to a matrix."""
+    if not all(head(e) == "matrix" for row in rows for e in row):
+        raise Inapplicable
+
+    # check everything is compatible
+    for i, row in enumerate(rows):
+        m = nrows(row[0])
+        if not all(m == nrows(e) for e in row):
+            raise ValueError(f"Not all matrices in row {i+1} of block matrix have same number of rows")
+    for j in range(len(rows[0])):
+        n = ncols(rows[0][j])
+        if not all(n == ncols(row[j]) for row in rows):
+            raise ValueError(f"Not all matrices in column {j+1} of block matrix have same number of columns")
+
+    # Build the matrix row-by-row
+    A = []
+    for blocks in rows:
+        for i in range(nrows(blocks[0])):
+            row = []
+            for block in blocks:
+                row.extend(block.args[i])
+            A.append(row)
+    # use `matrix` (rather than `Expr("matrix", A)` for error detection just in case...
+    return matrix(*A)
 
 def matrix_with_cols(*cols):
     """Returns a matrix with the columns given by the column vectors.
     More generally, accepts matrices all with the same number of rows,
     and produces a block matrix of the matrices horizontally
     concatenated.
+
+    `matrix_with_cols(A, B, C, ...)` is a synonym for `block_matrix([A, B, C, ...])`.
 
     Identity: `A == matrix_with_cols(*cols(A))`
 
@@ -180,40 +245,21 @@ def matrix_with_cols(*cols):
     """
 
     if len(cols) == 0:
-        raise ValueError("Matrices must have at least one column.")
-    if not all(head(c) == "matrix" for c in cols):
-        raise ValueError("Not all the arguments are matrices")
-    m = nrows(cols[0])
-    if not all(m == nrows(c) for c in cols):
-        raise ValueError("Not all the matrices have the same number of rows.")
-
-    rows = []
-    for i in range(m):
-        row = []
-        rows.append(row)
-        for c in cols:
-            row.extend(c.args[i])
-    return Expr("matrix", rows)
+        raise ValueError("Block matrices must have at least one column.")
+    return block_matrix(cols)
 
 def matrix_with_rows(*rows):
     """Returns a matrix with the rows given by the row vectors.  More
     generally, accepts matrices all with the same number of columns,
     and produces a block matrix of the matrices vertically
     concatenated.
+
+    `matrix_with_rows(A, B, C, ...)` is a synonym for `block_matrix([A], [B], [C], ...)`.
     """
 
     if len(rows) == 0:
-        raise ValueError("Matrices must have at least one row.")
-    if not all(head(r) == "matrix" for r in rows):
-        raise ValueError("Not all the arguments are matrices")
-    n = ncols(rows[0])
-    if not all(n == ncols(r) for r in rows):
-        raise ValueError("Not all the matrices have the same number of columns.")
-
-    mrows = []
-    for r in rows:
-        mrows.extend(r.args)
-    return Expr("matrix", mrows)
+        raise ValueError("Block matrices must have at least one row.")
+    return block_matrix(*([row] for row in rows))
 
 @downvalue("Part")
 def rule_part_vector(e, idx):
@@ -498,7 +544,9 @@ def nullity(e):
 def norm(e):
     """Gives the norm of the vector/matrix, the square root of sum of the
     absolute squares of the entries.  For a matrix, this is the
-    Frobenius norm."""
+    Frobenius norm.
+
+    Relation: `norm(e) = sqrt(dot(e, e))` when `e` is a vector or matrix."""
 
     if head(e) != "matrix":
         raise Inapplicable
