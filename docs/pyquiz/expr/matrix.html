@@ -67,7 +67,13 @@
                     <a class="function" href="#cols">cols</a>
             </li>
             <li>
+                    <a class="function" href="#dot">dot</a>
+            </li>
+            <li>
                     <a class="function" href="#transpose">transpose</a>
+            </li>
+            <li>
+                    <a class="function" href="#block_matrix">block_matrix</a>
             </li>
             <li>
                     <a class="function" href="#matrix_with_cols">matrix_with_cols</a>
@@ -92,6 +98,15 @@
             </li>
             <li>
                     <a class="function" href="#nullity">nullity</a>
+            </li>
+            <li>
+                    <a class="function" href="#pivots">pivots</a>
+            </li>
+            <li>
+                    <a class="function" href="#col_basis">col_basis</a>
+            </li>
+            <li>
+                    <a class="function" href="#null_basis">null_basis</a>
             </li>
             <li>
                     <a class="function" href="#det">det</a>
@@ -140,10 +155,12 @@
     <span class="s2">&quot;vector&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;is_vector&quot;</span><span class="p">,</span>
     <span class="s2">&quot;coord_vec&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_of&quot;</span><span class="p">,</span> <span class="s2">&quot;vector_entries&quot;</span><span class="p">,</span>
     <span class="s2">&quot;nrows&quot;</span><span class="p">,</span> <span class="s2">&quot;ncols&quot;</span><span class="p">,</span> <span class="s2">&quot;row&quot;</span><span class="p">,</span> <span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;cols&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_rows&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dot&quot;</span><span class="p">,</span> <span class="s2">&quot;transpose&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;block_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;matrix_with_rows&quot;</span><span class="p">,</span>
     <span class="s2">&quot;diagonal_matrix&quot;</span><span class="p">,</span> <span class="s2">&quot;identity_matrix&quot;</span><span class="p">,</span>
     <span class="s2">&quot;matrix_of&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pivots&quot;</span><span class="p">,</span> <span class="s2">&quot;col_basis&quot;</span><span class="p">,</span> <span class="s2">&quot;null_basis&quot;</span><span class="p">,</span>
     <span class="s2">&quot;det&quot;</span><span class="p">,</span>
     <span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="s2">&quot;adj&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span>
@@ -156,7 +173,7 @@
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Example: `matrix([1,2],[3,4])` for a matrix with rows `[1,2]` and `[3,4]`.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require matrices to have at least one row and column.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in the matrix have the same length.&quot;</span><span class="p">)</span>
@@ -293,15 +310,79 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a matrix&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">vector</span><span class="p">(</span><span class="o">*</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)]</span>
 
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the transpose of the matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;dot&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the dot product of two vectors.  The dot product is generalized to accept two `m x n` matrices,</span>
+<span class="sd">    returning the sum of products of corresponding entries.</span>
+
+<span class="sd">    Relation: `dot(v, w) = (transpose(v) @ w)[1]` for two column vectors `v` and `w` of the same size.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ncols</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;incompatible vectors or matrices&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">for</span> <span class="n">ra</span><span class="p">,</span> <span class="n">rb</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">rb</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">block_matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Like `matrix`, but the entries are matrices that are assembled together into a block matrix.</span>
+
+<span class="sd">    Matrices in the same row of the block matrix have to have the same number of rows,</span>
+<span class="sd">    and matrices in the same column have to have the same number of columns.</span>
+
+<span class="sd">    Entries of the block matrix can be symbolic.  Once every entry of a block matrix is a `matrix`, then</span>
+<span class="sd">    the block matrix is converted into a matrix.</span>
+
+<span class="sd">    There are limited operations defined for partially evaluated block matrices, and they are mainly</span>
+<span class="sd">    implemented for TeX purposes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require block matrices to have at least one row and column.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in the block matrix have the same length.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;blockmatrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">))</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;blockmatrix&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_block_matrix_build</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If every entry of the block matrix is a matrix, convert the block matrix to a matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+
+    <span class="c1"># check everything is compatible</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not all matrices in row </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> of block matrix have same number of rows&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="n">ncols</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not all matrices in column </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> of block matrix have same number of columns&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Build the matrix row-by-row</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">blocks</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">A</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="c1"># use `matrix` (rather than `Expr(&quot;matrix&quot;, A)` for error detection just in case...</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">A</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">matrix_with_cols</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a matrix with the columns given by the column vectors.</span>
 <span class="sd">    More generally, accepts matrices all with the same number of rows,</span>
 <span class="sd">    and produces a block matrix of the matrices horizontally</span>
 <span class="sd">    concatenated.</span>
+
+<span class="sd">    `matrix_with_cols(A, B, C, ...)` is a synonym for `block_matrix([A, B, C, ...])`.</span>
 
 <span class="sd">    Identity: `A == matrix_with_cols(*cols(A))`</span>
 
@@ -310,40 +391,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrices must have at least one column.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the arguments are matrices&quot;</span><span class="p">)</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">nrows</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the matrices have the same number of rows.&quot;</span><span class="p">)</span>
-
-    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Block matrices must have at least one column.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">block_matrix</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">matrix_with_rows</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a matrix with the rows given by the row vectors.  More</span>
 <span class="sd">    generally, accepts matrices all with the same number of columns,</span>
 <span class="sd">    and produces a block matrix of the matrices vertically</span>
 <span class="sd">    concatenated.</span>
+
+<span class="sd">    `matrix_with_rows(A, B, C, ...)` is a synonym for `block_matrix([A], [B], [C], ...)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrices must have at least one row.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the arguments are matrices&quot;</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="n">ncols</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the matrices have the same number of columns.&quot;</span><span class="p">)</span>
-
-    <span class="n">mrows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-        <span class="n">mrows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">mrows</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Block matrices must have at least one row.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">block_matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">))</span>
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Part&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">rule_part_vector</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
@@ -505,6 +567,8 @@
         <span class="k">return</span> <span class="n">P</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Taking inverse of singular matrix&quot;</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">adj</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">[[</span><span class="n">frac</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">])</span>
 
@@ -622,11 +686,62 @@
         <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">return</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">-</span> <span class="n">rank</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a list of pivot positions for the matrix `A`.  A pivot position</span>
+<span class="sd">    is a pair (i,j) such that `row_reduce(A)[i,j]` is a leading `1`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="n">Ared</span> <span class="o">=</span> <span class="n">row_reduce</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ared</span><span class="o">.</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">pivs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">pivs</span>
+
+<span class="k">def</span> <span class="nf">col_basis</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a basis for the column space of the matrix `A`.  In particular, returns a list of the</span>
+<span class="sd">    pivot columns of `A`.  (Uses `pivots`.)</span>
+
+<span class="sd">    Relation: `matrix_with_cols(*col_basis(A))` is the matrix with non-pivot columns removed.</span>
+<span class="sd">    It is the matrix of an injective linear transformation with the same column space as `A`.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">col</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">null_basis</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a basis for the null space of the matrix `A`. Follows the standard algorithm.</span>
+
+<span class="sd">    Relation: `matrix_with_cols(*null_basis(A))` is the matrix of an injective linear transformation whose</span>
+<span class="sd">    image is the null space of `A`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="n">Ared</span> <span class="o">=</span> <span class="n">row_reduce</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivs</span> <span class="o">=</span> <span class="n">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivcols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivs</span><span class="p">)</span>
+    <span class="n">pivmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivs</span><span class="p">}</span> <span class="c1"># map row to col</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">pivcols</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># it&#39;s a non-pivot column</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">coord_vec</span><span class="p">(</span><span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pivmap</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">vec</span><span class="p">[</span><span class="n">pivmap</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Ared</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">basis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">basis</span>
+
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives the norm of the vector/matrix, the square root of sum of the</span>
 <span class="sd">    absolute squares of the entries.  For a matrix, this is the</span>
-<span class="sd">    Frobenius norm.&quot;&quot;&quot;</span>
+<span class="sd">    Frobenius norm.</span>
+
+<span class="sd">    Relation: `norm(e) = sqrt(dot(e, e))` when `e` is a vector or matrix.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
@@ -686,7 +801,7 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Example: `matrix([1,2],[3,4])` for a matrix with rows `[1,2]` and `[3,4]`.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require matrices to have at least one row and column.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in the matrix have the same length.&quot;</span><span class="p">)</span>
@@ -1006,24 +1121,109 @@ specific order, and they may repeat.</p>
 
 
                 </section>
+                <section id="dot">
+                            <div class="attr function"><a class="headerlink" href="#dot">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;dot&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">dot</span><span class="signature">(v, w)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;dot&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the dot product of two vectors.  The dot product is generalized to accept two `m x n` matrices,</span>
+<span class="sd">    returning the sum of products of corresponding entries.</span>
+
+<span class="sd">    Relation: `dot(v, w) = (transpose(v) @ w)[1]` for two column vectors `v` and `w` of the same size.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ncols</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;incompatible vectors or matrices&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">for</span> <span class="n">ra</span><span class="p">,</span> <span class="n">rb</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">rb</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Returns the dot product of two vectors.  The dot product is generalized to accept two <code>m x n</code> matrices,
+returning the sum of products of corresponding entries.</p>
+
+<p>Relation: <code>dot(v, w) = (transpose(v) @ w)[1]</code> for two column vectors <code>v</code> and <code>w</code> of the same size.</p>
+</div>
+
+
+                </section>
                 <section id="transpose">
                             <div class="attr function"><a class="headerlink" href="#transpose">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@downvalue(&#39;transpose&#39;, def_expr=True)</div>
+
             <span class="def">def</span>
             <span class="name">transpose</span><span class="signature">(e)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;transpose&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the transpose of the matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)))</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Returns the transpose of the matrix.</p>
+</div>
+
+
+                </section>
+                <section id="block_matrix">
+                            <div class="attr function"><a class="headerlink" href="#block_matrix">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">block_matrix</span><span class="signature">(*rows)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">block_matrix</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Like `matrix`, but the entries are matrices that are assembled together into a block matrix.</span>
+
+<span class="sd">    Matrices in the same row of the block matrix have to have the same number of rows,</span>
+<span class="sd">    and matrices in the same column have to have the same number of columns.</span>
+
+<span class="sd">    Entries of the block matrix can be symbolic.  Once every entry of a block matrix is a `matrix`, then</span>
+<span class="sd">    the block matrix is converted into a matrix.</span>
+
+<span class="sd">    There are limited operations defined for partially evaluated block matrices, and they are mainly</span>
+<span class="sd">    implemented for TeX purposes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require block matrices to have at least one row and column.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all rows in the block matrix have the same length.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;blockmatrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Like <code><a href="#matrix">matrix</a></code>, but the entries are matrices that are assembled together into a block matrix.</p>
+
+<p>Matrices in the same row of the block matrix have to have the same number of rows,
+and matrices in the same column have to have the same number of columns.</p>
+
+<p>Entries of the block matrix can be symbolic.  Once every entry of a block matrix is a <code><a href="#matrix">matrix</a></code>, then
+the block matrix is converted into a matrix.</p>
+
+<p>There are limited operations defined for partially evaluated block matrices, and they are mainly
+implemented for TeX purposes.</p>
 </div>
 
 
@@ -1044,6 +1244,8 @@ specific order, and they may repeat.</p>
 <span class="sd">    and produces a block matrix of the matrices horizontally</span>
 <span class="sd">    concatenated.</span>
 
+<span class="sd">    `matrix_with_cols(A, B, C, ...)` is a synonym for `block_matrix([A, B, C, ...])`.</span>
+
 <span class="sd">    Identity: `A == matrix_with_cols(*cols(A))`</span>
 
 <span class="sd">    Example: `matrix_with_cols(A, v)` is an augmented matrix.</span>
@@ -1051,20 +1253,8 @@ specific order, and they may repeat.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrices must have at least one column.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the arguments are matrices&quot;</span><span class="p">)</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">nrows</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the matrices have the same number of rows.&quot;</span><span class="p">)</span>
-
-    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Block matrices must have at least one column.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">block_matrix</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1073,6 +1263,8 @@ specific order, and they may repeat.</p>
 More generally, accepts matrices all with the same number of rows,
 and produces a block matrix of the matrices horizontally
 concatenated.</p>
+
+<p><code>matrix_with_cols(A, B, C, ...)</code> is a synonym for <code>block_matrix([A, B, C, ...])</code>.</p>
 
 <p>Identity: <code>A == matrix_with_cols(*cols(A))</code></p>
 
@@ -1096,20 +1288,13 @@ concatenated.</p>
 <span class="sd">    generally, accepts matrices all with the same number of columns,</span>
 <span class="sd">    and produces a block matrix of the matrices vertically</span>
 <span class="sd">    concatenated.</span>
+
+<span class="sd">    `matrix_with_rows(A, B, C, ...)` is a synonym for `block_matrix([A], [B], [C], ...)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrices must have at least one row.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;matrix&quot;</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the arguments are matrices&quot;</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="n">ncols</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all the matrices have the same number of columns.&quot;</span><span class="p">)</span>
-
-    <span class="n">mrows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-        <span class="n">mrows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="n">mrows</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Block matrices must have at least one row.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">block_matrix</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1118,6 +1303,8 @@ concatenated.</p>
 generally, accepts matrices all with the same number of columns,
 and produces a block matrix of the matrices vertically
 concatenated.</p>
+
+<p><code>matrix_with_rows(A, B, C, ...)</code> is a synonym for <code>block_matrix([A], [B], [C], ...)</code>.</p>
 </div>
 
 
@@ -1389,6 +1576,117 @@ populated with TeX for each rule that was applied.</p>
 
 
                 </section>
+                <section id="pivots">
+                            <div class="attr function"><a class="headerlink" href="#pivots">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">pivots</span><span class="signature">(A)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a list of pivot positions for the matrix `A`.  A pivot position</span>
+<span class="sd">    is a pair (i,j) such that `row_reduce(A)[i,j]` is a leading `1`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="n">Ared</span> <span class="o">=</span> <span class="n">row_reduce</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ared</span><span class="o">.</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">pivs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">pivs</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Gives a list of pivot positions for the matrix <code>A</code>.  A pivot position
+is a pair (i,j) such that <code>row_reduce(A)[i,j]</code> is a leading <code>1</code>.</p>
+</div>
+
+
+                </section>
+                <section id="col_basis">
+                            <div class="attr function"><a class="headerlink" href="#col_basis">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">col_basis</span><span class="signature">(A)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">col_basis</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a basis for the column space of the matrix `A`.  In particular, returns a list of the</span>
+<span class="sd">    pivot columns of `A`.  (Uses `pivots`.)</span>
+
+<span class="sd">    Relation: `matrix_with_cols(*col_basis(A))` is the matrix with non-pivot columns removed.</span>
+<span class="sd">    It is the matrix of an injective linear transformation with the same column space as `A`.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">col</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">)]</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Gives a basis for the column space of the matrix <code>A</code>.  In particular, returns a list of the
+pivot columns of <code>A</code>.  (Uses <code><a href="#pivots">pivots</a></code>.)</p>
+
+<p>Relation: <code>matrix_with_cols(*col_basis(A))</code> is the matrix with non-pivot columns removed.
+It is the matrix of an injective linear transformation with the same column space as <code>A</code>.</p>
+</div>
+
+
+                </section>
+                <section id="null_basis">
+                            <div class="attr function"><a class="headerlink" href="#null_basis">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">null_basis</span><span class="signature">(A)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">null_basis</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives a basis for the null space of the matrix `A`. Follows the standard algorithm.</span>
+
+<span class="sd">    Relation: `matrix_with_cols(*null_basis(A))` is the matrix of an injective linear transformation whose</span>
+<span class="sd">    image is the null space of `A`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="n">Ared</span> <span class="o">=</span> <span class="n">row_reduce</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivs</span> <span class="o">=</span> <span class="n">pivots</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">pivcols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivs</span><span class="p">)</span>
+    <span class="n">pivmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">pivs</span><span class="p">}</span> <span class="c1"># map row to col</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">pivcols</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># it&#39;s a non-pivot column</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">coord_vec</span><span class="p">(</span><span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pivmap</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">vec</span><span class="p">[</span><span class="n">pivmap</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Ared</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">basis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">basis</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Gives a basis for the null space of the matrix <code>A</code>. Follows the standard algorithm.</p>
+
+<p>Relation: <code>matrix_with_cols(*null_basis(A))</code> is the matrix of an injective linear transformation whose
+image is the null space of <code>A</code>.</p>
+</div>
+
+
+                </section>
                 <section id="det">
                             <div class="attr function"><a class="headerlink" href="#det">#&nbsp;&nbsp</a>
 
@@ -1518,7 +1816,9 @@ row i and column j.</p>
 <span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gives the norm of the vector/matrix, the square root of sum of the</span>
 <span class="sd">    absolute squares of the entries.  For a matrix, this is the</span>
-<span class="sd">    Frobenius norm.&quot;&quot;&quot;</span>
+<span class="sd">    Frobenius norm.</span>
+
+<span class="sd">    Relation: `norm(e) = sqrt(dot(e, e))` when `e` is a vector or matrix.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
@@ -1535,6 +1835,8 @@ row i and column j.</p>
             <div class="docstring"><p>Gives the norm of the vector/matrix, the square root of sum of the
 absolute squares of the entries.  For a matrix, this is the
 Frobenius norm.</p>
+
+<p>Relation: <code>norm(e) = sqrt(dot(e, e))</code> when <code>e</code> is a vector or matrix.</p>
 </div>
 
 
