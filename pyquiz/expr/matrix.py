@@ -16,7 +16,7 @@ __all__ = [
     "matrix_of",
     "row_reduce", "rank", "nullity",
     "pivots", "col_basis", "null_basis",
-    "det",
+    "det", "tr", "charpoly",
     "minors", "adj",
     "norm", "normalize"
 ]
@@ -292,7 +292,7 @@ def rule_part_matrix(e, idx1, idx2):
 
 @downvalue("det", def_expr=True)
 def det(e):
-    """Computes the determinant of the given matrix"""
+    """Computes the determinant of the given matrix."""
     if head(e) != "matrix":
         raise Inapplicable
     def expand(rows):
@@ -309,6 +309,32 @@ def det(e):
         raise ValueError("det expecting square matrix")
     r = expand(e.args)
     return r
+
+@downvalue("tr", def_expr=True)
+def tr(e):
+    """Computes the trace of the given matrix."""
+    if head(e) != "matrix":
+        raise Inapplicable
+    if nrows(e) != ncols(e):
+        raise ValueError("trace of non-square matrix")
+    return sum(e[i,i] for i in irange(nrows(e)))
+
+def charpoly(A, t=var("t")):
+    """Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.
+    The argument must be a square matrix.
+
+    Applies `collect` to the result if `t` is a variable to put it into a nice form.
+
+    Can specify `t`, which can be any scalar expression."""
+    if head(A) != "matrix":
+        raise ValueError("Expecting a matrix")
+    if nrows(A) != ncols(A):
+        raise ValueError("charpoly of non-square matrix")
+    res = det(t*identity_matrix(nrows(A)) - A)
+    if head(t) == "var":
+        from .manipulate import collect
+        res = collect(res, t)
+    return res
 
 @downvalue("minors", def_expr=True)
 def minors(e):
