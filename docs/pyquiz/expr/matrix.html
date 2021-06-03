@@ -112,6 +112,12 @@
                     <a class="function" href="#det">det</a>
             </li>
             <li>
+                    <a class="function" href="#tr">tr</a>
+            </li>
+            <li>
+                    <a class="function" href="#charpoly">charpoly</a>
+            </li>
+            <li>
                     <a class="function" href="#minors">minors</a>
             </li>
             <li>
@@ -161,7 +167,7 @@
     <span class="s2">&quot;matrix_of&quot;</span><span class="p">,</span>
     <span class="s2">&quot;row_reduce&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;nullity&quot;</span><span class="p">,</span>
     <span class="s2">&quot;pivots&quot;</span><span class="p">,</span> <span class="s2">&quot;col_basis&quot;</span><span class="p">,</span> <span class="s2">&quot;null_basis&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;det&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="s2">&quot;charpoly&quot;</span><span class="p">,</span>
     <span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="s2">&quot;adj&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span>
 <span class="p">]</span>
@@ -437,7 +443,7 @@
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the determinant of the given matrix&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Computes the determinant of the given matrix.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
@@ -454,6 +460,32 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;det expecting square matrix&quot;</span><span class="p">)</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">expand</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">r</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">tr</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the trace of the given matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;trace of non-square matrix&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">charpoly</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.</span>
+<span class="sd">    The argument must be a square matrix.</span>
+
+<span class="sd">    Applies `collect` to the result if `t` is a variable to put it into a nice form.</span>
+
+<span class="sd">    Can specify `t`, which can be any scalar expression.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;charpoly of non-square matrix&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">))</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.manipulate</span> <span class="kn">import</span> <span class="n">collect</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span>
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;minors&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">minors</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
@@ -1700,7 +1732,7 @@ image is the null space of <code>A</code>.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the determinant of the given matrix&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Computes the determinant of the given matrix.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
@@ -1721,7 +1753,75 @@ image is the null space of <code>A</code>.</p>
 
         </details>
 
-            <div class="docstring"><p>Computes the determinant of the given matrix</p>
+            <div class="docstring"><p>Computes the determinant of the given matrix.</p>
+</div>
+
+
+                </section>
+                <section id="tr">
+                            <div class="attr function"><a class="headerlink" href="#tr">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@downvalue(&#39;tr&#39;, def_expr=True)</div>
+
+            <span class="def">def</span>
+            <span class="name">tr</span><span class="signature">(e)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">tr</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the trace of the given matrix.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;trace of non-square matrix&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Computes the trace of the given matrix.</p>
+</div>
+
+
+                </section>
+                <section id="charpoly">
+                            <div class="attr function"><a class="headerlink" href="#charpoly">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">charpoly</span><span class="signature">(A, t=expr(&#39;var&#39;, &#39;t&#39;))</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">charpoly</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.</span>
+<span class="sd">    The argument must be a square matrix.</span>
+
+<span class="sd">    Applies `collect` to the result if `t` is a variable to put it into a nice form.</span>
+
+<span class="sd">    Can specify `t`, which can be any scalar expression.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;charpoly of non-square matrix&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">))</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.manipulate</span> <span class="kn">import</span> <span class="n">collect</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Gives <code>det(t * identity_matrix(nrows(A)) - A)</code>, the characteristic polynomial.
+The argument must be a square matrix.</p>
+
+<p>Applies <code>collect</code> to the result if <code>t</code> is a variable to put it into a nice form.</p>
+
+<p>Can specify <code>t</code>, which can be any scalar expression.</p>
 </div>
 
 
