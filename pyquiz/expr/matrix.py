@@ -18,7 +18,8 @@ __all__ = [
     "pivots", "col_basis", "null_basis",
     "det", "tr", "charpoly",
     "minors", "adj",
-    "norm", "normalize"
+    "norm", "normalize",
+    "cross", "orthog_extend"
 ]
 
 def vector(*elts):
@@ -641,3 +642,41 @@ def normalize(e):
         raise Inapplicable
 
     return matrix_with_cols(*(pow(norm(col), -1) * col for col in cols(e)))
+
+def cross(u, v):
+    """Gives the cross product of two 3D vectors.
+
+    Note: is not a downvalue since this is being used to generate quiz questions; Math 54 does not cover cross products.
+
+    Defining relation: `dot(cross(u, v), w) = det(matrix_with_cols(u, v, w))`
+    """
+    if not is_vector(u) or nrows(u) != 3:
+        raise ValueError("Expecting 3d vector as first argument")
+    if not is_vector(v) or nrows(v) != 3:
+        raise ValueError("Expecting 3d vector as second argument")
+    return vector(u[2]*v[3] - u[3]*v[2],
+                  u[3]*v[1] - u[1]*v[3],
+                  u[1]*v[2] - u[2]*v[1])
+
+def orthog_extend(A):
+    """Given a matrix, add additional columns until they form a spanning set.
+    The additional columns are, by construction, orthogonal to each other and the columns of the original matrix.
+
+    We assume each entry of the matrix is a number, and we do not check whether they are unevaluated expressions.
+
+    The algorithm is to iteratively add a vector from the nullspace of the transpose of `A`.
+    We choose the first vector as returned by `null_basis`.
+
+    If the columns of `A` are linearly independent, then the resulting matrix will be square, and otherwise it will not be.
+    """
+
+    if head(A) != "matrix":
+        raise ValueError("Expecting matrix")
+
+    while True:
+        basis = null_basis(transpose(A))
+        if len(basis) == 0:
+            # We are done
+            return A
+        # otherwise, add one of the nullspace basis vectors as a column.
+        A = matrix_with_cols(A, basis[0])
