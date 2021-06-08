@@ -154,10 +154,19 @@ def tex_prec(prec, e, small):
                     b, exp = a
                 else:
                     b, exp = a, 1
-                if head(exp) == "number" and exp <= 0:
+                if type(b) == Fraction and exp == 1:
+                    p, q = b.as_integer_ratio()
+                    if p < 0:
+                        is_neg = not is_neg
+                        p = -p
+                    if p != 1:
+                        numer.append((p, 1))
+                    if q != 1:
+                        denom.append((q, 1))
+                elif head(exp) == "number" and exp <= 0:
                     denom.append((b, -exp))
                 elif exp == 1 and head(b) == "number" and b < 0:
-                    is_neg = True
+                    is_neg = not is_neg
                     if b != -1:
                         numer.append((-b, exp))
                 else:

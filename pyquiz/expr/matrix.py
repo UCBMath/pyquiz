@@ -12,14 +12,15 @@ __all__ = [
     "nrows", "ncols", "row", "col", "rows", "cols",
     "dot", "transpose",
     "block_matrix", "matrix_with_cols", "matrix_with_rows",
-    "diagonal_matrix", "identity_matrix",
+    "diagonal_matrix", "identity_matrix", "zero_matrix",
     "matrix_of",
     "row_reduce", "rank", "nullity",
     "pivots", "col_basis", "null_basis",
     "det", "tr", "charpoly",
     "minors", "adj",
     "norm", "normalize",
-    "cross", "orthog_extend"
+    "cross", "orthog_extend",
+    "gram_schmidt"
 ]
 
 def vector(*elts):
@@ -77,6 +78,13 @@ def identity_matrix(n):
     if n <= 0:
         raise ValueError("We require matrices to have at least one row and column.")
     return matrix(*[[1 if i == j else 0 for j in range(n)] for i in range(n)])
+
+def zero_matrix(n):
+    """Returns the n by n zero matrix."""
+    assert isinstance(n, int)
+    if n <= 0:
+        raise ValueError("We require matrices to have at least one row and column.")
+    return matrix(*[[0 for j in range(n)] for i in range(n)])
 
 def is_vector(e):
     """A vector is a matrix whose rows each have one entry."""
@@ -680,3 +688,40 @@ def orthog_extend(A):
             return A
         # otherwise, add one of the nullspace basis vectors as a column.
         A = matrix_with_cols(A, basis[0])
+
+def gram_schmidt(A, normalize=True):
+    """Given an `m` x `n` matrix `A` with linearly independent columns, return the pair `(Q,R)` where
+    (1) `Q` is `m` x `n` with orthonormal columns,
+    (2) `R` is `n` x `n` upper triangular with positive entries on the diagonal, and
+    (3) `A = Q@R`.
+
+    If `normalize` is `False`, then `Q` has orthogonal columns.  We defer normalization to the end of the Gram-Schmidt process.
+
+    The process should theoretically work for matrices with symbolic entries.
+    """
+
+    if head(A) != "matrix":
+        raise ValueError("Expecting matrix")
+    if rank(A) != ncols(A):
+        raise ValueError("Expecting matrix with linearly independent columns")
+
+    # orthogonal basis we are constructing. consists of (b, dot(b, b)) pairs.
+    basis = []
+    # R matrix under construction
+    R = zero_matrix(ncols(A))
+
+    for j, v in enumerate(cols(A)):
+        for i, (b, bdotb) in enumerate(basis):
+            r = frac(dot(b, v), bdotb)
+            R[i+1, j+1] = r
+            v = v - r * b
+        R[j+1, j+1] = 1
+        basis.append((v, dot(v, v)))
+
+    if normalize:
+        for i, (b, bdob) in enumerate(basis):
+            basis[i] = (pow(bdob, frac(-1, 2)) * b, 1)
+            for j in range(ncols(R)):
+                R[i+1, j+1] = pow(bdob, frac(1, 2)) * R[i+1, j+1]
+
+    return matrix_with_cols(*(b for b, bdob in basis)), R

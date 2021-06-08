@@ -5,6 +5,7 @@ simplification of linear combinations and monomials.
 from numbers import Number
 from fractions import Fraction
 from .core import *
+from .core import norm_num
 
 __all__ = [
     "sqrt", "exp", "ln", "E", "Pi", "I", "sin", "cos",
@@ -61,7 +62,7 @@ def split_multiplicand(a):
 def rule_times_collect(*args):
     """Collect multiplicands of the product, combining exponents."""
     # collect all powers
-    # terms is a list of (value, exponent) pairs
+    # terms is a list of (exponent, value) pairs
     terms = []
     coeff = 1
     num_matrices = 0
@@ -114,6 +115,70 @@ def rule_times_collect(*args):
             else:
                 fns.append(arg)
         return expr("Times", *nums, *consts, *args, *fns)
+
+@downvalue("Times")
+def rule_times_frac_collect(*args):
+    """Take integers, fractions, and fractional exponents of these, and put them into normal form."""
+
+    numbers = {} # {prime : exponent} where exponent is a Fraction
+    def process(n, e):
+        # add in a n**e factor where n is an int and e is a Fraction
+        for p, m in factors(n):
+            numbers[p] = numbers.get(p, 0) + m*e
+    rest = []
+    is_neg = False
+    for arg in args:
+        if type(arg) in (int, Fraction) and arg != 0:
+            p, q = Fraction(arg).as_integer_ratio()
+            if p < 0:
+                is_neg = not is_neg
+                p = -p
+            process(p, Fraction(1))
+            process(q, -Fraction(1))
+        elif (head(arg) == "Pow"
+              and type(arg.args[0]) in (int, Fraction) and arg.args[0] > 0
+              and type(arg.args[1]) in (int, Fraction)):
+            p, q = Fraction(arg.args[0]).as_integer_ratio()
+            e = Fraction(arg.args[1])
+            process(p, e)
+            process(q, -e)
+        else:
+            rest.append(arg)
+    if len(rest) == len(args):
+        raise Inapplicable
+
+    # get leading fraction, reducing exponents mod denominator
+    leading = Fraction(-1 if is_neg else 1)
+    edenoms = {} # {exponent denom : frac}
+    for p, e in numbers.items():
+        n, d = e.as_integer_ratio()
+        if n < 0:
+            quo = -((-n) // d)
+            rem = -((-n) % d)
+        else:
+            quo = n // d
+            rem = n % d
+        leading *= Fraction(p)**quo
+        edenoms[d] = edenoms.get(d, 1) * Fraction(p)**rem
+
+    nums = []
+    if leading != 1:
+        nums.append(norm_num(leading))
+    for denom in sorted(edenoms.keys()):
+        if edenoms[denom] != 1:
+            n, d = edenoms[denom].as_integer_ratio()
+            if n == 1:
+                nums.append(expr("Pow", d, Fraction(-1, denom)))
+            else:
+                nums.append(expr("Pow", norm_num(edenoms[denom]), Fraction(1, denom)))
+
+    if not rest:
+        if not nums:
+            return 1
+        elif len(nums) == 1:
+            return nums[0]
+
+    return expr("Times", *nums, *rest)
 
 def iroot(a, n):
     """Give the largest integer k such that k**n <= a."""
@@ -179,31 +244,9 @@ def rule_pow_constants(a, b):
     if type(a) in (int, Fraction) and type(b) == int:
         return Fraction(a) ** b
 
-    if type(a) in (int, Fraction) and type(b) == Fraction:
-        ap, aq = Fraction(a).as_integer_ratio()
-        bp, bq = b.as_integer_ratio()
-
-        if bp < 0:
-            bp = -bp
-            ap, aq = aq, ap
-
-        out = Fraction(1)
-        stay = Fraction(1)
-
-        for p, n in factors(ap):
-            out = out * p**(n * bp // bq)
-            stay = stay * p**(n * bp % bq)
-        for p, n in factors(aq):
-            out = out / p**(n * bp // bq)
-            stay = stay / p**(n * bp % bq)
-
-        if stay == 1:
-            return out
-        elif out == 1:
-            # no change
-            raise Inapplicable
-        else:
-            return out * pow(stay, Fraction(1, bq))
+    if type(a) in (int, Fraction) and type(b) in (int, Fraction):
+        # Use the algorithm for Times to reduce
+        return rule_times_frac_collect(expr("Times", expr("Pow", a, b)))
 
     if type(a) == float or type(b) == float:
         return a ** b
