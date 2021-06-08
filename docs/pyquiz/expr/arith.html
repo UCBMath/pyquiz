@@ -91,6 +91,7 @@ simplification of linear combinations and monomials.</p>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">norm_num</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;sqrt&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;ln&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;Pi&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;sin&quot;</span><span class="p">,</span> <span class="s2">&quot;cos&quot;</span><span class="p">,</span>
@@ -147,7 +148,7 @@ simplification of linear combinations and monomials.</p>
 <span class="k">def</span> <span class="nf">rule_times_collect</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Collect multiplicands of the product, combining exponents.&quot;&quot;&quot;</span>
     <span class="c1"># collect all powers</span>
-    <span class="c1"># terms is a list of (value, exponent) pairs</span>
+    <span class="c1"># terms is a list of (exponent, value) pairs</span>
     <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">num_matrices</span> <span class="o">=</span> <span class="mi">0</span>
@@ -200,6 +201,70 @@ simplification of linear combinations and monomials.</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">nums</span><span class="p">,</span> <span class="o">*</span><span class="n">consts</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="n">fns</span><span class="p">)</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rule_times_frac_collect</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Take integers, fractions, and fractional exponents of these, and put them into normal form.&quot;&quot;&quot;</span>
+
+    <span class="n">numbers</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># {prime : exponent} where exponent is a Fraction</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="c1"># add in a n**e factor where n is an int and e is a Fraction</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">numbers</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span><span class="o">*</span><span class="n">e</span>
+    <span class="n">rest</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">is_neg</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)</span> <span class="ow">and</span> <span class="n">arg</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">is_neg</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">is_neg</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+            <span class="n">process</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">process</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Pow&quot;</span>
+              <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)</span> <span class="ow">and</span> <span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)):</span>
+            <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">process</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">process</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="o">-</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rest</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+
+    <span class="c1"># get leading fraction, reducing exponents mod denominator</span>
+    <span class="n">leading</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">is_neg</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">edenoms</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># {exponent denom : frac}</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">numbers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">quo</span> <span class="o">=</span> <span class="o">-</span><span class="p">((</span><span class="o">-</span><span class="n">n</span><span class="p">)</span> <span class="o">//</span> <span class="n">d</span><span class="p">)</span>
+            <span class="n">rem</span> <span class="o">=</span> <span class="o">-</span><span class="p">((</span><span class="o">-</span><span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quo</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">d</span>
+            <span class="n">rem</span> <span class="o">=</span> <span class="n">n</span> <span class="o">%</span> <span class="n">d</span>
+        <span class="n">leading</span> <span class="o">*=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="n">quo</span>
+        <span class="n">edenoms</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">edenoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="n">rem</span>
+
+    <span class="n">nums</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">leading</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">norm_num</span><span class="p">(</span><span class="n">leading</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">denom</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">edenoms</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">edenoms</span><span class="p">[</span><span class="n">denom</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">edenoms</span><span class="p">[</span><span class="n">denom</span><span class="p">]</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">denom</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">norm_num</span><span class="p">(</span><span class="n">edenoms</span><span class="p">[</span><span class="n">denom</span><span class="p">]),</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">denom</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rest</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nums</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">nums</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">iroot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Give the largest integer k such that k**n &lt;= a.&quot;&quot;&quot;</span>
@@ -265,31 +330,9 @@ simplification of linear combinations and monomials.</p>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="n">b</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">:</span>
-        <span class="n">ap</span><span class="p">,</span> <span class="n">aq</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
-        <span class="n">bp</span><span class="p">,</span> <span class="n">bq</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">bp</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">bp</span> <span class="o">=</span> <span class="o">-</span><span class="n">bp</span>
-            <span class="n">ap</span><span class="p">,</span> <span class="n">aq</span> <span class="o">=</span> <span class="n">aq</span><span class="p">,</span> <span class="n">ap</span>
-
-        <span class="n">out</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">stay</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">(</span><span class="n">ap</span><span class="p">):</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">*</span> <span class="n">p</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">bp</span> <span class="o">//</span> <span class="n">bq</span><span class="p">)</span>
-            <span class="n">stay</span> <span class="o">=</span> <span class="n">stay</span> <span class="o">*</span> <span class="n">p</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">bp</span> <span class="o">%</span> <span class="n">bq</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">(</span><span class="n">aq</span><span class="p">):</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">/</span> <span class="n">p</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">bp</span> <span class="o">//</span> <span class="n">bq</span><span class="p">)</span>
-            <span class="n">stay</span> <span class="o">=</span> <span class="n">stay</span> <span class="o">/</span> <span class="n">p</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">bp</span> <span class="o">%</span> <span class="n">bq</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">stay</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">out</span>
-        <span class="k">elif</span> <span class="n">out</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># no change</span>
-            <span class="k">raise</span> <span class="n">Inapplicable</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">out</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">stay</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bq</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">):</span>
+        <span class="c1"># Use the algorithm for Times to reduce</span>
+        <span class="k">return</span> <span class="n">rule_times_frac_collect</span><span class="p">(</span><span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Times&quot;</span><span class="p">,</span> <span class="n">expr</span><span class="p">(</span><span class="s2">&quot;Pow&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="n">b</span>
