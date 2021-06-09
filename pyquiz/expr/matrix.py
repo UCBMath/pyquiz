@@ -424,6 +424,9 @@ def adj(e):
     if len(rows) != len(rows[0]):
         raise ValueError("expecting square matrix")
     n = len(rows)
+    if n == 1:
+        # Special case since we don't allow 0x0 matrices, which C(0, 0) would construct.
+        return matrix([1])
     def C(i0, j0):
         """(i,j) cofactor"""
         rows2 = [[v for j,v in enumerate(row) if j != j0] for i,row in enumerate(rows) if i != i0]

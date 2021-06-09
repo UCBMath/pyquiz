@@ -29,4 +29,18 @@ $$QR = {Q@R}$$
 """)
 end_question()
 
+begin_text_only_question()
+A = matrix_of(var("a"), 2, 2)
+Q,R = gram_schmidt(A, normalize=False)
+text(rf"""
+Given
+$$A = {A}$$
+then $QR$ factorization gives
+\begin{{align*}}
+Q &= {collect(Q, [var("a")[1,1], var("a")[1,2], var("a")[2,1], var("a")[2,2]])} \\
+R &= {R}
+\end{{align*}}
+""")
+end_question()
+
 end_quiz()
