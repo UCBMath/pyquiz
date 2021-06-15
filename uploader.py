@@ -199,8 +199,15 @@ def do_exec_quiz(quiz_filename):
     return pyquiz.get_loaded_quizzes()
 
 def get_html_file(quiz_file):
+    # put it in a folder called "previews" in the same directory
+    head, tail = os.path.split(quiz_file)
+    preview_dir = os.path.join(head, "previews")
+    if not os.path.exists(preview_dir):
+        os.makedirs(preview_dir)
+    f, ext = os.path.splitext(tail) # remove the .py
+    return os.path.join(preview_dir, f + ".html")
     #return quiz_file + ".html"
-    return "preview.qz.py.html"
+    #return "preview.qz.py.html"
 
 def preview_command():
     print("----")
