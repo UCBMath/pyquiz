@@ -100,14 +100,14 @@ def write_group(fout, group, i):
       </div>
       <div class="question_group_body">
     """)
-    for q in group.questions:
-        write_question(fout, q, i, in_group=True)
+    for j, q in enumerate(group.questions):
+        write_question(fout, q, i, in_group=True, variant=j)
     fout.write(rf"""
       </div>
     </div>
     """)
 
-def write_question(fout, q, i, *, in_group=False):
+def write_question(fout, q, i, *, in_group=False, variant=None):
     if in_group or q.points == None:
         points = ""
     elif q.points == 1:
@@ -119,7 +119,7 @@ def write_question(fout, q, i, *, in_group=False):
         fout.write(rf"""
         <div class="question">
           <div class="question_header">
-            <span class="name">{i+1}. {qtype} {q.name or ""}</span>
+            <span class="name">{i+1}. {qtype} {q.name or ""} {f"(variant {variant+1})" if variant != None else ""}</span>
             <span class="points">{points}</span>
           </div>
           <div class="question_body">
