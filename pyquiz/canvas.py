@@ -48,6 +48,7 @@ class CanvasQuizUploader:
         return id
 
     def upload_group(self, group):
+        print(f"Uploading group with {len(group.questions)} questions")
         group_config = {
             'name': group.name,
             'pick_count': group.pick_count,
@@ -58,6 +59,8 @@ class CanvasQuizUploader:
             self.upload_question(q, group_id=cgroup.id)
 
     def upload_question(self, q, *, group_id=None):
+        if group_id == None:
+            print(f"Uploading single question")
         def create_question(question_type, answers=None, options=None):
             question_data = {
                 'question_name': q.name,

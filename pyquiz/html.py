@@ -95,7 +95,7 @@ def write_group(fout, group, i):
     <div class="question_group">
       <div class="question_header">
         <span class="name">Question group {group.name}</span>
-        <span class="points">picking {group.pick_count} {"question" if group.pick_count == 1 else "questions"} for
+        <span class="points">picking {group.pick_count} {"question" if group.pick_count == 1 else "questions"} from {len(group.questions)} for
           {group.points} {"pt" if group.points == 1 else "pts"} each</span>
       </div>
       <div class="question_group_body">
