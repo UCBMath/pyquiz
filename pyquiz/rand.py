@@ -210,16 +210,18 @@ def rand_matrix_rank(n, m, r=None, bound=3):
     steps = math.ceil(max(n, m) * (math.log(bound, 1.2) + 2))
     for s in range(steps):
         # row replacement, Ri + cRj -> Ri
-        i, j = sample(range(n), 2)
-        c = (-1)**randint(0, 1)
-        row2 = [A[i][k] + c*A[j][k] for k in range(m)]
-        if all(abs(e) <= bound for e in row2):
-            A[i] = row2
+        if n >= 2:
+            i, j = sample(range(n), 2)
+            c = (-1)**randint(0, 1)
+            row2 = [A[i][k] + c*A[j][k] for k in range(m)]
+            if all(abs(e) <= bound for e in row2):
+                A[i] = row2
         # col replacement, Ci + cCj -> Ci
-        i, j = sample(range(m), 2)
-        c = (-1)**randint(0, 1)
-        col2 = [A[k][i] + c*A[k][j] for k in range(n)]
-        if all(abs(e) <= bound for e in col2):
-            for k in range(n):
-                A[k][i] = col2[k]
+        if m >= 2:
+            i, j = sample(range(m), 2)
+            c = (-1)**randint(0, 1)
+            col2 = [A[k][i] + c*A[k][j] for k in range(n)]
+            if all(abs(e) <= bound for e in col2):
+                for k in range(n):
+                    A[k][i] = col2[k]
     return matrix(*A)
