@@ -329,7 +329,7 @@ def tr(e):
     return sum(e[i,i] for i in irange(nrows(e)))
 
 def charpoly(A, t=var("t")):
-    """Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.
+    """Gives `det(A - t * identity_matrix(nrows(A)))`, the characteristic polynomial.
     The argument must be a square matrix.
 
     Applies `collect` to the result if `t` is a variable to put it into a nice form.
@@ -339,7 +339,7 @@ def charpoly(A, t=var("t")):
         raise ValueError("Expecting a matrix")
     if nrows(A) != ncols(A):
         raise ValueError("charpoly of non-square matrix")
-    res = det(t*identity_matrix(nrows(A)) - A)
+    res = det(A - t*identity_matrix(nrows(A)))
     if head(t) == "var":
         from .manipulate import collect
         res = collect(res, t)
