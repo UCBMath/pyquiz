@@ -492,7 +492,7 @@
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">irange</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
 
 <span class="k">def</span> <span class="nf">charpoly</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)):</span>
-    <span class="sd">&quot;&quot;&quot;Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.</span>
+    <span class="sd">&quot;&quot;&quot;Gives `det(A - t * identity_matrix(nrows(A)))`, the characteristic polynomial.</span>
 <span class="sd">    The argument must be a square matrix.</span>
 
 <span class="sd">    Applies `collect` to the result if `t` is a variable to put it into a nice form.</span>
@@ -502,7 +502,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;charpoly of non-square matrix&quot;</span><span class="p">)</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">))</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)))</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.manipulate</span> <span class="kn">import</span> <span class="n">collect</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
@@ -587,6 +587,9 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting square matrix&quot;</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Special case since we don&#39;t allow 0x0 matrices, which C(0, 0) would construct.</span>
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">C</span><span class="p">(</span><span class="n">i0</span><span class="p">,</span> <span class="n">j0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;(i,j) cofactor&quot;&quot;&quot;</span>
         <span class="n">rows2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">v</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">j0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">i0</span><span class="p">]</span>
@@ -1918,7 +1921,7 @@ image is the null space of <code>A</code>.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">charpoly</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">var</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">)):</span>
-    <span class="sd">&quot;&quot;&quot;Gives `det(t * identity_matrix(nrows(A)) - A)`, the characteristic polynomial.</span>
+    <span class="sd">&quot;&quot;&quot;Gives `det(A - t * identity_matrix(nrows(A)))`, the characteristic polynomial.</span>
 <span class="sd">    The argument must be a square matrix.</span>
 
 <span class="sd">    Applies `collect` to the result if `t` is a variable to put it into a nice form.</span>
@@ -1928,7 +1931,7 @@ image is the null space of <code>A</code>.</p>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;charpoly of non-square matrix&quot;</span><span class="p">)</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">))</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="n">t</span><span class="o">*</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">nrows</span><span class="p">(</span><span class="n">A</span><span class="p">)))</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.manipulate</span> <span class="kn">import</span> <span class="n">collect</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
@@ -1937,7 +1940,7 @@ image is the null space of <code>A</code>.</p>
 
         </details>
 
-            <div class="docstring"><p>Gives <code>det(t * identity_matrix(nrows(A)) - A)</code>, the characteristic polynomial.
+            <div class="docstring"><p>Gives <code>det(A - t * identity_matrix(nrows(A)))</code>, the characteristic polynomial.
 The argument must be a square matrix.</p>
 
 <p>Applies <code>collect</code> to the result if <code>t</code> is a variable to put it into a nice form.</p>
@@ -2008,6 +2011,9 @@ row i and column j.</p>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting square matrix&quot;</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Special case since we don&#39;t allow 0x0 matrices, which C(0, 0) would construct.</span>
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">C</span><span class="p">(</span><span class="n">i0</span><span class="p">,</span> <span class="n">j0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;(i,j) cofactor&quot;&quot;&quot;</span>
         <span class="n">rows2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">v</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">j0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">i0</span><span class="p">]</span>

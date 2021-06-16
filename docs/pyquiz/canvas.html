@@ -123,6 +123,7 @@
         <span class="k">return</span> <span class="nb">id</span>
 
     <span class="k">def</span> <span class="nf">upload_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading group with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">questions</span><span class="p">)</span><span class="si">}</span><span class="s2"> questions&quot;</span><span class="p">)</span>
         <span class="n">group_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">pick_count</span><span class="p">,</span>
@@ -133,6 +134,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">upload_question</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">cgroup</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading single question&quot;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">create_question</span><span class="p">(</span><span class="n">question_type</span><span class="p">,</span> <span class="n">answers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="n">question_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -301,6 +304,7 @@
         <span class="k">return</span> <span class="nb">id</span>
 
     <span class="k">def</span> <span class="nf">upload_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading group with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">questions</span><span class="p">)</span><span class="si">}</span><span class="s2"> questions&quot;</span><span class="p">)</span>
         <span class="n">group_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">pick_count</span><span class="p">,</span>
@@ -311,6 +315,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">upload_question</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">cgroup</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading single question&quot;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">create_question</span><span class="p">(</span><span class="n">question_type</span><span class="p">,</span> <span class="n">answers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="n">question_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -518,6 +524,7 @@ empty question groups in Canvas if they exist.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">upload_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading group with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">questions</span><span class="p">)</span><span class="si">}</span><span class="s2"> questions&quot;</span><span class="p">)</span>
         <span class="n">group_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;pick_count&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">pick_count</span><span class="p">,</span>
@@ -544,6 +551,8 @@ empty question groups in Canvas if they exist.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">upload_question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading single question&quot;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">create_question</span><span class="p">(</span><span class="n">question_type</span><span class="p">,</span> <span class="n">answers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="n">question_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;question_name&#39;</span><span class="p">:</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
