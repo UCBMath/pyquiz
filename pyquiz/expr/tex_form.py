@@ -268,7 +268,7 @@ def tex_prec(prec, e, small):
                         # try to center it vertically...
                         i1 = bnrows[i]//2
                         j1 = bncols[j]//2
-                        entries[i1][j1] = tex_prec(0, b, True)
+                        entries[i0 + i1][j0 + j1] = tex_prec(0, b, True)
                     j0 += bncols[j]
                 if i0 > 0:
                     hlinerows.add(i0)
