@@ -340,8 +340,14 @@ def vector_align(v, w):
     s += r"\end{align*}"
     return s
 
-def tex_list(x):
-    """Gives the tex form of a list as an ordered set (i.e., using curly braces)."""
+def tex_list(x, braces=True):
+    """Gives the tex form of a list as an ordered set (i.e., using curly braces).
+
+    If `braces` is `False`, then suppress the curly braces."""
     if head(x) != "list":
         raise ValueError("Expecting list")
-    return "\\left\{" + ",".join(tex(a) for a in x) + "\\right\}"
+    s = ",".join(tex(a) for a in x)
+    if braces:
+        return "\\left\{" + s + "\\right\}"
+    else:
+        return s
