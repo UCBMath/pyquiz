@@ -415,11 +415,17 @@
     <span class="n">s</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;\end{align*}&quot;</span>
     <span class="k">return</span> <span class="n">s</span>
 
-<span class="k">def</span> <span class="nf">tex_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gives the tex form of a list as an ordered set (i.e., using curly braces).&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">tex_list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">braces</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives the tex form of a list as an ordered set (i.e., using curly braces).</span>
+
+<span class="sd">    If `braces` is `False`, then suppress the curly braces.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting list&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left\{&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right\}&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">braces</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left\{&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right\}&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
         </details>
@@ -627,21 +633,29 @@ of the vectors.</p>
 
         
             <span class="def">def</span>
-            <span class="name">tex_list</span><span class="signature">(x)</span>:
+            <span class="name">tex_list</span><span class="signature">(x, braces=True)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gives the tex form of a list as an ordered set (i.e., using curly braces).&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tex_list</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">braces</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gives the tex form of a list as an ordered set (i.e., using curly braces).</span>
+
+<span class="sd">    If `braces` is `False`, then suppress the curly braces.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting list&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left\{&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right\}&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">braces</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">left\{&quot;</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">right\}&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Gives the tex form of a list as an ordered set (i.e., using curly braces).</p>
+
+<p>If <code>braces</code> is <code>False</code>, then suppress the curly braces.</p>
 </div>
 
 
