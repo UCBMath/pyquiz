@@ -42,6 +42,7 @@ def load_uploader_state():
 load_uploader_state()
 
 def load_canvas_config():
+    global canvas_config_error
     try:
         config_file = open("canvas_config.json", "r")
     except FileNotFoundError:
@@ -352,6 +353,7 @@ upload_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
 if canvas_config_error != None:
     config_error_msg = tkinter.ttk.Label(master=upload_frame, text=canvas_config_error)
+    config_error_msg.pack()
 else:
     upload_buttons = tkinter.Frame(master=upload_frame)
     upload_buttons.pack(anchor="w")
