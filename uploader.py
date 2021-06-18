@@ -259,6 +259,15 @@ def upload_command():
         if urls:
             uploaded_quizzes.set(urls[0])
 
+    overwrite_published = bool(overwrite_published_val.get())
+    if overwrite_published and not tkinter.messagebox.askyesno(
+            "Overwrite published quiz?",
+            "If the quiz is published, "
+            "students who have already opened or taken the quiz will not see the new version "
+            "you are uploading. "
+            "Are you sure you want to proceed?"):
+        return
+
     import pyquiz.canvas
     print("----")
     if quiz_file == None:
@@ -282,7 +291,7 @@ def upload_command():
 
     ids = []
     for quiz in quizzes:
-        id = uploader.upload_quiz(quiz)
+        id = uploader.upload_quiz(quiz, overwrite_published=overwrite_published)
         print(f"Uploaded quiz {quiz.title!r} with id {id} to {the_canvas_config['name']!r}")
         ids.append(id)
     update_uploaded_quizzes(ids)
@@ -367,6 +376,11 @@ else:
     upload_button.grid(row=0, column=1)
     quiz_list_button = tkinter.ttk.Button(master=upload_buttons, text="Open quiz list", command=quiz_list_command)
     quiz_list_button.grid(row=0, column=2)
+
+    overwrite_published_val = tkinter.IntVar()
+    overwrite_published_checkbox = tkinter.ttk.Checkbutton(master=upload_buttons, text="Upload even if published",
+                                                           variable=overwrite_published_val)
+    overwrite_published_checkbox.grid(row=0, column=3)
 
     uploaded_quizzes = tkinter.ttk.Combobox(master=upload_buttons, state="readonly", value=[])
     uploaded_quizzes.grid(row=1, column=0)

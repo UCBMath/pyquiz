@@ -18,7 +18,7 @@ class CanvasQuizUploader:
         self.canvas = Canvas(api_url, api_key)
         self.course = self.canvas.get_course(course_id)
 
-    def upload_quiz(self, quiz):
+    def upload_quiz(self, quiz, overwrite_published=False):
         """If the `id` is given, then edit the existing quiz (raising an error
         of no such quiz exists), otherwise look up a quiz by that
         title and if one with that title doesn't exist already, create
@@ -27,6 +27,11 @@ class CanvasQuizUploader:
         Warning: question groups will only be deleted if it has at
         least one question in it.  You may need to manually delete
         empty question groups in Canvas if they exist.
+
+        If `overwrite_published` is False, then if the quiz is already
+        published, fail with an error.  Otherwise, it goes ahead and
+        replaces the quiz.  See [this instructor guide](https://community.canvaslms.com/t5/Instructor-Guide/Once-I-publish-a-quiz-how-do-I-make-additional-changes/ta-p/1239)
+        to learn about the consequences of doing this if students already have submissions.
         """
 
         quiz_config = {
@@ -35,7 +40,8 @@ class CanvasQuizUploader:
         }
         quiz_config.update(quiz.options)
 
-        self.quiz = self.create_quiz(quiz.id, quiz.title, quiz_config)
+        self.quiz = self.create_quiz(quiz.id, quiz.title, quiz_config,
+                                     overwrite_published=overwrite_published)
 
         for q in quiz.questions:
             if q.is_group():
@@ -140,7 +146,7 @@ class CanvasQuizUploader:
             raise Exception(f"(internal error) Unknown question type {t}")
 
 
-    def create_quiz(self, id, title, quiz_config):
+    def create_quiz(self, id, title, quiz_config, overwrite_published=False):
         """Find a quiz if it exists and delete questions.  If it doesn't exist, create it."""
 
         quiz = None
@@ -162,7 +168,12 @@ class CanvasQuizUploader:
 
         if quiz:
             if quiz.published:
-                raise Exception(f"The quiz with title {title!r} has already been published.  Unpublish it in Canvas first.")
+                if overwrite_published:
+                    print(f"Warning: the quiz with title {title!r} is already published.")
+                    print("Students who have already started or completed the quiz will not see changes.")
+                    print("Pyquiz will not notify students that the quiz has been modified.")
+                else:
+                    raise Exception(f"The quiz with title {title!r} has already been published.  Unpublish it in Canvas first.")
             print(f"Editing quiz with id {quiz.id} and deleting all existing questions")
             groups = set()
             for question in quiz.get_questions():
