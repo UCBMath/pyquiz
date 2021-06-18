@@ -249,6 +249,16 @@ def platform_open_file(html_file):
         subprocess.call(["xdg-open", html_file])
 
 def upload_command():
+    def update_uploaded_quizzes(ids):
+        urls = []
+        for id in ids:
+            url = urllib.parse.urljoin(the_canvas_config['API_URL'],
+                                       f"courses/{the_canvas_config['COURSE_ID']}/quizzes/{id}")
+            urls.append(url)
+        uploaded_quizzes.configure(value=urls)
+        if urls:
+            uploaded_quizzes.set(urls[0])
+
     import pyquiz.canvas
     print("----")
     if quiz_file == None:
@@ -256,6 +266,9 @@ def upload_command():
         return
 
     quizzes = do_exec_quiz(quiz_file)
+
+    # Update the list with the quizzes we know the ids for, so we can click View
+    update_uploaded_quizzes(quiz.id for quiz in quizzes if quiz.id != None)
 
     if not quizzes:
         print("No quizzes to upload")
@@ -266,15 +279,13 @@ def upload_command():
         api_key=the_canvas_config['API_KEY'],
         course_id=the_canvas_config['COURSE_ID']
     )
-    urls = []
+
+    ids = []
     for quiz in quizzes:
         id = uploader.upload_quiz(quiz)
         print(f"Uploaded quiz {quiz.title!r} with id {id} to {the_canvas_config['name']!r}")
-        url = urllib.parse.urljoin(the_canvas_config['API_URL'],
-                                   f"courses/{the_canvas_config['COURSE_ID']}/quizzes/{id}")
-        urls.append(url)
-    uploaded_quizzes.configure(value=urls)
-    uploaded_quizzes.set(urls[0])
+        ids.append(id)
+    update_uploaded_quizzes(ids)
 
     tkinter.messagebox.showinfo("Success",
                                 "Uploaded the following quizzes: " + ", ".join(q.title for q in quizzes))
