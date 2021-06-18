@@ -93,7 +93,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">api_url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">course</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_course</span><span class="p">(</span><span class="n">course_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -102,6 +102,11 @@
 <span class="sd">        Warning: question groups will only be deleted if it has at</span>
 <span class="sd">        least one question in it.  You may need to manually delete</span>
 <span class="sd">        empty question groups in Canvas if they exist.</span>
+
+<span class="sd">        If `overwrite_published` is False, then if the quiz is already</span>
+<span class="sd">        published, fail with an error.  Otherwise, it goes ahead and</span>
+<span class="sd">        replaces the quiz.  See [this instructor guide](https://community.canvaslms.com/t5/Instructor-Guide/Once-I-publish-a-quiz-how-do-I-make-additional-changes/ta-p/1239)</span>
+<span class="sd">        to learn about the consequences of doing this if students already have submissions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
@@ -110,7 +115,8 @@
         <span class="p">}</span>
         <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span>
+                                     <span class="n">overwrite_published</span><span class="o">=</span><span class="n">overwrite_published</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
@@ -215,7 +221,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(internal error) Unknown question type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find a quiz if it exists and delete questions.  If it doesn&#39;t exist, create it.&quot;&quot;&quot;</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
@@ -237,7 +243,12 @@
 
         <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">overwrite_published</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: the quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> is already published.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Students who have already started or completed the quiz will not see changes.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pyquiz will not notify students that the quiz has been modified.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
@@ -274,7 +285,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">api_url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">course</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_course</span><span class="p">(</span><span class="n">course_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -283,6 +294,11 @@
 <span class="sd">        Warning: question groups will only be deleted if it has at</span>
 <span class="sd">        least one question in it.  You may need to manually delete</span>
 <span class="sd">        empty question groups in Canvas if they exist.</span>
+
+<span class="sd">        If `overwrite_published` is False, then if the quiz is already</span>
+<span class="sd">        published, fail with an error.  Otherwise, it goes ahead and</span>
+<span class="sd">        replaces the quiz.  See [this instructor guide](https://community.canvaslms.com/t5/Instructor-Guide/Once-I-publish-a-quiz-how-do-I-make-additional-changes/ta-p/1239)</span>
+<span class="sd">        to learn about the consequences of doing this if students already have submissions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
@@ -291,7 +307,8 @@
         <span class="p">}</span>
         <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span>
+                                     <span class="n">overwrite_published</span><span class="o">=</span><span class="n">overwrite_published</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
@@ -396,7 +413,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(internal error) Unknown question type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find a quiz if it exists and delete questions.  If it doesn&#39;t exist, create it.&quot;&quot;&quot;</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
@@ -418,7 +435,12 @@
 
         <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">overwrite_published</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: the quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> is already published.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Students who have already started or completed the quiz will not see changes.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pyquiz will not notify students that the quiz has been modified.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
@@ -464,12 +486,12 @@
 
         
             <span class="def">def</span>
-            <span class="name">upload_quiz</span><span class="signature">(self, quiz)</span>:
+            <span class="name">upload_quiz</span><span class="signature">(self, quiz, overwrite_published=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">upload_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quiz</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If the `id` is given, then edit the existing quiz (raising an error</span>
 <span class="sd">        of no such quiz exists), otherwise look up a quiz by that</span>
 <span class="sd">        title and if one with that title doesn&#39;t exist already, create</span>
@@ -478,6 +500,11 @@
 <span class="sd">        Warning: question groups will only be deleted if it has at</span>
 <span class="sd">        least one question in it.  You may need to manually delete</span>
 <span class="sd">        empty question groups in Canvas if they exist.</span>
+
+<span class="sd">        If `overwrite_published` is False, then if the quiz is already</span>
+<span class="sd">        published, fail with an error.  Otherwise, it goes ahead and</span>
+<span class="sd">        replaces the quiz.  See [this instructor guide](https://community.canvaslms.com/t5/Instructor-Guide/Once-I-publish-a-quiz-how-do-I-make-additional-changes/ta-p/1239)</span>
+<span class="sd">        to learn about the consequences of doing this if students already have submissions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">quiz_config</span> <span class="o">=</span> <span class="p">{</span>
@@ -486,7 +513,8 @@
         <span class="p">}</span>
         <span class="n">quiz_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quiz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_quiz</span><span class="p">(</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">quiz</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span>
+                                     <span class="n">overwrite_published</span><span class="o">=</span><span class="n">overwrite_published</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">questions</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">is_group</span><span class="p">():</span>
@@ -509,6 +537,11 @@ one.  All existing questions are deleted.</p>
 <p>Warning: question groups will only be deleted if it has at
 least one question in it.  You may need to manually delete
 empty question groups in Canvas if they exist.</p>
+
+<p>If <code>overwrite_published</code> is False, then if the quiz is already
+published, fail with an error.  Otherwise, it goes ahead and
+replaces the quiz.  See <a href="https://community.canvaslms.com/t5/Instructor-Guide/Once-I-publish-a-quiz-how-do-I-make-additional-changes/ta-p/1239">this instructor guide</a>
+to learn about the consequences of doing this if students already have submissions.</p>
 </div>
 
 
@@ -642,12 +675,12 @@ empty question groups in Canvas if they exist.</p>
 
         
             <span class="def">def</span>
-            <span class="name">create_quiz</span><span class="signature">(self, id, title, quiz_config)</span>:
+            <span class="name">create_quiz</span><span class="signature">(self, id, title, quiz_config, overwrite_published=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">create_quiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">quiz_config</span><span class="p">,</span> <span class="n">overwrite_published</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find a quiz if it exists and delete questions.  If it doesn&#39;t exist, create it.&quot;&quot;&quot;</span>
 
         <span class="n">quiz</span> <span class="o">=</span> <span class="kc">None</span>
@@ -669,7 +702,12 @@ empty question groups in Canvas if they exist.</p>
 
         <span class="k">if</span> <span class="n">quiz</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">quiz</span><span class="o">.</span><span class="n">published</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">overwrite_published</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: the quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> is already published.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Students who have already started or completed the quiz will not see changes.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pyquiz will not notify students that the quiz has been modified.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The quiz with title </span><span class="si">{</span><span class="n">title</span><span class="si">!r}</span><span class="s2"> has already been published.  Unpublish it in Canvas first.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Editing quiz with id </span><span class="si">{</span><span class="n">quiz</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> and deleting all existing questions&quot;</span><span class="p">)</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">quiz</span><span class="o">.</span><span class="n">get_questions</span><span class="p">():</span>
