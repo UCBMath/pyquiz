@@ -15,7 +15,7 @@ __all__ = [
     "diagonal_matrix", "identity_matrix", "zero_matrix",
     "matrix_of",
     "row_reduce", "rank", "nullity",
-    "pivots", "col_basis", "null_basis",
+    "pivots", "col_basis", "null_basis", "linsolve",
     "det", "tr", "charpoly",
     "minors", "adj",
     "norm", "normalize",
@@ -609,7 +609,7 @@ def pivots(A):
     pivs = []
     for i, row in enumerate(Ared.args):
         for j, x in enumerate(row):
-            if x != 0:
+            if x != 0: # pivot, assume equals 1
                 pivs.append((i+1, j+1))
                 break
     return pivs
@@ -648,6 +648,45 @@ def null_basis(A):
             vec[pivmap[i]] = -Ared[i,j]
         basis.append(vec)
     return basis
+
+def linsolve(A, b):
+    """Give a solution to the equation `A@x = b` if one exists, otherwise raises an exception.
+    In particular, it gives the solution from row reducing the augmented matrix for the system.
+
+    This function only gives a particular solution. To get a description of the full solution set
+    when the nullity of the matrix is nonzero, additionally use `null_basis(A)`.
+
+    Example:
+    ```
+    x = linsolve(A, b)
+    assert A@x == b
+
+    # If the nullity is nonzero, generate other random solutions.
+    vs = null_basis(A)
+    assert A @ (x + vs@rand_matrix(len(vs), 1, -5, 5)) == b
+    ```
+
+    Use on matrices and vectors with symbolic entries at your own risk!
+    """
+    if head(A) != "matrix":
+        raise ValueError("Expecting a matrix for the first argument")
+    if not is_vector(b):
+        raise ValueError("Expecting a vector for the second argument")
+    if nrows(A) != nrows(b):
+        raise ValueError("The matrix and vector must have the same number of rows")
+
+    Ared = row_reduce(matrix_with_cols(A, b))
+    if Ared[nrows(Ared), ncols(Ared)] != 0:
+        raise Exception("The system has no solutions")
+
+    # Find pivot positions
+    soln = [0 for i in irange(ncols(A))]
+    for i, row in enumerate(Ared.args):
+        for j, x in enumerate(row):
+            if x != 0: # pivot, assume equals 1
+                soln[j] = Ared[i+1, ncols(Ared)]
+                break
+    return vector(*soln)
 
 @downvalue("norm", def_expr=True)
 def norm(e):
