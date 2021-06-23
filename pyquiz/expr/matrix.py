@@ -400,6 +400,9 @@ def rule_matrix_addition(*args):
 # TODO make this an "expansion" that doesn't apply during evaluation?
 @downvalue("MatTimes")
 def reduce_matmul(A, B):
+    if head(B) == "list":
+        # This is a user error that has happened at least once.  There's no sensible interpretation of this.
+        raise ValueError("Expecting a matrix for the second argument, not a list")
     if head(A) != "matrix" or head(B) != "matrix":
         raise Inapplicable
     if ncols(A) != nrows(B):
@@ -414,6 +417,20 @@ def reduce_matmul(A, B):
                 x += A[i,k] * B[k,j]
             row.append(x)
     return matrix(*C)
+
+@downvalue("MatTimes")
+def reduce_linear_comb(lst, c):
+    """Given a list and a column vector, compute the linear combination."""
+    if head(lst) != "list" or not is_vector(c):
+        raise Inapplicable
+    if len(lst) != nrows(c):
+        raise ValueError("Expecting the list to have the same number of entries as the vector.")
+    # avoid starting with 0
+    # relying on fact vectors have at least one entry
+    res = c[1] * lst[0]
+    for i in range(1, len(lst)):
+        res += c[i+1] * lst[i]
+    return res
 
 @downvalue("adj", def_expr=True)
 def adj(e):
