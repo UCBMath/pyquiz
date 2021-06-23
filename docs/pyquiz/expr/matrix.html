@@ -187,7 +187,11 @@
 <span class="p">]</span>
 
 <span class="k">def</span> <span class="nf">vector</span><span class="p">(</span><span class="o">*</span><span class="n">elts</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Gives a column vector with the given entries.</span>
+
+<span class="sd">    Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`</span>
+
+<span class="sd">    If you want a row vector, use `matrix([1, 2, 3])`.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require vectors to have at least one row.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">])</span>
@@ -563,6 +567,9 @@
 <span class="c1"># TODO make this an &quot;expansion&quot; that doesn&#39;t apply during evaluation?</span>
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;MatTimes&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">reduce_matmul</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+        <span class="c1"># This is a user error that has happened at least once.  There&#39;s no sensible interpretation of this.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting a matrix for the second argument, not a list&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span> <span class="ow">or</span> <span class="n">head</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;matrix&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Inapplicable</span>
     <span class="k">if</span> <span class="n">ncols</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
@@ -577,6 +584,20 @@
                 <span class="n">x</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
             <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="o">*</span><span class="n">C</span><span class="p">)</span>
+
+<span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;MatTimes&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">reduce_linear_comb</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a list and a column vector, compute the linear combination.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">head</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;list&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_vector</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Inapplicable</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nrows</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting the list to have the same number of entries as the vector.&quot;</span><span class="p">)</span>
+    <span class="c1"># avoid starting with 0</span>
+    <span class="c1"># relying on fact vectors have at least one entry</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">res</span>
 
 <span class="nd">@downvalue</span><span class="p">(</span><span class="s2">&quot;adj&quot;</span><span class="p">,</span> <span class="n">def_expr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">adj</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
@@ -907,7 +928,11 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">vector</span><span class="p">(</span><span class="o">*</span><span class="n">elts</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Gives a column vector with the given entries.</span>
+
+<span class="sd">    Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`</span>
+
+<span class="sd">    If you want a row vector, use `matrix([1, 2, 3])`.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;We require vectors to have at least one row.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Expr</span><span class="p">(</span><span class="s2">&quot;matrix&quot;</span><span class="p">,</span> <span class="p">[[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">])</span>
@@ -915,7 +940,11 @@
 
         </details>
 
-            <div class="docstring"><p>Example: <code>vector(1,2,3)</code> returns <code>matrix([1], [2], [3])</code></p>
+            <div class="docstring"><p>Gives a column vector with the given entries.</p>
+
+<p>Example: <code>vector(1,2,3)</code> returns <code>matrix([1], [2], [3])</code></p>
+
+<p>If you want a row vector, use <code>matrix([1, 2, 3])</code>.</p>
 </div>
 
 

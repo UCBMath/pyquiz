@@ -24,7 +24,11 @@ __all__ = [
 ]
 
 def vector(*elts):
-    """Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`"""
+    """Gives a column vector with the given entries.
+
+    Example: `vector(1,2,3)` returns `matrix([1], [2], [3])`
+
+    If you want a row vector, use `matrix([1, 2, 3])`."""
     if len(elts) == 0:
         raise ValueError("We require vectors to have at least one row.")
     return Expr("matrix", [[elt] for elt in elts])
