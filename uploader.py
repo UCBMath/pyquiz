@@ -266,6 +266,7 @@ def upload_command():
             "If the quiz is published, "
             "students who have already opened or taken the quiz will not see the new version "
             "you are uploading. "
+            "You will also need to click \"Save it now\" in Canvas to have the changes apply. "
             "Are you sure you want to proceed?"):
         return
 
