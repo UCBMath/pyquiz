@@ -657,7 +657,7 @@ def linsolve(A, b):
     when the nullity of the matrix is nonzero, additionally use `null_basis(A)`.
 
     Example:
-    ```
+    ```python
     x = linsolve(A, b)
     assert A@x == b
 
