@@ -823,7 +823,7 @@
 <span class="sd">    when the nullity of the matrix is nonzero, additionally use `null_basis(A)`.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">    ```</span>
+<span class="sd">    ```python</span>
 <span class="sd">    x = linsolve(A, b)</span>
 <span class="sd">    assert A@x == b</span>
 
@@ -1932,7 +1932,7 @@ image is the null space of <code>A</code>.</p>
 <span class="sd">    when the nullity of the matrix is nonzero, additionally use `null_basis(A)`.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">    ```</span>
+<span class="sd">    ```python</span>
 <span class="sd">    x = linsolve(A, b)</span>
 <span class="sd">    assert A@x == b</span>
 
@@ -1974,13 +1974,13 @@ when the nullity of the matrix is nonzero, additionally use <code>null_basis(A)<
 
 <p>Example:</p>
 
-<pre><code>x = linsolve(A, b)
-assert A@x == b
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="n">linsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">A</span><span class="nd">@x</span> <span class="o">==</span> <span class="n">b</span>
 
-# If the nullity is nonzero, generate other random solutions.
-vs = null_basis(A)
-assert A @ (x + vs@rand_matrix(len(vs), 1, -5, 5)) == b
-</code></pre>
+<span class="c1"># If the nullity is nonzero, generate other random solutions.</span>
+<span class="n">vs</span> <span class="o">=</span> <span class="n">null_basis</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">A</span> <span class="o">@</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">vs</span><span class="nd">@rand_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="o">==</span> <span class="n">b</span>
+</code></pre></div>
 
 <p>Use on matrices and vectors with symbolic entries at your own risk!</p>
 </div>
