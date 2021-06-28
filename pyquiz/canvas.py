@@ -170,7 +170,6 @@ class CanvasQuizUploader:
             if quiz.published:
                 if overwrite_published:
                     print(f"Warning: the quiz with title {title!r} is already published.")
-                    print("Students who have already started or completed the quiz will not see changes.")
                     print("Pyquiz will not notify students that the quiz has been modified.")
                     print("Changes will not apply until you click \"Save it now\" in Canvas!")
                 else:

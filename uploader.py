@@ -263,10 +263,7 @@ def upload_command():
     overwrite_published = bool(overwrite_published_val.get())
     if overwrite_published and not tkinter.messagebox.askyesno(
             "Overwrite published quiz?",
-            "If the quiz is published, "
-            "students who have already opened or taken the quiz will not see the new version "
-            "you are uploading. "
-            "You will also need to click \"Save it now\" in Canvas to have the changes apply. "
+            "If the quiz is published, you will also need to click \"Save it now\" in Canvas to have the changes apply. "
             "Are you sure you want to proceed?"):
         return
 
