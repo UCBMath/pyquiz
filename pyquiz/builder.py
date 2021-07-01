@@ -475,6 +475,8 @@ def add_question(question):
     """(private internal) Add the question to the current thing that accepts
     questions: the question group or the quiz itself."""
     global QUESTION
+    if QUESTION:
+        raise Exception("Currently in a question. Make sure to end_question() first.")
     if QUESTION_GROUP:
         QUESTION_GROUP.questions.append(question)
     else:
