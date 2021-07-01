@@ -744,6 +744,8 @@ def end_question(*, shuffle_answers=False):
     """
     global QUESTION
     assert_in_question(True)
+    if not QUESTION.text:
+        raise Exception("Question has no text!")
     if shuffle_answers:
         if not QUESTION.answers:
             raise Exception("No answers to shuffle.")
