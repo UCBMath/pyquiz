@@ -84,12 +84,6 @@ class CanvasQuizUploader:
             if q.comment_incorrect:
                 question_data['incorrect_comments_html'] = q.comment_incorrect
 
-            # TODO: remove this when Canvas is fixed.
-            # It is a workaround for an error in Canvas (as of deployment week of 2021/05/14)
-            # that causes an internal error when the answers list is a list!
-            if 'answers' in question_data:
-                question_data['answers'] = dict(enumerate(question_data['answers']))
-
             if False:
                 print("creating question ")
                 import pprint
