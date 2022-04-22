@@ -533,7 +533,7 @@ def row_reduce(e, rref=True, steps_out=None, to_col=None):
             mat[i][k] *= c
         if steps_out != None:
             Ri = var(f"R_{i+1}")
-            steps_out.append(rf"{c * Ri} \rightarrow {Ri}")
+            steps_out.append(rf"{Ri} \rightarrow {c * Ri}")
     def replace(i, j, c):
         # R_i + c * R_j -> R_i
         for k in range(cols):
@@ -541,7 +541,7 @@ def row_reduce(e, rref=True, steps_out=None, to_col=None):
         if steps_out != None:
             Ri = var(f"R_{i+1}")
             Rj = var(f"R_{j+1}")
-            steps_out.append(rf"{Ri + c * Rj} \rightarrow {Ri}")
+            steps_out.append(rf"{Ri} \rightarrow {Ri + c * Rj}")
     def is_zero(i):
         # whether row i is a zero row
         return all(mat[i][k] == 0 for k in range(cols))
