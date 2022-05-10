@@ -523,25 +523,25 @@ def row_reduce(e, rref=True, steps_out=None, to_col=None):
     to_col = min(cols, to_col) # make sure it's in range
 
     def swap(i, j):
-        # R_i <-> R_j
+        # R_i <~~> R_j
         mat[i], mat[j] = mat[j], mat[i]
         if steps_out != None:
-            steps_out.append(rf"R_{i+1} \leftrightarrow R_{j+1}")
+            steps_out.append(rf"R_{i+1} \leftrightsquigarrow R_{j+1}")
     def scale(i, c):
-        # c * R_i -> R_i
+        # R_i ~~> c * R_i
         for k in range(cols):
             mat[i][k] *= c
         if steps_out != None:
             Ri = var(f"R_{i+1}")
-            steps_out.append(rf"{Ri} \rightarrow {c * Ri}")
+            steps_out.append(rf"{Ri} \rightsquigarrow {c * Ri}")
     def replace(i, j, c):
-        # R_i + c * R_j -> R_i
+        # R_i ~~> R_i + c * R_j
         for k in range(cols):
             mat[i][k] += c * mat[j][k]
         if steps_out != None:
             Ri = var(f"R_{i+1}")
             Rj = var(f"R_{j+1}")
-            steps_out.append(rf"{Ri} \rightarrow {Ri + c * Rj}")
+            steps_out.append(rf"{Ri} \rightsquigarrow {Ri + c * Rj}")
     def is_zero(i):
         # whether row i is a zero row
         return all(mat[i][k] == 0 for k in range(cols))
