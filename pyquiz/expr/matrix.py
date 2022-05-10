@@ -294,9 +294,9 @@ def rule_part_matrix(e, idx1, idx2):
     if head(e) != "matrix" or isinstance(idx1, Expr) or isinstance(idx2, Expr):
         raise Inapplicable
     if type(idx1) != int:
-        raise ValueError(f"Expecting integer for first index, not {idx}")
+        raise ValueError(f"Expecting integer for first index, not {idx1}")
     if type(idx2) != int:
-        raise ValueError(f"Expecting integer for second index, not {idx}")
+        raise ValueError(f"Expecting integer for second index, not {idx2}")
     if not (1 <= idx1 <= nrows(e)):
         raise ValueError(f"First index {idx1} is out of bounds for matrix with {nrows(e)} rows.")
     if not (1 <= idx2 <= ncols(e)):
@@ -523,25 +523,25 @@ def row_reduce(e, rref=True, steps_out=None, to_col=None):
     to_col = min(cols, to_col) # make sure it's in range
 
     def swap(i, j):
-        # R_i <-> R_j
+        # R_i <~~> R_j
         mat[i], mat[j] = mat[j], mat[i]
         if steps_out != None:
-            steps_out.append(rf"R_{i+1} \leftrightarrow R_{j+1}")
+            steps_out.append(rf"R_{i+1} \leftrightsquigarrow R_{j+1}")
     def scale(i, c):
-        # c * R_i -> R_i
+        # R_i ~~> c * R_i
         for k in range(cols):
             mat[i][k] *= c
         if steps_out != None:
             Ri = var(f"R_{i+1}")
-            steps_out.append(rf"{c * Ri} \rightarrow {Ri}")
+            steps_out.append(rf"{Ri} \rightsquigarrow {c * Ri}")
     def replace(i, j, c):
-        # R_i + c * R_j -> R_i
+        # R_i ~~> R_i + c * R_j
         for k in range(cols):
             mat[i][k] += c * mat[j][k]
         if steps_out != None:
             Ri = var(f"R_{i+1}")
             Rj = var(f"R_{j+1}")
-            steps_out.append(rf"{Ri + c * Rj} \rightarrow {Ri}")
+            steps_out.append(rf"{Ri} \rightsquigarrow {Ri + c * Rj}")
     def is_zero(i):
         # whether row i is a zero row
         return all(mat[i][k] == 0 for k in range(cols))
