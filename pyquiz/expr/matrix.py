@@ -294,9 +294,9 @@ def rule_part_matrix(e, idx1, idx2):
     if head(e) != "matrix" or isinstance(idx1, Expr) or isinstance(idx2, Expr):
         raise Inapplicable
     if type(idx1) != int:
-        raise ValueError(f"Expecting integer for first index, not {idx}")
+        raise ValueError(f"Expecting integer for first index, not {idx1}")
     if type(idx2) != int:
-        raise ValueError(f"Expecting integer for second index, not {idx}")
+        raise ValueError(f"Expecting integer for second index, not {idx2}")
     if not (1 <= idx1 <= nrows(e)):
         raise ValueError(f"First index {idx1} is out of bounds for matrix with {nrows(e)} rows.")
     if not (1 <= idx2 <= ncols(e)):
