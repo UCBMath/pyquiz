@@ -8,9 +8,10 @@ is designed for with an eye toward
 The way in which quiz questions are authored is somewhat inspired by
 WeBWorK.
 
-Pyquiz has been used for a variety of classes at UC Berkeley, including
-* the 2021-2023 summer sessions of Math 54 and
-* the 2022 summer session of PHILOS W12A.
+Pyquiz has been used for a variety of courses, including
+* the 2021-2023 summer sessions of Math 54 at UC Berkeley,
+* the 2022 summer session of PHILOS W12A at UC Berkeley, and
+* the 2022 Winter and Spring offerings of Math 110 and Math 116 at UC Santa Cruz.
 
 ## Learning
 
